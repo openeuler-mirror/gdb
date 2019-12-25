@@ -1,6 +1,6 @@
 Name: gdb
 Version: 8.2
-Release: 5
+Release: 6
 
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ and GPLv2+ with exceptions and GPL+ and LGPLv2+ and LGPLv3+ and BSD and Public Domain and GFDL
 Source: ftp://sourceware.org/pub/gdb/releases/gdb-%{version}.tar.xz
@@ -8,6 +8,7 @@ URL: http://gnu.org/software/gdb/
 
 %global gdb_src gdb-%{version}
 %global gdb_build build-%{_target_platform}
+%global __python %{__python3}
 
 %undefine _debuginfo_subpackages
 
@@ -428,6 +429,12 @@ rm -f $RPM_BUILD_ROOT%{_datadir}/gdb/python/gdb/command/backtrace.py
 %{_infodir}/gdb.info*
 
 %changelog
+* Tue Dec 24 2019 yuxiangyang<yuxiangyang4@huawei.com> - 8.2-6
+- Type:bugfix
+- ID:NA
+- SUG:NA
+- DESC: Modify the requirement about python2/3 when compilation rpm.
+
 * Thu Dec 19 2019 yeyunfeng<yeyunfeng@huawei.com> - 8.2-5
 - Type:cves
 - ID:CVE-2017-9778
