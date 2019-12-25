@@ -1,6 +1,6 @@
 Name: gdb
 Version: 8.2
-Release: 4
+Release: 5
 
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ and GPLv2+ with exceptions and GPL+ and LGPLv2+ and LGPLv3+ and BSD and Public Domain and GFDL
 Source: ftp://sourceware.org/pub/gdb/releases/gdb-%{version}.tar.xz
@@ -178,6 +178,8 @@ Patch131: gdb-rhbz1187581-power8-regs-7of7.patch
 Patch132: gdb-rhbz1491128-batch-mode-exit-status-1of2.patch
 Patch133: gdb-rhbz1491128-batch-mode-exit-status-2of2.patch
 Patch134: gdb-use-pulongest-aarch64-linux-tdep.patch
+
+Patch6000: gdb-Detect-invalid-length-field-in-debug-frame-FDE-header.patch
 
 BuildRequires: rpm-libs
 BuildRequires: readline-devel >= 6.2-4
@@ -426,5 +428,11 @@ rm -f $RPM_BUILD_ROOT%{_datadir}/gdb/python/gdb/command/backtrace.py
 %{_infodir}/gdb.info*
 
 %changelog
+* Thu Dec 19 2019 yeyunfeng<yeyunfeng@huawei.com> - 8.2-5
+- Type:cves
+- ID:CVE-2017-9778
+- SUG:NA
+- DESC: fix CVE-2017-9778
+
 * Wed Sep 11 2019 openEuler Buildteam <buildteam@openeuler.org> - 8.2-4
 - Package init
