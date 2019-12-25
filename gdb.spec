@@ -180,7 +180,7 @@ Patch132: gdb-rhbz1491128-batch-mode-exit-status-1of2.patch
 Patch133: gdb-rhbz1491128-batch-mode-exit-status-2of2.patch
 Patch134: gdb-use-pulongest-aarch64-linux-tdep.patch
 
-Patch6000: gdb-Detect-invalid-length-field-in-debug-frame-FDE-header.patch
+#Patch6000: gdb-Detect-invalid-length-field-in-debug-frame-FDE-header.patch
 
 BuildRequires: rpm-libs
 BuildRequires: readline-devel >= 6.2-4
