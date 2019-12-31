@@ -1,12 +1,3 @@
-From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
-From: Andrew Cagney <cagney@gnu.org>
-Date: Fri, 27 Oct 2017 21:07:50 +0200
-Subject: gdb-6.3-ppc64displaysymbol-20041124.patch
-
-;; Include the pc's section when doing a symbol lookup so that the
-;; correct symbol is found.
-;;=push: Write new testcase.
-
 2004-11-24  Andrew Cagney  <cagney@gnu.org>
 
 	* printcmd.c (build_address_symbolic): Find a section for the
