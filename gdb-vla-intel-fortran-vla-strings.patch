@@ -1,3 +1,10 @@
+From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
+From: Fedora GDB patches <invalid@email.com>
+Date: Fri, 27 Oct 2017 21:07:50 +0200
+Subject: gdb-vla-intel-fortran-vla-strings.patch
+
+;;=push
+
 git diff --stat -p gdb/master...gdb/users/bheckel/fortran-vla-strings
 0ad7d8d1a3a36c6e04e3b6d37d8825f18d595723
 
@@ -6,10 +13,22 @@ git diff --stat -p gdb/master...gdb/users/bheckel/fortran-vla-strings
  gdb/dwarf2read.c                          | 158 +++++++++++++++++++++++++-----
  gdb/f-typeprint.c                         |  93 +++++++++---------
  gdb/gdbtypes.c                            |  44 ++++++++-
+ gdb/testsuite/gdb.cp/vla-cxx.cc           |   9 ++
+ gdb/testsuite/gdb.cp/vla-cxx.exp          |   9 ++
+ gdb/testsuite/gdb.fortran/pointers.exp    | 143 +++++++++++++++++++++++++++
+ gdb/testsuite/gdb.fortran/pointers.f90    | 109 +++++++++++++++++++++
+ gdb/testsuite/gdb.fortran/print_type.exp  | 100 +++++++++++++++++++
+ gdb/testsuite/gdb.fortran/vla-ptype.exp   |  12 +--
+ gdb/testsuite/gdb.fortran/vla-strings.exp | 103 +++++++++++++++++++
+ gdb/testsuite/gdb.fortran/vla-strings.f90 |  39 ++++++++
+ gdb/testsuite/gdb.fortran/vla-type.exp    |   7 +-
+ gdb/testsuite/gdb.fortran/vla-value.exp   |  12 ++-
+ gdb/testsuite/gdb.mi/mi-var-child-f.exp   |   7 +-
+ gdb/testsuite/gdb.mi/mi-vla-fortran.exp   |  27 ++---
  gdb/typeprint.c                           |  19 ++++
  gdb/valops.c                              |  16 ++-
  gdb/valprint.c                            |   6 --
- 8 files changed, 827 insertions(+), 110 deletions(-)
+ 20 files changed, 827 insertions(+), 110 deletions(-)
 
 diff --git a/gdb/NEWS b/gdb/NEWS
 --- a/gdb/NEWS
@@ -568,6 +587,693 @@ diff --git a/gdb/gdbtypes.c b/gdb/gdbtypes.c
  	  resolved_type = resolve_dynamic_array (type, addr_stack);
  	  break;
  
+diff --git a/gdb/testsuite/gdb.cp/vla-cxx.cc b/gdb/testsuite/gdb.cp/vla-cxx.cc
+--- a/gdb/testsuite/gdb.cp/vla-cxx.cc
++++ b/gdb/testsuite/gdb.cp/vla-cxx.cc
+@@ -15,6 +15,10 @@
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+ 
++extern "C" {
++#include <stddef.h>
++}
++
+ struct container;
+ 
+ struct element
+@@ -40,11 +44,16 @@ int main(int argc, char **argv)
+   typedef typeof (vla) &vlareftypedef;
+   vlareftypedef vlaref2 (vla);
+   container c;
++  typeof (vla) *ptr = NULL;
++
++  // Before pointer assignment
++  ptr = &vla;
+ 
+   for (int i = 0; i < z; ++i)
+     vla[i] = 5 + 2 * i;
+ 
+   // vlas_filled
+   vla[0] = 2 * vla[0];
++
+   return vla[2];
+ }
+diff --git a/gdb/testsuite/gdb.cp/vla-cxx.exp b/gdb/testsuite/gdb.cp/vla-cxx.exp
+--- a/gdb/testsuite/gdb.cp/vla-cxx.exp
++++ b/gdb/testsuite/gdb.cp/vla-cxx.exp
+@@ -23,6 +23,12 @@ if ![runto_main] {
+     return -1
+ }
+ 
++gdb_breakpoint [gdb_get_line_number "Before pointer assignment"]
++gdb_continue_to_breakpoint "Before pointer assignment"
++gdb_test "ptype ptr" "int \\(\\*\\)\\\[variable length\\\]" "ptype ptr, Before pointer assignment"
++gdb_test "print ptr" "\\(int \\(\\*\\)\\\[variable length\\\]\\) 0x0" "print ptr, Before pointer assignment"
++gdb_test "print *ptr" "Cannot access memory at address 0x0" "print *ptr, Before pointer assignment"
++
+ gdb_breakpoint [gdb_get_line_number "vlas_filled"]
+ gdb_continue_to_breakpoint "vlas_filled"
+ 
+@@ -33,3 +39,6 @@ gdb_test "print vlaref" " = \\(int \\(&\\)\\\[3\\\]\\) @$hex: \\{5, 7, 9\\}"
+ # bug being tested, it's better not to depend on the exact spelling.
+ gdb_test "print vlaref2" " = \\(.*\\) @$hex: \\{5, 7, 9\\}"
+ gdb_test "print c" " = \\{e = \\{c = @$hex\\}\\}"
++gdb_test "ptype ptr" "int \\(\\*\\)\\\[3\\\]"
++gdb_test "print ptr" "\\(int \\(\\*\\)\\\[3\\\]\\) $hex"
++gdb_test "print *ptr" " = \\{5, 7, 9\\}"
+diff --git a/gdb/testsuite/gdb.fortran/pointers.exp b/gdb/testsuite/gdb.fortran/pointers.exp
+new file mode 100644
+--- /dev/null
++++ b/gdb/testsuite/gdb.fortran/pointers.exp
+@@ -0,0 +1,143 @@
++# Copyright 2016 Free Software Foundation, Inc.
++
++# This program is free software; you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation; either version 3 of the License, or
++# (at your option) any later version.
++#
++# This program is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++#
++# You should have received a copy of the GNU General Public License
++# along with this program.  If not, see <http://www.gnu.org/licenses/>.
++
++standard_testfile "pointers.f90"
++load_lib fortran.exp
++
++if { [prepare_for_testing ${testfile}.exp ${testfile} ${srcfile} \
++    {debug f90 quiet}] } {
++    return -1
++}
++
++if ![runto_main] {
++    untested "could not run to main"
++    return -1
++}
++
++# Depending on the compiler being used, the type names can be printed differently.
++set logical [fortran_logical4]
++set real [fortran_real4]
++set int [fortran_int4]
++set complex [fortran_complex4]
++
++
++gdb_breakpoint [gdb_get_line_number "Before pointer assignment"]
++gdb_continue_to_breakpoint "Before pointer assignment"
++gdb_test "print logp" "= \\(PTR TO -> \\( $logical \\)\\) 0x0" "print logp, not associated"
++gdb_test "print *logp" "Cannot access memory at address 0x0" "print *logp, not associated"
++gdb_test "print comp" "= \\(PTR TO -> \\( $complex \\)\\) 0x0" "print comp, not associated"
++gdb_test "print *comp" "Cannot access memory at address 0x0" "print *comp, not associated"
++gdb_test "print charp" "= \\(PTR TO -> \\( character\\*1 \\)\\) 0x0" "print charp, not associated"
++gdb_test "print *charp" "Cannot access memory at address 0x0" "print *charp, not associated"
++gdb_test "print charap" "= \\(PTR TO -> \\( character\\*3 \\)\\) 0x0" "print charap, not associated"
++gdb_test "print *charap" "Cannot access memory at address 0x0" "print *charap, not associated"
++gdb_test "print intp" "= \\(PTR TO -> \\( $int \\)\\) 0x0" "print intp, not associated"
++gdb_test "print *intp" "Cannot access memory at address 0x0" "print *intp, not associated"
++set test "print intap, not associated"
++gdb_test_multiple "print intap" $test {
++  -re " = \\(PTR TO -> \\( $int \\(:,:\\)\\)\\) <not associated>\r\n$gdb_prompt $" {
++    pass $test
++  }
++  -re " = <not associated>\r\n$gdb_prompt $" {
++    pass $test
++  }
++}
++gdb_test "print realp" "= \\(PTR TO -> \\( $real \\)\\) 0x0" "print realp, not associated"
++gdb_test "print *realp" "Cannot access memory at address 0x0" "print *realp, not associated"
++gdb_test "print \$my_var = intp" "= \\(PTR TO -> \\( $int \\)\\) 0x0"
++set test "print cyclicp1, not associated"
++gdb_test_multiple "print cyclicp1" $test {
++  -re "= \\( i = -?\\d+, p = 0x0 \\)\r\n$gdb_prompt $" {
++    pass $test
++  }
++  -re "= \\( i = -?\\d+, p = <not associated> \\)\r\n$gdb_prompt $" {
++    pass $test
++  }
++}
++set test "print cyclicp1%p, not associated"
++gdb_test_multiple "print cyclicp1%p" $test {
++  -re "= \\(PTR TO -> \\( Type typewithpointer \\)\\) 0x0\r\n$gdb_prompt $" {
++    pass $test
++  }
++  -re "= \\(PTR TO -> \\( Type typewithpointer \\)\\) <not associated>\r\n$gdb_prompt $" {
++    pass $test
++  }
++}
++
++
++gdb_breakpoint [gdb_get_line_number "Before value assignment"]
++gdb_continue_to_breakpoint "Before value assignment"
++gdb_test "print *(twop)%ivla2" "= <not allocated>"
++
++
++gdb_breakpoint [gdb_get_line_number "After value assignment"]
++gdb_continue_to_breakpoint "After value assignment"
++gdb_test "print logp" "= \\(PTR TO -> \\( $logical \\)\\) $hex\( <.*>\)?"
++gdb_test "print *logp" "= \\.TRUE\\."
++gdb_test "print comp" "= \\(PTR TO -> \\( $complex \\)\\) $hex\( <.*>\)?"
++gdb_test "print *comp" "= \\(1,2\\)"
++gdb_test "print charp" "= \\(PTR TO -> \\( character\\*1 \\)\\) $hex\( <.*>\)?"
++gdb_test "print *charp" "= 'a'"
++gdb_test "print charap" "= \\(PTR TO -> \\( character\\*3 \\)\\) $hex\( <.*>\)?"
++gdb_test "print *charap" "= 'abc'"
++gdb_test "print intp" "= \\(PTR TO -> \\( $int \\)\\) $hex\( <.*>\)?"
++gdb_test "print *intp" "= 10"
++set test_name "print intap, associated"
++gdb_test_multiple "print intap" $test_name {
++  -re "= \\(\\( 1, 1, 3(, 1){7}\\) \\( 1(, 1){9}\\) \\)\r\n$gdb_prompt $" {
++    pass $test_name
++  }
++  -re "= \\(PTR TO -> \\( $int \\(10,2\\)\\)\\) $hex\( <.*>\)?\r\n$gdb_prompt $" {
++    gdb_test "print *intap" "= \\(\\( 1, 1, 3(, 1){7}\\) \\( 1(, 1){9}\\) \\)"
++    pass $test_name
++  }
++}
++set test_name "print intvlap, associated"
++gdb_test_multiple "print intvlap" $test_name {
++  -re "= \\(2, 2, 2, 4(, 2){6}\\)\r\n$gdb_prompt $" {
++    pass $test_name
++  }
++  -re "= \\(PTR TO -> \\( $int \\(10\\)\\)\\) $hex\( <.*>\)?\r\n$gdb_prompt $" {
++    gdb_test "print *intvlap" "= \\(2, 2, 2, 4(, 2){6}\\)"
++    pass $test_name
++  }
++}
++gdb_test "print realp" "= \\(PTR TO -> \\( $real \\)\\) $hex\( <.*>\)?"
++gdb_test "print *realp" "= 3\\.14000\\d+"
++gdb_test "print arrayOfPtr(2)%p" "= \\(PTR TO -> \\( Type two \\)\\) $hex\( <.*>\)?"
++gdb_test "print *(arrayOfPtr(2)%p)" "= \\( ivla1 = \\(11, 12, 13\\), ivla2 = \\(\\( 211, 221\\) \\( 212, 222\\) \\) \\)"
++set test_name "print arrayOfPtr(3)%p"
++gdb_test_multiple $test_name $test_name {
++  -re "= \\(PTR TO -> \\( Type two \\)\\) <not associated>\r\n$gdb_prompt $" {
++    pass $test_name
++  }
++  -re "= \\(PTR TO -> \\( Type two \\)\\) 0x0\r\n$gdb_prompt $" {
++    pass $test_name
++  }
++}
++set test_name "print *(arrayOfPtr(3)%p), associated"
++gdb_test_multiple "print *(arrayOfPtr(3)%p)" $test_name {
++  -re "Cannot access memory at address 0x0\r\n$gdb_prompt $" {
++    pass $test_name
++  }
++  -re "Attempt to take contents of a not associated pointer.\r\n$gdb_prompt $" {
++    pass $test_name
++  }
++}
++gdb_test "print cyclicp1" "= \\( i = 1, p = $hex\( <.*>\)? \\)"
++gdb_test "print cyclicp1%p" "= \\(PTR TO -> \\( Type typewithpointer \\)\\) $hex\( <.*>\)?"
++gdb_test "print *((integer*) &inta + 2)" "= 3" "print temporary pointer, array"
++gdb_test "print *((integer*) &intvla + 3)" "= 4" "print temporary pointer, allocated vla"
++gdb_test "print \$pc" "= \\(PTR TO -> \\( void \\(\\)\\(\\)\\)\\) $hex <pointers\\+\\d+>" "Print program counter"
+diff --git a/gdb/testsuite/gdb.fortran/pointers.f90 b/gdb/testsuite/gdb.fortran/pointers.f90
+new file mode 100644
+--- /dev/null
++++ b/gdb/testsuite/gdb.fortran/pointers.f90
+@@ -0,0 +1,109 @@
++! Copyright 2016 Free Software Foundation, Inc.
++!
++! This program is free software; you can redistribute it and/or modify
++! it under the terms of the GNU General Public License as published by
++! the Free Software Foundation; either version 3 of the License, or
++! (at your option) any later version.
++!
++! This program is distributed in the hope that it will be useful,
++! but WITHOUT ANY WARRANTY; without even the implied warranty of
++! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++! GNU General Public License for more details.
++!
++! You should have received a copy of the GNU General Public License
++! along with this program.  If not, see <http://www.gnu.org/licenses/>.
++
++program pointers
++
++  type :: two
++    integer, allocatable :: ivla1 (:)
++    integer, allocatable :: ivla2 (:, :)
++  end type two
++
++  type :: typeWithPointer
++    integer i
++    type(typeWithPointer), pointer:: p
++  end type typeWithPointer
++
++  type :: twoPtr
++    type (two), pointer :: p
++  end type twoPtr
++
++  logical, target :: logv
++  complex, target :: comv
++  character, target :: charv
++  character (len=3), target :: chara
++  integer, target :: intv
++  integer, target, dimension (10,2) :: inta
++  integer, target, allocatable, dimension (:) :: intvla
++  real, target    :: realv
++  type(two), target  :: twov
++  type(twoPtr) :: arrayOfPtr (3)
++  type(typeWithPointer), target:: cyclicp1,cyclicp2
++
++  logical, pointer :: logp
++  complex, pointer :: comp
++  character, pointer:: charp
++  character (len=3), pointer:: charap
++  integer, pointer :: intp
++  integer, pointer, dimension (:,:) :: intap
++  integer, pointer, dimension (:) :: intvlap
++  real, pointer :: realp
++  type(two), pointer :: twop
++
++  nullify (logp)
++  nullify (comp)
++  nullify (charp)
++  nullify (charap)
++  nullify (intp)
++  nullify (intap)
++  nullify (intvlap)
++  nullify (realp)
++  nullify (twop)
++  nullify (arrayOfPtr(1)%p)
++  nullify (arrayOfPtr(2)%p)
++  nullify (arrayOfPtr(3)%p)
++  nullify (cyclicp1%p)
++  nullify (cyclicp2%p)
++
++  logp => logv    ! Before pointer assignment
++  comp => comv
++  charp => charv
++  charap => chara
++  intp => intv
++  intap => inta
++  intvlap => intvla
++  realp => realv
++  twop => twov
++  arrayOfPtr(2)%p => twov
++  cyclicp1%i = 1
++  cyclicp1%p => cyclicp2
++  cyclicp2%i = 2
++  cyclicp2%p => cyclicp1
++
++  logv = associated(logp)     ! Before value assignment
++  comv = cmplx(1,2)
++  charv = "a"
++  chara = "abc"
++  intv = 10
++  inta(:,:) = 1
++  inta(3,1) = 3
++  allocate (intvla(10))
++  intvla(:) = 2
++  intvla(4) = 4
++  intvlap => intvla
++  realv = 3.14
++
++  allocate (twov%ivla1(3))
++  allocate (twov%ivla2(2,2))
++  twov%ivla1(1) = 11
++  twov%ivla1(2) = 12
++  twov%ivla1(3) = 13
++  twov%ivla2(1,1) = 211
++  twov%ivla2(2,1) = 221
++  twov%ivla2(1,2) = 212
++  twov%ivla2(2,2) = 222
++
++  intv = intv + 1 ! After value assignment
++
++end program pointers
+diff --git a/gdb/testsuite/gdb.fortran/print_type.exp b/gdb/testsuite/gdb.fortran/print_type.exp
+new file mode 100644
+--- /dev/null
++++ b/gdb/testsuite/gdb.fortran/print_type.exp
+@@ -0,0 +1,100 @@
++# Copyright 2016 Free Software Foundation, Inc.
++
++# This program is free software; you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation; either version 3 of the License, or
++# (at your option) any later version.
++#
++# This program is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++#
++# You should have received a copy of the GNU General Public License
++# along with this program.  If not, see <http://www.gnu.org/licenses/>.
++
++standard_testfile "pointers.f90"
++load_lib fortran.exp
++
++if { [prepare_for_testing ${testfile}.exp ${testfile} ${srcfile} \
++    {debug f90 quiet}] } {
++    return -1
++}
++
++
++if ![runto_main] {
++    untested "could not run to main"
++    return -1
++}
++
++# Depending on the compiler being used, the type names can be printed differently.
++set logical [fortran_logical4]
++set real [fortran_real4]
++set int [fortran_int4]
++set complex [fortran_complex4]
++
++gdb_breakpoint [gdb_get_line_number "Before pointer assignment"]
++gdb_continue_to_breakpoint "Before pointer assignment"
++gdb_test "ptype logp" "type = PTR TO -> \\( $logical \\)" "ptype logp, not associated"
++gdb_test "ptype comp" "type = PTR TO -> \\( $complex \\)" "ptype comp, not associated"
++gdb_test "ptype charp" "type = PTR TO -> \\( character\\*1 \\)" "ptype charp, not associated"
++gdb_test "ptype charap" "type = PTR TO -> \\( character\\*3 \\)" "ptype charap, not associated"
++gdb_test "ptype intp" "type = PTR TO -> \\( $int \\)" "ptype intp, not associated"
++set test "ptype intap, not associated"
++gdb_test_multiple "ptype intap" $test {
++    -re "type = PTR TO -> \\( $int \\(:,:\\)\\)\r\n$gdb_prompt $" {
++        pass $test
++    }
++    -re "type = $int \\(:,:\\)\r\n$gdb_prompt $" {
++        pass $test
++    }
++}
++gdb_test "ptype realp" "type = PTR TO -> \\( $real \\)" "ptype realp, not associated"
++gdb_test "ptype twop" \
++    [multi_line "type = PTR TO -> \\( Type two" \
++                "    $int :: ivla1\\(:\\)" \
++                "    $int :: ivla2\\(:,:\\)" \
++                "End Type two \\)"] \
++    "ptype twop, not associated"
++gdb_test "ptype two" \
++    [multi_line "type = Type two" \
++                "    $int :: ivla1\\(:\\)" \
++                "    $int :: ivla2\\(:,:\\)" \
++                "End Type two"]
++
++
++gdb_breakpoint [gdb_get_line_number "Before value assignment"]
++gdb_continue_to_breakpoint "Before value assignment"
++gdb_test "ptype twop" \
++    [multi_line "type = PTR TO -> \\( Type two" \
++                "    $int :: ivla1\\(:\\)" \
++                "    $int :: ivla2\\(:,:\\)" \
++                "End Type two \\)"]
++
++
++gdb_breakpoint [gdb_get_line_number "After value assignment"]
++gdb_continue_to_breakpoint "After value assignment"
++gdb_test "ptype logv" "type = $logical"
++gdb_test "ptype comv" "type = $complex"
++gdb_test "ptype charv" "type = character\\*1"
++gdb_test "ptype chara" "type = character\\*3"
++gdb_test "ptype intv" "type = $int"
++gdb_test "ptype inta" "type = $int \\(10,2\\)"
++gdb_test "ptype realv" "type = $real"
++
++
++gdb_test "ptype logp" "type = PTR TO -> \\( $logical \\)"
++gdb_test "ptype comp" "type = PTR TO -> \\( $complex \\)"
++gdb_test "ptype charp" "type = PTR TO -> \\( character\\*1 \\)"
++gdb_test "ptype charap" "type = PTR TO -> \\( character\\*3 \\)"
++gdb_test "ptype intp" "type = PTR TO -> \\( $int \\)"
++set test "ptype intap"
++gdb_test_multiple $test $test {
++    -re "type = $int \\(10,2\\)\r\n$gdb_prompt $" {
++        pass $test
++    }
++    -re "type = PTR TO -> \\( $int \\(10,2\\)\\)\r\n$gdb_prompt $" {
++        pass $test
++    }
++}
++gdb_test "ptype realp" "type = PTR TO -> \\( $real \\)"
+diff --git a/gdb/testsuite/gdb.fortran/vla-ptype.exp b/gdb/testsuite/gdb.fortran/vla-ptype.exp
+--- a/gdb/testsuite/gdb.fortran/vla-ptype.exp
++++ b/gdb/testsuite/gdb.fortran/vla-ptype.exp
+@@ -32,9 +32,9 @@ set real [fortran_real4]
+ # Check the ptype of various VLA states and pointer to VLA's.
+ gdb_breakpoint [gdb_get_line_number "vla1-init"]
+ gdb_continue_to_breakpoint "vla1-init"
+-gdb_test "ptype vla1" "type = <not allocated>" "ptype vla1 not initialized"
+-gdb_test "ptype vla2" "type = <not allocated>" "ptype vla2 not initialized"
+-gdb_test "ptype pvla" "type = <not associated>" "ptype pvla not initialized"
++gdb_test "ptype vla1" "type = $real \\(:,:,:\\)" "ptype vla1 not initialized"
++gdb_test "ptype vla2" "type = $real \\(:,:,:\\)" "ptype vla2 not initialized"
++gdb_test "ptype pvla" "type = $real \\(:,:,:\\)" "ptype pvla not initialized"
+ gdb_test "ptype vla1(3, 6, 9)" "no such vector element \\\(vector not allocated\\\)" \
+   "ptype vla1(3, 6, 9) not initialized"
+ gdb_test "ptype vla2(5, 45, 20)" \
+@@ -81,20 +81,20 @@ gdb_test "ptype vla2(5, 45, 20)" "type = $real" \
+ 
+ gdb_breakpoint [gdb_get_line_number "pvla-deassociated"]
+ gdb_continue_to_breakpoint "pvla-deassociated"
+-gdb_test "ptype pvla" "type = <not associated>" "ptype pvla deassociated"
++gdb_test "ptype pvla" "type = $real \\(:,:,:\\)" "ptype pvla deassociated"
+ gdb_test "ptype pvla(5, 45, 20)" \
+   "no such vector element \\\(vector not associated\\\)" \
+   "ptype pvla(5, 45, 20) not associated"
+ 
+ gdb_breakpoint [gdb_get_line_number "vla1-deallocated"]
+ gdb_continue_to_breakpoint "vla1-deallocated"
+-gdb_test "ptype vla1" "type = <not allocated>" "ptype vla1 not allocated"
++gdb_test "ptype vla1" "type = $real \\(:,:,:\\)" "ptype vla1 not allocated"
+ gdb_test "ptype vla1(3, 6, 9)" "no such vector element \\\(vector not allocated\\\)" \
+   "ptype vla1(3, 6, 9) not allocated"
+ 
+ gdb_breakpoint [gdb_get_line_number "vla2-deallocated"]
+ gdb_continue_to_breakpoint "vla2-deallocated"
+-gdb_test "ptype vla2" "type = <not allocated>" "ptype vla2 not allocated"
++gdb_test "ptype vla2" "type = $real \\(:,:,:\\)" "ptype vla2 not allocated"
+ gdb_test "ptype vla2(5, 45, 20)" \
+   "no such vector element \\\(vector not allocated\\\)" \
+   "ptype vla2(5, 45, 20) not allocated"
+diff --git a/gdb/testsuite/gdb.fortran/vla-strings.exp b/gdb/testsuite/gdb.fortran/vla-strings.exp
+new file mode 100644
+--- /dev/null
++++ b/gdb/testsuite/gdb.fortran/vla-strings.exp
+@@ -0,0 +1,103 @@
++# Copyright 2016 Free Software Foundation, Inc.
++
++# This program is free software; you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation; either version 3 of the License, or
++# (at your option) any later version.
++#
++# This program is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++#
++# You should have received a copy of the GNU General Public License
++# along with this program.  If not, see <http://www.gnu.org/licenses/>.
++
++standard_testfile ".f90"
++
++if { [prepare_for_testing ${testfile}.exp ${testfile} ${srcfile} \
++    {debug f90 quiet}] } {
++    return -1
++}
++
++# check that all fortran standard datatypes will be
++# handled correctly when using as VLA's
++
++if ![runto_main] {
++    untested "could not run to main"
++    return -1
++}
++
++gdb_breakpoint [gdb_get_line_number "var_char-allocated-1"]
++gdb_continue_to_breakpoint "var_char-allocated-1"
++set test "whatis var_char first time"
++gdb_test_multiple "whatis var_char" $test {
++    -re "type = PTR TO -> \\( character\\*10 \\)\r\n$gdb_prompt $" {
++	    pass $test
++    }
++    -re "type = character\\*10\r\n$gdb_prompt $" {
++	    pass $test
++    }
++}
++set test "ptype var_char first time"
++gdb_test_multiple "ptype var_char" $test {
++    -re "type = PTR TO -> \\( character\\*10 \\)\r\n$gdb_prompt $" {
++	    pass $test
++    }
++    -re "type = character\\*10\r\n$gdb_prompt $" {
++	    pass $test
++    }
++}
++
++
++gdb_test "next" "\\d+.*var_char = 'foo'.*" \
++  "next to allocation status of var_char"
++gdb_test "print l" " = \\.TRUE\\." "print allocation status first time"
++
++
++gdb_breakpoint [gdb_get_line_number "var_char-filled-1"]
++gdb_continue_to_breakpoint "var_char-filled-1"
++set test "print var_char, var_char-filled-1"
++gdb_test_multiple "print var_char" $test {
++    -re "= \\(PTR TO -> \\( character\\*3 \\)\\) $hex\r\n$gdb_prompt $" {
++        gdb_test "print *var_char" "= 'foo'" "print *var_char, var_char-filled-1"
++	    pass $test
++    }
++    -re "= 'foo'\r\n$gdb_prompt $" {
++	    pass $test
++    }
++}
++set test "ptype var_char, var_char-filled-1"
++gdb_test_multiple "ptype var_char" $test {
++    -re "type = PTR TO -> \\( character\\*3 \\)\r\n$gdb_prompt $" {
++	    pass $test
++    }
++    -re "type = character\\*3\r\n$gdb_prompt $" {
++	    pass $test
++    }
++}
++gdb_test "print var_char(1)" " = 102 'f'" "print var_char(1)"
++gdb_test "print var_char(3)" " = 111 'o'" "print var_char(3)"
++
++
++gdb_breakpoint [gdb_get_line_number "var_char-filled-2"]
++gdb_continue_to_breakpoint "var_char-filled-2"
++set test "print var_char, var_char-filled-2"
++gdb_test_multiple "print var_char" $test {
++    -re "= \\(PTR TO -> \\( character\\*6 \\)\\) $hex\r\n$gdb_prompt $" {
++        gdb_test "print *var_char" "= 'foobar'" "print *var_char, var_char-filled-2"
++	    pass $test
++    }
++    -re "= 'foobar'\r\n$gdb_prompt $" {
++	    pass $test
++    }
++}
++set test "ptype var_char, var_char-filled-2"
++gdb_test_multiple "ptype var_char" $test {
++    -re "type = PTR TO -> \\( character\\*6 \\)\r\n$gdb_prompt $" {
++	    pass $test
++    }
++    -re "type = character\\*6\r\n$gdb_prompt $" {
++	    pass $test
++    }
++}
+diff --git a/gdb/testsuite/gdb.fortran/vla-strings.f90 b/gdb/testsuite/gdb.fortran/vla-strings.f90
+new file mode 100644
+--- /dev/null
++++ b/gdb/testsuite/gdb.fortran/vla-strings.f90
+@@ -0,0 +1,39 @@
++! Copyright 2016 Free Software Foundation, Inc.
++!
++! This program is free software; you can redistribute it and/or modify
++! it under the terms of the GNU General Public License as published by
++! the Free Software Foundation; either version 3 of the License, or
++! (at your option) any later version.
++!
++! This program is distributed in the hope that it will be useful,
++! but WITHOUT ANY WARRANTY; without even the implied warranty of
++! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++! GNU General Public License for more details.
++!
++! You should have received a copy of the GNU General Public License
++! along with this program.  If not, see <http://www.gnu.org/licenses/>.
++
++program vla_strings
++  character(len=:), target, allocatable   :: var_char
++  character(len=:), pointer               :: var_char_p
++  logical                                 :: l
++
++  allocate(character(len=10) :: var_char)
++  l = allocated(var_char)                 ! var_char-allocated-1
++  var_char = 'foo'
++  deallocate(var_char)                    ! var_char-filled-1
++  l = allocated(var_char)                 ! var_char-deallocated
++  allocate(character(len=42) :: var_char)
++  l = allocated(var_char)
++  var_char = 'foobar'
++  var_char = ''                           ! var_char-filled-2
++  var_char = 'bar'                        ! var_char-empty
++  deallocate(var_char)
++  allocate(character(len=21) :: var_char)
++  l = allocated(var_char)                 ! var_char-allocated-3
++  var_char = 'johndoe'
++  var_char_p => var_char
++  l = associated(var_char_p)              ! var_char_p-associated
++  var_char_p => null()
++  l = associated(var_char_p)              ! var_char_p-not-associated
++end program vla_strings
+diff --git a/gdb/testsuite/gdb.fortran/vla-type.exp b/gdb/testsuite/gdb.fortran/vla-type.exp
+--- a/gdb/testsuite/gdb.fortran/vla-type.exp
++++ b/gdb/testsuite/gdb.fortran/vla-type.exp
+@@ -132,7 +132,10 @@ gdb_test "ptype fivearr(2)%tone" \
+                      "End Type one" ]
+ 
+ # Check allocation status of dynamic array and it's dynamic members
+-gdb_test "ptype fivedynarr" "type = <not allocated>"
++gdb_test "ptype fivedynarr" \
++         [multi_line "type = Type five" \
++                     "    Type one :: tone" \
++                     "End Type five \\(:\\)" ]
+ gdb_test "next" ""
+ gdb_test "ptype fivedynarr(2)" \
+          [multi_line "type = Type five" \
+@@ -141,7 +144,7 @@ gdb_test "ptype fivedynarr(2)" \
+          "ptype fivedynarr(2), tone is not allocated"
+ gdb_test "ptype fivedynarr(2)%tone" \
+          [multi_line "type = Type one" \
+-                     "    $int :: ivla\\(<not allocated>\\)" \
++                     "    $int :: ivla\\(:,:,:\\)" \
+                      "End Type one" ] \
+          "ptype fivedynarr(2)%tone, not allocated"
+ 
+diff --git a/gdb/testsuite/gdb.fortran/vla-value.exp b/gdb/testsuite/gdb.fortran/vla-value.exp
+--- a/gdb/testsuite/gdb.fortran/vla-value.exp
++++ b/gdb/testsuite/gdb.fortran/vla-value.exp
+@@ -35,7 +35,7 @@ gdb_breakpoint [gdb_get_line_number "vla1-init"]
+ gdb_continue_to_breakpoint "vla1-init"
+ gdb_test "print vla1" " = <not allocated>" "print non-allocated vla1"
+ gdb_test "print &vla1" \
+-  " = \\\(PTR TO -> \\\( $real \\\(<not allocated>\\\)\\\)\\\) $hex" \
++  " = \\\(PTR TO -> \\\( $real \\\(:,:,:\\\)\\\)\\\) $hex" \
+   "print non-allocated &vla1"
+ gdb_test "print vla1(1,1,1)" "no such vector element \\\(vector not allocated\\\)" \
+   "print member in non-allocated vla1 (1)"
+@@ -76,7 +76,7 @@ gdb_test "print vla1(9, 9, 9)" " = 999" \
+ # Try to access values in undefined pointer to VLA (dangling)
+ gdb_test "print pvla" " = <not associated>" "print undefined pvla"
+ gdb_test "print &pvla" \
+-  " = \\\(PTR TO -> \\\( $real \\\(<not associated>\\\)\\\)\\\) $hex" \
++  " = \\\(PTR TO -> \\\( $real \\\(:,:,:\\\)\\\)\\\) $hex" \
+   "print non-associated &pvla"
+ gdb_test "print pvla(1, 3, 8)" "no such vector element \\\(vector not associated\\\)" \
+   "print undefined pvla(1,3,8)"
+diff --git a/gdb/testsuite/gdb.mi/mi-vla-fortran.exp b/gdb/testsuite/gdb.mi/mi-vla-fortran.exp
+--- a/gdb/testsuite/gdb.mi/mi-vla-fortran.exp
++++ b/gdb/testsuite/gdb.mi/mi-vla-fortran.exp
+@@ -51,10 +51,10 @@ mi_expect_stop "breakpoint-hit" "vla" "" ".*vla.f90" "$bp_lineno" \
+ mi_gdb_test "500-data-evaluate-expression vla1" \
+   "500\\^done,value=\"<not allocated>\"" "evaluate not allocated vla, before allocation"
+ 
+-mi_create_varobj_checked vla1_not_allocated vla1 "<not allocated>" \
++mi_create_varobj_checked vla1_not_allocated vla1 "$real \\(:\\)" \
+   "create local variable vla1_not_allocated"
+ mi_gdb_test "501-var-info-type vla1_not_allocated" \
+-  "501\\^done,type=\"<not allocated>\"" \
++  "501\\^done,type=\"$real \\(:\\)\"" \
+   "info type variable vla1_not_allocated"
+ mi_gdb_test "502-var-show-format vla1_not_allocated" \
+   "502\\^done,format=\"natural\"" \
+@@ -146,10 +146,10 @@ gdb_expect {
+     -re "580\\^done,value=\"<not associated>\".*${mi_gdb_prompt}$" {
+ 	pass $test
+ 
+-	mi_create_varobj_checked pvla2_not_associated pvla2 "<not associated>" \
++	mi_create_varobj_checked pvla2_not_associated pvla2 "$real \\(:,:\\)" \
+ 	    "create local variable pvla2_not_associated"
+ 	mi_gdb_test "581-var-info-type pvla2_not_associated" \
+-	    "581\\^done,type=\"<not associated>\"" \
++	    "581\\^done,type=\"$real \\(:,:\\)\"" \
+ 	    "info type variable pvla2_not_associated"
+ 	mi_gdb_test "582-var-show-format pvla2_not_associated" \
+ 	    "582\\^done,format=\"natural\"" \
 diff --git a/gdb/typeprint.c b/gdb/typeprint.c
 --- a/gdb/typeprint.c
 +++ b/gdb/typeprint.c

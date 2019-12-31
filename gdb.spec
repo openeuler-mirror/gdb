@@ -1,6 +1,6 @@
 Name: gdb
 Version: 8.2
-Release: 7
+Release: 6
 
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ and GPLv2+ with exceptions and GPL+ and LGPLv2+ and LGPLv3+ and BSD and Public Domain and GFDL
 Source: ftp://sourceware.org/pub/gdb/releases/gdb-%{version}.tar.xz
@@ -45,56 +45,129 @@ Recommends: %{librpmso}()(64bit)
 Source1: gdb-gstack.man
 Source2: gdbinit
 
-# patchs
+# patchs from redhat
 Patch002: gdb-vla-intel-fortran-strides.patch
 Patch003: gdb-vla-intel-fortran-vla-strings.patch
 Patch004: gdb-vla-intel-stringbt-fix.patch
 Patch005: gdb-6.3-ppc64syscall-20040622.patch
 Patch006: gdb-6.3-ppc64displaysymbol-20041124.patch
 Patch007: gdb-6.3-gstack-20050411.patch
+Patch008: gdb-6.3-test-pie-20050107.patch
+Patch009: gdb-6.3-test-self-20050110.patch
+Patch010: gdb-6.3-test-dtorfix-20050121.patch
+Patch011: gdb-6.3-test-movedir-20050125.patch
+Patch012: gdb-6.3-threaded-watchpoints2-20050225.patch
+Patch013: gdb-6.3-inferior-notification-20050721.patch
+Patch014: gdb-6.3-inheritancetest-20050726.patch
 Patch015: gdb-6.3-readnever-20050907.patch
 Patch016: gdb-6.5-bz203661-emit-relocs.patch
 Patch017: gdb-6.5-bz185337-resolve-tls-without-debuginfo-v2.patch
+Patch018: gdb-6.5-sharedlibrary-path.patch
+Patch019: gdb-6.5-BEA-testsuite.patch
+Patch020: gdb-6.5-last-address-space-byte-test.patch
+Patch021: gdb-6.5-readline-long-line-crash-test.patch
 Patch022: gdb-6.5-bz216711-clone-is-outermost.patch
+Patch023: gdb-6.5-bz218379-ppc-solib-trampoline-test.patch
 Patch024: gdb-6.5-bz218379-solib-trampoline-lookup-lock-fix.patch
+Patch025: gdb-6.5-bz109921-DW_AT_decl_file-test.patch
+Patch026: gdb-6.3-bz140532-ppc-unwinding-test.patch
+Patch027: gdb-6.3-bz202689-exec-from-pthread-test.patch
+Patch028: gdb-6.6-bz230000-power6-disassembly-test.patch
+Patch029: gdb-6.6-bz229517-gcore-without-terminal.patch
+Patch030: gdb-6.6-testsuite-timeouts.patch
+Patch031: gdb-6.6-bz237572-ppc-atomic-sequence-test.patch
 Patch032: gdb-6.6-scheduler_locking-step-is-default.patch
+Patch033: gdb-6.3-attach-see-vdso-test.patch
+Patch034: gdb-6.5-bz243845-stale-testing-zombie-test.patch
 Patch035: gdb-6.6-buildid-locate.patch
 Patch036: gdb-6.6-buildid-locate-solib-missing-ids.patch
 Patch037: gdb-6.6-buildid-locate-rpm.patch
+Patch038: gdb-6.7-charsign-test.patch
+Patch039: gdb-6.7-ppc-clobbered-registers-O2-test.patch
+Patch040: gdb-6.7-testsuite-stable-results.patch
+Patch041: gdb-6.5-ia64-libunwind-leak-test.patch
+Patch042: gdb-6.5-missed-trap-on-step-test.patch
+Patch043: gdb-6.5-gcore-buffer-limit-test.patch
+Patch044: gdb-6.3-mapping-zero-inode-test.patch
+Patch045: gdb-6.3-focus-cmd-prev-test.patch
+Patch046: gdb-6.8-bz442765-threaded-exec-test.patch
 Patch047: gdb-6.8-sparc64-silence-memcpy-check.patch
+Patch048: gdb-6.5-section-num-fixup-test.patch
 Patch049: gdb-6.8-bz436037-reg-no-longer-active.patch
+Patch050: gdb-6.8-watchpoint-conditionals-test.patch
+Patch051: gdb-6.8-bz466901-backtrace-full-prelinked.patch
+Patch052: gdb-simultaneous-step-resume-breakpoint-test.patch
+Patch053: gdb-core-open-vdso-warning.patch
 Patch054: gdb-x86_64-i386-syscall-restart.patch
 Patch055: gdb-bz533176-fortran-omp-step.patch
 Patch056: gdb-follow-child-stale-parent.patch
+Patch057: gdb-ccache-workaround.patch
 Patch058: gdb-archer-pie-addons.patch
 Patch059: gdb-archer-pie-addons-keep-disabled.patch
+Patch060: gdb-lineno-makeup-test.patch
+Patch061: gdb-ppc-power7-test.patch
 Patch062: gdb-bz541866-rwatch-before-run.patch
 Patch063: gdb-moribund-utrace-workaround.patch
+Patch064: gdb-archer-next-over-throw-cxx-exec.patch
+Patch065: gdb-bz601887-dwarf4-rh-test.patch
 Patch066: gdb-6.6-buildid-locate-core-as-arg.patch
 Patch067: gdb-6.6-buildid-locate-rpm-librpm-workaround.patch
+Patch068: gdb-test-bt-cfi-without-die.patch
 Patch069: gdb-bz568248-oom-is-error.patch
+Patch070: gdb-bz634108-solib_address.patch
+Patch071: gdb-test-pid0-core.patch
+Patch072: gdb-test-dw2-aranges.patch
+Patch073: gdb-test-expr-cumulative-archer.patch
+Patch074: gdb-physname-pr11734-test.patch
+Patch075: gdb-physname-pr12273-test.patch
+Patch076: gdb-7.2.50-sparc-add-workaround-to-broken-debug-files.patch
+Patch077: gdb-test-ivy-bridge.patch
+Patch078: gdb-runtest-pie-override.patch
 Patch079: gdb-attach-fail-reasons-5of5.patch
 Patch080: gdb-glibc-strstr-workaround.patch
+Patch081: gdb-rhel5.9-testcase-xlf-var-inside-mod.patch
+Patch082: gdb-rhbz-818343-set-solib-absolute-prefix-testcase.patch
 Patch083: gdb-rhbz795424-bitpos-20of25.patch
 Patch084: gdb-rhbz795424-bitpos-21of25.patch
 Patch085: gdb-rhbz795424-bitpos-22of25.patch
 Patch086: gdb-rhbz795424-bitpos-23of25.patch
 Patch087: gdb-rhbz795424-bitpos-25of25.patch
+Patch088: gdb-rhbz795424-bitpos-25of25-test.patch
+Patch089: gdb-rhbz795424-bitpos-lazyvalue.patch
+Patch090: gdb-rhbz947564-findvar-assertion-frame-failed-testcase.patch
 Patch091: gdb-gnat-dwarf-crash-3of3.patch
+Patch092: gdb-rhbz1007614-memleak-infpy_read_memory-test.patch
+Patch093: gdb-6.6-buildid-locate-misleading-warning-missing-debuginfo-rhbz981154.patch
+Patch094: gdb-archer-vla-tests.patch
+Patch095: gdb-vla-intel-tests.patch
 Patch096: gdb-btrobust.patch
+Patch097: gdb-fortran-frame-string.patch
 Patch098: gdb-python-gil.patch
+Patch099: gdb-rhbz1156192-recursive-dlopen-test.patch
 Patch100: gdb-jit-reader-multilib.patch
+Patch101: gdb-rhbz1149205-catch-syscall-after-fork-test.patch
+Patch102: gdb-rhbz1186476-internal-error-unqualified-name-re-set-test.patch
+Patch103: gdb-rhbz1350436-type-printers-error.patch
+Patch104: gdb-rhbz1084404-ppc64-s390x-wrong-prologue-skip-O2-g-3of3.patch
 Patch105: gdb-bz1219747-attach-kills.patch
 Patch106: gdb-fedora-libncursesw.patch
+Patch107: gdb-opcodes-clflushopt-test.patch
 Patch108: gdb-dts-rhel6-python-compat.patch
 Patch109: gdb-6.6-buildid-locate-rpm-scl.patch
 Patch110: gdb-readline62-ask-more-rh.patch
 Patch111: gdb-6.8-quit-never-aborts.patch
+Patch112: gdb-rhbz1261564-aarch64-hw-watchpoint-test.patch
+Patch113: gdb-container-rh-pkg.patch
+Patch114: gdb-rhbz1325795-framefilters-test.patch
 Patch115: gdb-linux_perf-bundle.patch
 Patch116: gdb-libexec-add-index.patch
+Patch117: gdb-rhbz1398387-tab-crash-test.patch
+Patch118: gdb-testsuite-readline63-sigint.patch
 Patch119: gdb-archer.patch
 Patch120: gdb-vla-intel-fix-print-char-array.patch
+Patch121: gdb-rhbz1553104-s390x-arch12-test.patch
 Patch122: gdb-rhbz881849-ipv6-1of3.patch
+Patch123: gdb-rhbz881849-ipv6-2of3.patch
 Patch124: gdb-rhbz881849-ipv6-3of3.patch
 Patch125: gdb-rhbz1187581-power8-regs-1of7.patch
 Patch126: gdb-rhbz1187581-power8-regs-2of7.patch
@@ -103,6 +176,8 @@ Patch128: gdb-rhbz1187581-power8-regs-4of7.patch
 Patch129: gdb-rhbz1187581-power8-regs-5of7.patch
 Patch130: gdb-rhbz1187581-power8-regs-6of7.patch
 Patch131: gdb-rhbz1187581-power8-regs-7of7.patch
+Patch132: gdb-rhbz1491128-batch-mode-exit-status-1of2.patch
+Patch133: gdb-rhbz1491128-batch-mode-exit-status-2of2.patch
 Patch134: gdb-use-pulongest-aarch64-linux-tdep.patch
 
 Patch6000: gdb-Detect-invalid-length-field-in-debug-frame-FDE-header.patch
@@ -354,12 +429,6 @@ rm -f $RPM_BUILD_ROOT%{_datadir}/gdb/python/gdb/command/backtrace.py
 %{_infodir}/gdb.info*
 
 %changelog
-* Tue Dec 31 2019 yuxiangyang<yuxiangyang4@huawei.com> - 8.2-7
-- Type:bugfix
-- ID:NA
-- SUG:NA
-- DESC: remove some unuseful files
-
 * Tue Dec 24 2019 yuxiangyang<yuxiangyang4@huawei.com> - 8.2-6
 - Type:bugfix
 - ID:NA
