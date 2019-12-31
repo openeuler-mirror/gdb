@@ -84,6 +84,7 @@ Patch091: gdb-gnat-dwarf-crash-3of3.patch
 Patch096: gdb-btrobust.patch
 Patch098: gdb-python-gil.patch
 Patch100: gdb-jit-reader-multilib.patch
+Patch103: gdb-rhbz1350436-type-printers-error.patch
 Patch105: gdb-bz1219747-attach-kills.patch
 Patch106: gdb-fedora-libncursesw.patch
 Patch108: gdb-dts-rhel6-python-compat.patch
@@ -95,6 +96,7 @@ Patch116: gdb-libexec-add-index.patch
 Patch119: gdb-archer.patch
 Patch120: gdb-vla-intel-fix-print-char-array.patch
 Patch122: gdb-rhbz881849-ipv6-1of3.patch
+Patch123: gdb-rhbz881849-ipv6-2of3.patch
 Patch124: gdb-rhbz881849-ipv6-3of3.patch
 Patch125: gdb-rhbz1187581-power8-regs-1of7.patch
 Patch126: gdb-rhbz1187581-power8-regs-2of7.patch
@@ -103,6 +105,7 @@ Patch128: gdb-rhbz1187581-power8-regs-4of7.patch
 Patch129: gdb-rhbz1187581-power8-regs-5of7.patch
 Patch130: gdb-rhbz1187581-power8-regs-6of7.patch
 Patch131: gdb-rhbz1187581-power8-regs-7of7.patch
+Patch133: gdb-rhbz1491128-batch-mode-exit-status-2of2.patch
 Patch134: gdb-use-pulongest-aarch64-linux-tdep.patch
 
 Patch6000: gdb-Detect-invalid-length-field-in-debug-frame-FDE-header.patch

@@ -1,3 +1,11 @@
+From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
+From: Fedora GDB patches <invalid@email.com>
+Date: Fri, 27 Oct 2017 21:07:50 +0200
+Subject: gdb-gnat-dwarf-crash-3of3.patch
+
+;; Fix crash of -readnow /usr/lib/debug/usr/bin/gnatbind.debug (BZ 1069211).
+;;=push+jan
+
 http://sourceware.org/ml/gdb-patches/2014-02/msg00731.html
 
 --6TrnltStXW4iwmi0
@@ -156,3 +164,73 @@ diff --git a/gdb/linux-nat.c b/gdb/linux-nat.c
  }
  
  /* Convert a native/host siginfo object, into/from the siginfo in the
+diff --git a/gdb/testsuite/gdb.threads/attach-stopped.exp b/gdb/testsuite/gdb.threads/attach-stopped.exp
+--- a/gdb/testsuite/gdb.threads/attach-stopped.exp
++++ b/gdb/testsuite/gdb.threads/attach-stopped.exp
+@@ -56,7 +56,65 @@ proc corefunc { threadtype } {
+     gdb_reinitialize_dir $srcdir/$subdir
+     gdb_load ${binfile}
+ 
+-    # Verify that we can attach to the stopped process.
++    # Verify that we can attach to the process by first giving its
++    # executable name via the file command, and using attach with the
++    # process ID.
++
++    set test "$threadtype: set file, before attach1 to stopped process"
++    gdb_test_multiple "file $binfile" "$test" {
++       -re "Load new symbol table from.*y or n. $" {
++	    gdb_test "y" "Reading symbols from $escapedbinfile\.\.\.*done." \
++		    "$test (re-read)"
++	}
++	-re "Reading symbols from $escapedbinfile\.\.\.*done.*$gdb_prompt $" {
++	    pass "$test"
++	}
++    }
++
++    set test "$threadtype: attach1 to stopped, after setting file"
++    gdb_test_multiple "attach $testpid" "$test" {
++	-re "Attaching to program.*`?$escapedbinfile'?, process $testpid.*$gdb_prompt $" {
++	    pass "$test"
++	}
++    }
++
++    # ".*sleep.*clone.*" would fail on s390x as bt stops at START_THREAD there.
++    if {[string equal $threadtype threaded]} {
++	gdb_test "thread apply all bt" ".*sleep.*start_thread.*" "$threadtype: attach1 to stopped bt"
++    } else {
++	gdb_test "bt" ".*sleep.*main.*" "$threadtype: attach1 to stopped bt"
++    }
++
++    # Exit and detach the process.
++       
++    gdb_exit
++
++    # Avoid some race:
++    sleep 2
++
++    if [catch {open /proc/${testpid}/status r} fileid] {
++	set line2 "NOTFOUND"
++    } else {
++	gets $fileid line1;
++	gets $fileid line2;
++	close $fileid;
++    }
++
++    set test "$threadtype: attach1, exit leaves process stopped"
++    if {[string match "*(stopped)*" $line2]} {
++      pass $test
++    } else {
++      fail $test
++    }
++
++    # At this point, the process should still be stopped
++
++    gdb_start
++    gdb_reinitialize_dir $srcdir/$subdir
++    gdb_load ${binfile}
++
++    # Verify that we can attach to the process just by giving the
++    # process ID.
+        
+     set test "$threadtype: attach2 to stopped, after setting file"
+     gdb_test_multiple "attach $testpid" "$test" {
