@@ -1,3 +1,21 @@
+From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
+From: Fedora GDB patches <invalid@email.com>
+Date: Fri, 27 Oct 2017 21:07:50 +0200
+Subject: gdb-7.2.50-sparc-add-workaround-to-broken-debug-files.patch
+
+;; Toolchain on sparc is slightly broken and debuginfo files are generated
+;; with non 64bit aligned tables/offsets.
+;; See for example readelf -S ../Xvnc.debug.
+;;
+;; As a consenquence calculation of sectp->filepos as used in
+;; dwarf2_read_section (gdb/dwarf2read.c:1525) will return a non aligned buffer
+;; that cannot be used directly as done with MMAP.
+;; Usage will result in a BusError.
+;;
+;; While we figure out what's wrong in the toolchain and do a full archive
+;; rebuild to fix it, we need to be able to use gdb :)
+;;=push
+
 diff --git a/gdb/gdb_bfd.c b/gdb/gdb_bfd.c
 --- a/gdb/gdb_bfd.c
 +++ b/gdb/gdb_bfd.c

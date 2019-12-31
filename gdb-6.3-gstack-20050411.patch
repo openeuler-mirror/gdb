@@ -1,3 +1,12 @@
+From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
+From: Andrew Cagney <cagney@gnu.org>
+Date: Fri, 27 Oct 2017 21:07:50 +0200
+Subject: gdb-6.3-gstack-20050411.patch
+
+;; Add a wrapper script to GDB that implements pstack using the
+;; --readnever option.
+;;=push
+
 2004-11-23  Andrew Cagney  <cagney@redhat.com>
 
 	* Makefile.in (uninstall-gstack, install-gstack): New rules, add
