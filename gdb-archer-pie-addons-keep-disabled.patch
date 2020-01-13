@@ -1,16 +1,9 @@
-From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
-From: Fedora GDB patches <invalid@email.com>
-Date: Fri, 27 Oct 2017 21:07:50 +0200
-Subject: gdb-archer-pie-addons-keep-disabled.patch
-
-;;=push+jan: Breakpoints disabling matching should not be based on address.
-
 diff --git a/gdb/breakpoint.c b/gdb/breakpoint.c
 --- a/gdb/breakpoint.c
 +++ b/gdb/breakpoint.c
-@@ -15522,6 +15522,50 @@ initialize_breakpoint_ops (void)
+@@ -15441,6 +15441,50 @@ static struct cmd_list_element *enablebreaklist = NULL;
  
- static struct cmd_list_element *enablebreaklist = NULL;
+ cmd_list_element *commands_cmd_element = nullptr;
  
 +void
 +breakpoints_relocate (struct objfile *objfile, struct section_offsets *delta)
@@ -62,7 +55,7 @@ diff --git a/gdb/breakpoint.c b/gdb/breakpoint.c
 diff --git a/gdb/breakpoint.h b/gdb/breakpoint.h
 --- a/gdb/breakpoint.h
 +++ b/gdb/breakpoint.h
-@@ -1679,6 +1679,9 @@ extern const char *ep_parse_optional_if_clause (const char **arg);
+@@ -1664,6 +1664,9 @@ extern const char *ep_parse_optional_if_clause (const char **arg);
     UIOUT iff debugging multiple threads.  */
  extern void maybe_print_thread_hit_breakpoint (struct ui_out *uiout);
  
@@ -75,7 +68,7 @@ diff --git a/gdb/breakpoint.h b/gdb/breakpoint.h
 diff --git a/gdb/objfiles.c b/gdb/objfiles.c
 --- a/gdb/objfiles.c
 +++ b/gdb/objfiles.c
-@@ -883,6 +883,11 @@ objfile_relocate1 (struct objfile *objfile,
+@@ -875,6 +875,11 @@ objfile_relocate1 (struct objfile *objfile,
  				obj_section_addr (s));
      }
  
@@ -87,3 +80,4 @@ diff --git a/gdb/objfiles.c b/gdb/objfiles.c
    /* Data changed.  */
    return 1;
  }
+

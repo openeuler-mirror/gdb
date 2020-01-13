@@ -1,11 +1,3 @@
-From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
-From: Fedora GDB patches <invalid@email.com>
-Date: Fri, 27 Oct 2017 21:07:50 +0200
-Subject: gdb-attach-fail-reasons-5of5.patch
-
-;; Print reasons for failed attach/spawn incl. SELinux deny_ptrace (BZ 786878).
-;;=push+jan
-
 http://sourceware.org/ml/gdb-patches/2012-03/msg00171.html
 
 Hi,
@@ -45,7 +37,7 @@ gdb/gdbserver/
 diff --git a/gdb/config.in b/gdb/config.in
 --- a/gdb/config.in
 +++ b/gdb/config.in
-@@ -276,6 +276,9 @@
+@@ -267,6 +267,9 @@
  /* Define if librpm library is being used. */
  #undef HAVE_LIBRPM
  
@@ -55,7 +47,7 @@ diff --git a/gdb/config.in b/gdb/config.in
  /* Define to 1 if you have the <libunwind-ia64.h> header file. */
  #undef HAVE_LIBUNWIND_IA64_H
  
-@@ -399,6 +402,9 @@
+@@ -390,6 +393,9 @@
  /* Define to 1 if you have the `scm_new_smob' function. */
  #undef HAVE_SCM_NEW_SMOB
  
@@ -68,7 +60,7 @@ diff --git a/gdb/config.in b/gdb/config.in
 diff --git a/gdb/configure b/gdb/configure
 --- a/gdb/configure
 +++ b/gdb/configure
-@@ -15854,6 +15854,64 @@ cat >>confdefs.h <<_ACEOF
+@@ -15898,6 +15898,64 @@ cat >>confdefs.h <<_ACEOF
  _ACEOF
  
  
@@ -136,7 +128,7 @@ diff --git a/gdb/configure b/gdb/configure
 diff --git a/gdb/configure.ac b/gdb/configure.ac
 --- a/gdb/configure.ac
 +++ b/gdb/configure.ac
-@@ -2054,6 +2054,10 @@ case $host_os in
+@@ -2051,6 +2051,10 @@ case $host_os in
  esac
  AC_DEFINE_UNQUOTED(GDBINIT,"$gdbinit",[The .gdbinit filename.])
  
@@ -173,7 +165,7 @@ diff --git a/gdb/gdbserver/config.in b/gdb/gdbserver/config.in
 diff --git a/gdb/gdbserver/configure b/gdb/gdbserver/configure
 --- a/gdb/gdbserver/configure
 +++ b/gdb/gdbserver/configure
-@@ -8535,6 +8535,64 @@ if $want_ipa ; then
+@@ -8589,6 +8589,64 @@ if $want_ipa ; then
     fi
  fi
  
@@ -241,7 +233,7 @@ diff --git a/gdb/gdbserver/configure b/gdb/gdbserver/configure
 diff --git a/gdb/gdbserver/configure.ac b/gdb/gdbserver/configure.ac
 --- a/gdb/gdbserver/configure.ac
 +++ b/gdb/gdbserver/configure.ac
-@@ -486,6 +486,10 @@ if $want_ipa ; then
+@@ -478,6 +478,10 @@ if $want_ipa ; then
     fi
  fi
  
@@ -276,9 +268,9 @@ diff --git a/gdb/gdbserver/linux-low.c b/gdb/gdbserver/linux-low.c
 diff --git a/gdb/linux-nat.c b/gdb/linux-nat.c
 --- a/gdb/linux-nat.c
 +++ b/gdb/linux-nat.c
-@@ -1089,7 +1089,17 @@ linux_nat_target::create_inferior (const char *exec_file,
+@@ -1099,7 +1099,17 @@ linux_nat_target::create_inferior (const char *exec_file,
    /* Make sure we report all signals during startup.  */
-   pass_signals (0, NULL);
+   pass_signals ({});
  
 -  inf_ptrace_target::create_inferior (exec_file, allargs, env, from_tty);
 +  TRY
@@ -318,7 +310,7 @@ diff --git a/gdb/nat/linux-ptrace.c b/gdb/nat/linux-ptrace.c
    return result;
  }
  
-@@ -583,6 +589,25 @@ linux_ptrace_init_warnings (void)
+@@ -586,6 +592,25 @@ linux_ptrace_init_warnings (void)
    linux_ptrace_test_ret_to_nx ();
  }
  
@@ -355,3 +347,4 @@ diff --git a/gdb/nat/linux-ptrace.h b/gdb/nat/linux-ptrace.h
  extern void linux_check_ptrace_features (void);
  extern void linux_enable_event_reporting (pid_t pid, int attached);
  extern void linux_disable_event_reporting (pid_t pid);
+

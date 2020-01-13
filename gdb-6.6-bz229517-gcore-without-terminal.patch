@@ -1,11 +1,3 @@
-From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
-From: Jan Kratochvil <jan.kratochvil@redhat.com>
-Date: Fri, 27 Oct 2017 21:07:50 +0200
-Subject: gdb-6.6-bz229517-gcore-without-terminal.patch
-
-;; Allow running `/usr/bin/gcore' with provided but inaccessible tty (BZ 229517).
-;;=fedoratest
-
 2007-04-22  Jan Kratochvil <jan.kratochvil@redhat.com>
 
 	* gdb_gcore.sh: Redirect GDB from `</dev/null'.
@@ -186,3 +178,4 @@ new file mode 100644
 +
 +set env(PATH) $oldpath
 +remote_file target delete "./gdb"
+

@@ -1,11 +1,3 @@
-From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
-From: Fedora GDB patches <invalid@email.com>
-Date: Fri, 27 Oct 2017 21:07:50 +0200
-Subject: gdb-testsuite-readline63-sigint.patch
-
-;; [testsuite] Fix false selftest.exp FAIL from system readline-6.3+ (Patrick Palka).
-;;=fedoratest
-
 gdb/users/ppalka/readline-7.0-update
 commit 379059215e823555a37a8dc7e02cef8fd86566e4
 https://sourceware.org/ml/gdb-patches/2015-07/msg00422.html
@@ -44,3 +36,4 @@ diff --git a/gdb/testsuite/gdb.gdb/selftest.exp b/gdb/testsuite/gdb.gdb/selftest
  
      # Switch back to the GDB thread if Guile support is linked in.
      # "signal SIGINT" could also switch the current thread.
+

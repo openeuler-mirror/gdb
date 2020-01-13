@@ -1,11 +1,3 @@
-From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
-From: Fedora GDB patches <invalid@email.com>
-Date: Fri, 27 Oct 2017 21:07:50 +0200
-Subject: gdb-6.6-bz230000-power6-disassembly-test.patch
-
-;; Testcase for PPC Power6/DFP instructions disassembly (BZ 230000).
-;;=fedoratest
-
 https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=230000
 
 The original testcase
@@ -92,3 +84,4 @@ new file mode 100644
 +	.long	0xfc020444	/* ddivq	f0,f2,f0	*/
 +	.long	0xec820d04	/* dcmpu	cr1,f2,f1	*/
 +	.long	0xfc820504	/* dcmpuq	cr1,f2,f0	*/
+

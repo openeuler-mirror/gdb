@@ -1,11 +1,3 @@
-From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
-From: Jan Kratochvil <jan.kratochvil@redhat.com>
-Date: Fri, 27 Oct 2017 21:07:50 +0200
-Subject: gdb-6.7-charsign-test.patch
-
-;; Fix displaying of numeric char arrays as strings (BZ 224128).
-;;=fedoratest: But it is failing anyway, one should check the behavior more.
-
 https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=224128
 
 2007-01-25  Jan Kratochvil <jan.kratochvil@redhat.com>
@@ -128,3 +120,4 @@ new file mode 100644
 +do_test {}
 +do_test {-fsigned-char}
 +do_test {-funsigned-char}
+

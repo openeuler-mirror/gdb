@@ -1,11 +1,3 @@
-From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
-From: Fedora GDB patches <invalid@email.com>
-Date: Fri, 27 Oct 2017 21:07:50 +0200
-Subject: gdb-fortran-frame-string.patch
-
-;; Display Fortran strings in backtraces.
-;;=fedoratest
-
 http://sourceware.org/ml/gdb-patches/2014-07/msg00709.html
 
 Hi,
@@ -102,3 +94,4 @@ new file mode 100644
 +  program main
 +  call f ('foo')
 +  end
+

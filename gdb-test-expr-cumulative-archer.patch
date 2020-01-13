@@ -1,11 +1,3 @@
-From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
-From: Fedora GDB patches <invalid@email.com>
-Date: Fri, 27 Oct 2017 21:07:50 +0200
-Subject: gdb-test-expr-cumulative-archer.patch
-
-;; [archer-keiths-expr-cumulative+upstream] Import C++ testcases.
-;;=fedoratest
-
 archer archer-keiths-expr-cumulative
 b5a7497340b24199f0c7ba7fdf0d54d4df44d6bc
 
@@ -221,3 +213,4 @@ new file mode 100644
 +gdb_test "print _a" "= 11"
 +gdb_test "print ab" "= 22"
 +gdb_test "print abc" "= 33"
+

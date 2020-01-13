@@ -1,15 +1,7 @@
-From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
-From: Fedora GDB patches <invalid@email.com>
-Date: Fri, 27 Oct 2017 21:07:50 +0200
-Subject: gdb-jit-reader-multilib.patch
-
-;; Fix jit-reader.h for multi-lib.
-;;=push+jan
-
 diff --git a/gdb/configure b/gdb/configure
 --- a/gdb/configure
 +++ b/gdb/configure
-@@ -9680,10 +9680,12 @@ _ACEOF
+@@ -9705,10 +9705,12 @@ _ACEOF
  
  
  
@@ -28,7 +20,7 @@ diff --git a/gdb/configure b/gdb/configure
 diff --git a/gdb/configure.ac b/gdb/configure.ac
 --- a/gdb/configure.ac
 +++ b/gdb/configure.ac
-@@ -843,10 +843,12 @@ AC_CHECK_SIZEOF(unsigned long long)
+@@ -820,10 +820,12 @@ AC_CHECK_SIZEOF(unsigned long long)
  AC_CHECK_SIZEOF(unsigned long)
  AC_CHECK_SIZEOF(unsigned __int128)
  
@@ -44,3 +36,4 @@ diff --git a/gdb/configure.ac b/gdb/configure.ac
  elif test "x${ac_cv_sizeof_unsigned___int128}" = "x16"; then
    TARGET_PTR="unsigned __int128"
  else
+

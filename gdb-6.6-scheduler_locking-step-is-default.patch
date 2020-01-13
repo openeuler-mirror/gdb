@@ -1,15 +1,7 @@
-From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
-From: Fedora GDB patches <invalid@email.com>
-Date: Fri, 27 Oct 2017 21:07:50 +0200
-Subject: gdb-6.6-scheduler_locking-step-is-default.patch
-
-;; Make upstream `set scheduler-locking step' as default.
-;;=push+jan: How much is scheduler-locking relevant after non-stop?
-
 diff --git a/gdb/infrun.c b/gdb/infrun.c
 --- a/gdb/infrun.c
 +++ b/gdb/infrun.c
-@@ -2193,7 +2193,7 @@ static const char *const scheduler_enums[] = {
+@@ -2075,7 +2075,7 @@ static const char *const scheduler_enums[] = {
    schedlock_replay,
    NULL
  };
@@ -76,3 +68,4 @@ diff --git a/gdb/testsuite/gdb.opt/inline-cmds.exp b/gdb/testsuite/gdb.opt/inlin
  	    pass $message
  	}
  	timeout {
+

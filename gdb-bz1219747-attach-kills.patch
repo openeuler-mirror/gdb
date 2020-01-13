@@ -1,11 +1,3 @@
-From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
-From: Fedora GDB patches <invalid@email.com>
-Date: Fri, 27 Oct 2017 21:07:50 +0200
-Subject: gdb-bz1219747-attach-kills.patch
-
-;; Never kill PID on: gdb exec PID (Jan Kratochvil, RH BZ 1219747).
-;;=push+jan
-
 http://sourceware.org/ml/gdb-patches/2015-10/msg00301.html
 
 Hi,
@@ -80,18 +72,18 @@ gdb/testsuite/ChangeLog
 diff --git a/gdb/main.c b/gdb/main.c
 --- a/gdb/main.c
 +++ b/gdb/main.c
-@@ -1115,7 +1115,10 @@ captured_main_1 (struct captured_main_args *context)
-       if (isdigit (pid_or_core_arg[0]))
+@@ -1129,7 +1129,10 @@ captured_main_1 (struct captured_main_args *context)
  	{
- 	  if (catch_command_errors (attach_command, pid_or_core_arg,
--				    !batch_flag) == 0)
-+				    !batch_flag) == 0
+ 	  ret = catch_command_errors (attach_command, pid_or_core_arg,
+ 				      !batch_flag);
+-	  if (ret == 0)
++	  if (ret == 0
 +	      /* attach_command could succeed partially and core_file_command
 +		 would try to kill it.  */
 +	      && !have_inferiors ())
- 	    catch_command_errors (core_file_command, pid_or_core_arg,
- 				  !batch_flag);
- 	}
+ 	    ret = catch_command_errors (core_file_command,
+ 					pid_or_core_arg,
+ 					!batch_flag);
 diff --git a/gdb/testsuite/gdb.base/attach-kills.c b/gdb/testsuite/gdb.base/attach-kills.c
 new file mode 100644
 --- /dev/null
@@ -176,3 +168,4 @@ new file mode 100644
 +}
 +
 +kill_wait_spawned_process $test_spawn_id
+

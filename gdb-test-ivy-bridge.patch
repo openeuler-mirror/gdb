@@ -1,11 +1,3 @@
-From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
-From: Fedora GDB patches <invalid@email.com>
-Date: Fri, 27 Oct 2017 21:07:50 +0200
-Subject: gdb-test-ivy-bridge.patch
-
-;; Test GDB opcodes/ disassembly of Intel Ivy Bridge instructions (BZ 696890).
-;;=fedoratest
-
 diff --git a/gdb/testsuite/gdb.arch/amd64-ivy-bridge.S b/gdb/testsuite/gdb.arch/amd64-ivy-bridge.S
 new file mode 100644
 --- /dev/null
@@ -467,3 +459,4 @@ new file mode 100644
 +\[^\r\n\]+:\tf3 0f ae d3\t\(             \)?wrfsbase ebx\r
 +\[^\r\n\]+:\tf3 0f ae db\t\(             \)?wrgsbase ebx\r
 +End of assembler dump\\." "intel"
+
