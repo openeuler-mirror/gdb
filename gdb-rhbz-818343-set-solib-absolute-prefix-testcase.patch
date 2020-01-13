@@ -1,11 +1,3 @@
-From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
-From: Fedora GDB patches <invalid@email.com>
-Date: Fri, 27 Oct 2017 21:07:50 +0200
-Subject: gdb-rhbz-818343-set-solib-absolute-prefix-testcase.patch
-
-;; Testcase for `Setting solib-absolute-prefix breaks vDSO' (BZ 818343).
-;;=fedoratest
-
 diff --git a/gdb/testsuite/gdb.base/set-solib-absolute-prefix.c b/gdb/testsuite/gdb.base/set-solib-absolute-prefix.c
 new file mode 100644
 --- /dev/null
@@ -81,3 +73,4 @@ new file mode 100644
 +    ".*warning: Unable to find dynamic linker breakpoint function.*" \
 +    "set solib-absolute-prefix"
 +gdb_test "bt" "__kernel_vsyscall.*" "backtrace with __kernel_vsyscall"
+

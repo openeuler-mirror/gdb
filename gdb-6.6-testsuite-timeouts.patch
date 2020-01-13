@@ -1,11 +1,3 @@
-From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
-From: Fedora GDB patches <invalid@email.com>
-Date: Fri, 27 Oct 2017 21:07:50 +0200
-Subject: gdb-6.6-testsuite-timeouts.patch
-
-;; Avoid too long timeouts on failing cases of "annota1.exp annota3.exp".
-;;=fedoratest
-
 diff --git a/gdb/testsuite/gdb.base/annota1.exp b/gdb/testsuite/gdb.base/annota1.exp
 --- a/gdb/testsuite/gdb.base/annota1.exp
 +++ b/gdb/testsuite/gdb.base/annota1.exp
@@ -30,3 +22,4 @@ diff --git a/gdb/testsuite/gdb.base/annota3.exp b/gdb/testsuite/gdb.base/annota3
  # The commands we test here produce many lines of output; disable "press 
  # <return> to continue" prompts.
  gdb_test_no_output "set height 0"
+

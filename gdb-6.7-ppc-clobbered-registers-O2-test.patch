@@ -1,11 +1,3 @@
-From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
-From: Jan Kratochvil <jan.kratochvil@redhat.com>
-Date: Fri, 27 Oct 2017 21:07:50 +0200
-Subject: gdb-6.7-ppc-clobbered-registers-O2-test.patch
-
-;; Test PPC hiding of call-volatile parameter register.
-;;=fedoratest
-
 2007-11-04  Jan Kratochvil  <jan.kratochvil@redhat.com>
 
 	* gdb.arch/ppc-clobbered-registers-O2.exp: `powerpc64' changed to
@@ -106,3 +98,4 @@ new file mode 100644
 +
 +gdb_test backtrace ".*operand0=<value optimized out>.*operand1=<value optimized out>.*" \
 +  "Check value of call clobbered registers"
+

@@ -1,11 +1,3 @@
-From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
-From: Fedora GDB patches <invalid@email.com>
-Date: Fri, 27 Oct 2017 21:07:50 +0200
-Subject: gdb-lineno-makeup-test.patch
-
-;; Testcase for "Do not make up line information" fix by Daniel Jacobowitz.
-;;=fedoratest
-
 New testcase for:
 https://bugzilla.redhat.com/show_bug.cgi?id=466222
 	(for the first / customer recommended fix)
@@ -163,3 +155,4 @@ new file mode 100644
 +	fail $test
 +    }
 +}
+

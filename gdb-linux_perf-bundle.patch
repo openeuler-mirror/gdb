@@ -1,15 +1,7 @@
-From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
-From: Fedora GDB patches <invalid@email.com>
-Date: Fri, 27 Oct 2017 21:07:50 +0200
-Subject: gdb-linux_perf-bundle.patch
-
-;; [dts+el7] [x86*] Bundle linux_perf.h for libipt (RH BZ 1256513).
-;;=fedora
-
 diff --git a/gdb/configure b/gdb/configure
 --- a/gdb/configure
 +++ b/gdb/configure
-@@ -12059,7 +12059,7 @@ else
+@@ -12137,7 +12137,7 @@ else
  
  #include <linux/perf_event.h>
  #ifndef PERF_ATTR_SIZE_VER5
@@ -21,7 +13,7 @@ diff --git a/gdb/configure b/gdb/configure
 diff --git a/gdb/configure.ac b/gdb/configure.ac
 --- a/gdb/configure.ac
 +++ b/gdb/configure.ac
-@@ -1477,7 +1477,7 @@ else
+@@ -1500,7 +1500,7 @@ else
    AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
  #include <linux/perf_event.h>
  #ifndef PERF_ATTR_SIZE_VER5
@@ -234,3 +226,4 @@ diff --git a/gdb/nat/linux-btrace.h b/gdb/nat/linux-btrace.h
  struct target_ops;
  
  #if HAVE_LINUX_PERF_EVENT_H
+

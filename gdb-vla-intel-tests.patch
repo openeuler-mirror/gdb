@@ -1,10 +1,3 @@
-From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
-From: Fedora GDB patches <invalid@email.com>
-Date: Fri, 27 Oct 2017 21:07:50 +0200
-Subject: gdb-vla-intel-tests.patch
-
-;;=fedoratest
-
 diff --git a/gdb/testsuite/gdb.fortran/vla-func.exp b/gdb/testsuite/gdb.fortran/vla-func.exp
 new file mode 100644
 --- /dev/null
@@ -298,3 +291,4 @@ new file mode 100644
 +  var_char_p => null()
 +  l = associated(var_char_p)              ! var_char_p-not-associated
 +end program vla_strings
+

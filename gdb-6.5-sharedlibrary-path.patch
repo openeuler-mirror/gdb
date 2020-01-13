@@ -1,12 +1,3 @@
-From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
-From: Jan Kratochvil <jan.kratochvil@redhat.com>
-Date: Fri, 27 Oct 2017 21:07:50 +0200
-Subject: gdb-6.5-sharedlibrary-path.patch
-
-;; Fix TLS symbols resolving for shared libraries with a relative pathname.
-;; The testsuite needs `gdb-6.5-tls-of-separate-debuginfo.patch'.
-;;=fedoratest: One should recheck if it is really fixed upstream.
-
 If you provided some relative path to the shared library, such as with
 	export LD_LIBRARY_PATH=.
 then gdb would fail to match the shared library name during the TLS lookup.
@@ -178,3 +169,4 @@ new file mode 100644
 +             "\\\$1 = \[0-9\].*" \
 +             "print TLS variable from a shared library with $name-directory separate debug info file"
 +}
+

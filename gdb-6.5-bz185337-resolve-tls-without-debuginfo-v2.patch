@@ -1,11 +1,3 @@
-From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
-From: Jan Kratochvil <jan.kratochvil@redhat.com>
-Date: Fri, 27 Oct 2017 21:07:50 +0200
-Subject: gdb-6.5-bz185337-resolve-tls-without-debuginfo-v2.patch
-
-;; Support TLS symbols (+`errno' suggestion if no pthread is found) (BZ 185337).
-;;=push+jan: It should be replaced by Infinity project.
-
 https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=185337
 
 2008-02-24  Jan Kratochvil  <jan.kratochvil@redhat.com>
@@ -44,7 +36,7 @@ glibc-debuginfo-2.7-2.x86_64: /usr/lib/debug/lib64/libc.so.6.debug:
 diff --git a/gdb/printcmd.c b/gdb/printcmd.c
 --- a/gdb/printcmd.c
 +++ b/gdb/printcmd.c
-@@ -1190,6 +1190,10 @@ print_command_1 (const char *exp, int voidprint)
+@@ -1183,6 +1183,10 @@ print_command_1 (const char *exp, int voidprint)
  
    if (exp && *exp)
      {
@@ -262,3 +254,4 @@ new file mode 100644
 +
 +# TODO: Test the error on resolving ERRNO with only libc loaded.
 +# Just how to find the current libc filename?
+

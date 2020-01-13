@@ -1,11 +1,3 @@
-From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
-From: Fedora GDB patches <invalid@email.com>
-Date: Fri, 27 Oct 2017 21:07:50 +0200
-Subject: gdb-simultaneous-step-resume-breakpoint-test.patch
-
-;; New test for step-resume breakpoint placed in multiple threads at once.
-;;=fedoratest
-
 diff --git a/gdb/testsuite/gdb.threads/simultaneous-step-resume-breakpoint.c b/gdb/testsuite/gdb.threads/simultaneous-step-resume-breakpoint.c
 new file mode 100644
 --- /dev/null
@@ -160,3 +152,4 @@ new file mode 100644
 +
 +gdb_test "continue" "sleep-after.*" "second continue"
 +gdb_test "continue" "final-exit.*" "third continue"
+

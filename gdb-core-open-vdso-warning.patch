@@ -1,12 +1,3 @@
-From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
-From: Fedora GDB patches <invalid@email.com>
-Date: Fri, 27 Oct 2017 21:07:50 +0200
-Subject: gdb-core-open-vdso-warning.patch
-
-;; Fix GNU/Linux core open: Can't read pathname for load map: Input/output error.
-;; Fix regression of undisplayed missing shared libraries caused by a fix for.
-;;=fedoratest: It should be in glibc: libc-alpha: <20091004161706.GA27450@.*>
-
 http://sourceware.org/ml/gdb-patches/2009-10/msg00142.html
 Subject: [patch] Fix GNU/Linux core open: Can't read pathname for load map:  Input/output error.
 
@@ -56,3 +47,4 @@ diff --git a/gdb/testsuite/gdb.base/solib-symbol.exp b/gdb/testsuite/gdb.base/so
 +gdb_run_cmd
 +gdb_test "" "warning: Could not load shared library symbols for \[0-9\]+ libraries,.*\r\nBreakpoint \[0-9\]+, main .*" \
 +	 "warning for missing libraries"
+

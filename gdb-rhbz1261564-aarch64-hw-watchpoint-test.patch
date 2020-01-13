@@ -1,11 +1,3 @@
-From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
-From: Fedora GDB patches <invalid@email.com>
-Date: Fri, 27 Oct 2017 21:07:50 +0200
-Subject: gdb-rhbz1261564-aarch64-hw-watchpoint-test.patch
-
-;; [aarch64] Fix hardware watchpoints (RH BZ 1261564).
-;;=fedoratest
-
 diff --git a/gdb/testsuite/gdb.base/rhbz1261564-aarch64-watchpoint.c b/gdb/testsuite/gdb.base/rhbz1261564-aarch64-watchpoint.c
 new file mode 100644
 --- /dev/null
@@ -102,3 +94,4 @@ new file mode 100644
 +setup_xfail "powerpc*-*-*"
 +
 +gdb_continue_to_end
+

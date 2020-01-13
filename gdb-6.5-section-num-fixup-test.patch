@@ -1,11 +1,3 @@
-From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
-From: Fedora GDB patches <invalid@email.com>
-Date: Fri, 27 Oct 2017 21:07:50 +0200
-Subject: gdb-6.5-section-num-fixup-test.patch
-
-;; Test a crash on libraries missing the .text section.
-;;=fedoratest
-
 diff --git a/gdb/testsuite/gdb.base/datalib-lib.c b/gdb/testsuite/gdb.base/datalib-lib.c
 new file mode 100644
 --- /dev/null
@@ -120,3 +112,4 @@ new file mode 100644
 +gdb_test "start" \
 +         "main \\(\\) at .*${srcfilemain}.*" \
 +         "start"
+
