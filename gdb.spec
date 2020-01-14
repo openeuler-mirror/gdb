@@ -1,6 +1,6 @@
 Name: gdb
 Version: 8.3.1
-Release: 7
+Release: 8
 
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ and GPLv2+ with exceptions and GPL+ and LGPLv2+ and LGPLv3+ and BSD and Public Domain and GFDL
 Source: ftp://sourceware.org/pub/gdb/releases/gdb-%{version}.tar.xz
@@ -19,6 +19,7 @@ Recommends: dnf-command(debuginfo-install)
 Conflicts: gdb-headless < 7.12-29
 Requires: gdb-headless%{?_isa} = %{version}-%{release}
 BuildRequires: gdb
+BuildRequires: librpm8
 
 %description
 GDB, the GNU Project debugger, allows you to see what is going on inside
@@ -414,6 +415,9 @@ rm -f $RPM_BUILD_ROOT%{_datadir}/gdb/python/gdb/command/backtrace.py
 %{_infodir}/gdb.info*
 
 %changelog
+* Tue Jan  14 2020 openEuler Buildteam <buildteam@openeuler.org> - 8.3.1-8
+- add build requirement librpm8
+
 * Wed Jan  8 2020 openEuler Buildteam <buildteam@openeuler.org> - 8.3.1-7
 - Upgrade GDB version to 8.3.1
 
