@@ -1,6 +1,6 @@
 Name: gdb
 Version: 8.3.1
-Release: 8
+Release: 9
 
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ and GPLv2+ with exceptions and GPL+ and LGPLv2+ and LGPLv3+ and BSD and Public Domain and GFDL
 Source: ftp://sourceware.org/pub/gdb/releases/gdb-%{version}.tar.xz
@@ -19,7 +19,6 @@ Recommends: dnf-command(debuginfo-install)
 Conflicts: gdb-headless < 7.12-29
 Requires: gdb-headless%{?_isa} = %{version}-%{release}
 BuildRequires: gdb
-BuildRequires: librpm8
 
 %description
 GDB, the GNU Project debugger, allows you to see what is going on inside
@@ -38,7 +37,7 @@ Provides: bundled(gnulib) = 20161115
 Provides: bundled(binutils) = 20180828
 Provides: bundled(md5-gcc) = 20180828
 
-%global librpmso librpm.so.8
+%global librpmso librpm.so.9
 
 Recommends: default-yama-scope
 Recommends: %{librpmso}()(64bit)
@@ -415,7 +414,10 @@ rm -f $RPM_BUILD_ROOT%{_datadir}/gdb/python/gdb/command/backtrace.py
 %{_infodir}/gdb.info*
 
 %changelog
-* Tue Jan  14 2020 openEuler Buildteam <buildteam@openeuler.org> - 8.3.1-8
+* Thu Jan 16 2020 openEuler Buildteam <buildteam@openeuler.org> - 8.3.1-9
+- rpm upgrade successful, delete the dependence to librpm8
+
+* Tue Jan 14 2020 openEuler Buildteam <buildteam@openeuler.org> - 8.3.1-8
 - add build requirement librpm8
 
 * Wed Jan  8 2020 openEuler Buildteam <buildteam@openeuler.org> - 8.3.1-7
