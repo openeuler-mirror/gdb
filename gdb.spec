@@ -1,6 +1,6 @@
 Name: gdb
 Version: 8.3.1
-Release: 9
+Release: 10
 
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ and GPLv2+ with exceptions and GPL+ and LGPLv2+ and LGPLv3+ and BSD and Public Domain and GFDL
 Source: ftp://sourceware.org/pub/gdb/releases/gdb-%{version}.tar.xz
@@ -166,6 +166,10 @@ Patch119:  gdb-rhbz1704406-disable-style-log-output-3of3.patch
 Patch120:  gdb-rhbz1723564-gdb-crash-PYTHONMALLOC-debug.patch
 Patch121:  gdb-rhbz1553086-binutils-warning-loadable-section-outside-elf.patch
 # Fedora patch end
+
+# Patch from upstream
+Patch6000: gdb-detect-invalid-length-field-in-debug-frame-FDE-header.patch
+# Upstream patch end
 
 BuildRequires: rpm-libs
 BuildRequires: readline-devel >= 6.2-4
@@ -414,6 +418,9 @@ rm -f $RPM_BUILD_ROOT%{_datadir}/gdb/python/gdb/command/backtrace.py
 %{_infodir}/gdb.info*
 
 %changelog
+* Mon Feb  3 2020 yuxiangyang<yuxiangyang4@huawei.com> - 8.3.1-10
+- fix CVE-2017-9778
+
 * Thu Jan 16 2020 openEuler Buildteam <buildteam@openeuler.org> - 8.3.1-9
 - rpm upgrade successful, delete the dependence to librpm8
 
