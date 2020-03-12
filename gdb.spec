@@ -1,6 +1,6 @@
 Name: gdb
 Version: 8.3.1
-Release: 10
+Release: 11
 
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ and GPLv2+ with exceptions and GPL+ and LGPLv2+ and LGPLv3+ and BSD and Public Domain and GFDL
 Source: ftp://sourceware.org/pub/gdb/releases/gdb-%{version}.tar.xz
@@ -169,6 +169,7 @@ Patch121:  gdb-rhbz1553086-binutils-warning-loadable-section-outside-elf.patch
 
 # Patch from upstream
 Patch6000: gdb-detect-invalid-length-field-in-debug-frame-FDE-header.patch
+Patch6001: gdb-threads-Fix-hang-in-stop_all_threads-after-killi.patch
 # Upstream patch end
 
 BuildRequires: rpm-libs
@@ -418,6 +419,9 @@ rm -f $RPM_BUILD_ROOT%{_datadir}/gdb/python/gdb/command/backtrace.py
 %{_infodir}/gdb.info*
 
 %changelog
+* Wed Mar 11 2020 yuxiangyang<yuxiangyang4@huawei.com> - 8.3.1-11
+- backport upstream patch to fix hang in stop_all_stop
+
 * Mon Feb  3 2020 yuxiangyang<yuxiangyang4@huawei.com> - 8.3.1-10
 - fix CVE-2017-9778
 
