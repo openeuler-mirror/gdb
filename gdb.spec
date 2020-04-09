@@ -1,6 +1,6 @@
 Name: gdb
 Version: 8.3.1
-Release: 11
+Release: 12
 
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ and GPLv2+ with exceptions and GPL+ and LGPLv2+ and LGPLv3+ and BSD and Public Domain and GFDL
 Source: ftp://sourceware.org/pub/gdb/releases/gdb-%{version}.tar.xz
@@ -254,8 +254,6 @@ export CFLAGS="$RPM_OPT_FLAGS -DDNF_DEBUGINFO_INSTALL"
 export LDFLAGS="%{?__global_ldflags}"
 export CXXFLAGS="$CFLAGS"
 
-if grep -w RL_STATE_FEDORA_GDB %{_includedir}/readline/readline.h;then false;fi
-
 ../configure							\
 	--prefix=%{_prefix}					\
 	--libdir=%{_libdir}					\
@@ -419,6 +417,9 @@ rm -f $RPM_BUILD_ROOT%{_datadir}/gdb/python/gdb/command/backtrace.py
 %{_infodir}/gdb.info*
 
 %changelog
+* Wed Apr  8 2020 Yunfeng Ye<yeyunfeng@huawei.com> - 8.3.1-12
+- remove some useless information for cleancode
+
 * Wed Mar 11 2020 yuxiangyang<yuxiangyang4@huawei.com> - 8.3.1-11
 - backport upstream patch to fix hang in stop_all_stop
 
