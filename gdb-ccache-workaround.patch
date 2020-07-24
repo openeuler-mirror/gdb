@@ -16,4 +16,3 @@ diff --git a/gdb/testsuite/gdb.base/macscp.exp b/gdb/testsuite/gdb.base/macscp.e
  # Generate the intermediate object file.  This is required by Darwin to
  # have access to the .debug_macinfo section.
  if  {[gdb_compile "${srcdir}/${subdir}/macscp1.c" "${objfile}" \
-

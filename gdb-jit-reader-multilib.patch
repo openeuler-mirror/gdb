@@ -1,7 +1,7 @@
 diff --git a/gdb/configure b/gdb/configure
 --- a/gdb/configure
 +++ b/gdb/configure
-@@ -9705,10 +9705,12 @@ _ACEOF
+@@ -9694,10 +9694,12 @@ _ACEOF
  
  
  
@@ -20,7 +20,7 @@ diff --git a/gdb/configure b/gdb/configure
 diff --git a/gdb/configure.ac b/gdb/configure.ac
 --- a/gdb/configure.ac
 +++ b/gdb/configure.ac
-@@ -820,10 +820,12 @@ AC_CHECK_SIZEOF(unsigned long long)
+@@ -808,10 +808,12 @@ AC_CHECK_SIZEOF(unsigned long long)
  AC_CHECK_SIZEOF(unsigned long)
  AC_CHECK_SIZEOF(unsigned __int128)
  
@@ -36,4 +36,3 @@ diff --git a/gdb/configure.ac b/gdb/configure.ac
  elif test "x${ac_cv_sizeof_unsigned___int128}" = "x16"; then
    TARGET_PTR="unsigned __int128"
  else
-
