@@ -1,14 +1,3 @@
-Comments from Sergio Durigan Junior:
-
-  The "proper" fix for this whole problem would be to backport the
-  "ambiguous linespec" patch series.  However, it is really not
-  recommended to do that for RHEL GDB, because the patch series is too
-  big and could introduce unwanted regressions.  Instead, what we
-  chose to do was to replace the gdb_assert call by a warning (which
-  allows the user to continue the debugging session), and tell the
-  user that, although more than one location was found for his/her
-  breakpoint, only one will be used.
-
 diff --git a/gdb/testsuite/gdb.cp/gdb-rhbz1186476-internal-error-unqualified-name-re-set-main.cc b/gdb/testsuite/gdb.cp/gdb-rhbz1186476-internal-error-unqualified-name-re-set-main.cc
 new file mode 100644
 --- /dev/null
@@ -123,4 +112,3 @@ new file mode 100644
 +gdb_test "run"
 +
 +gdb_test "info break" " in C::C\\(\\) at .* in C::C\\(int\\) at .*"
-

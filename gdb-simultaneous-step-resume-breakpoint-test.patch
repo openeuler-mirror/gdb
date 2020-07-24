@@ -152,4 +152,3 @@ new file mode 100644
 +
 +gdb_test "continue" "sleep-after.*" "second continue"
 +gdb_test "continue" "final-exit.*" "third continue"
-

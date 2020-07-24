@@ -928,4 +928,3 @@ new file mode 100644
 +rm -rf $WORKDIR
 +
 +exit $FAILURES
-

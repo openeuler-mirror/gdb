@@ -52,4 +52,3 @@ new file mode 100644
 +}
 +
 +gdb_test "disas _start" "Dump of assembler code for function _start:\r\n *0x\[0-9a-f\]+ <\[+\]0>:\tclflushopt \\(%edi\\)\r\nEnd of assembler dump\\." "clflushopt"
-

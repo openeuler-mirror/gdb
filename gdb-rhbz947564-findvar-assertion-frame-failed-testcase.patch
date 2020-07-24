@@ -136,4 +136,3 @@ new file mode 100644
 +} else {
 +    fail "different values for TLS variable"
 +}
-

@@ -112,4 +112,3 @@ new file mode 100644
 +gdb_test "start" \
 +         "main \\(\\) at .*${srcfilemain}.*" \
 +         "start"
-

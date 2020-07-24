@@ -73,4 +73,3 @@ new file mode 100644
 +    ".*warning: Unable to find dynamic linker breakpoint function.*" \
 +    "set solib-absolute-prefix"
 +gdb_test "bt" "__kernel_vsyscall.*" "backtrace with __kernel_vsyscall"
-

@@ -237,4 +237,3 @@ new file mode 100644
 +}
 +
 +gdb_continue_to_breakpoint "First line ~C"
-

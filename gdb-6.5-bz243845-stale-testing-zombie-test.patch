@@ -78,4 +78,3 @@ new file mode 100644
 +} else {
 +    fail $test
 +}
-

@@ -293,4 +293,3 @@ new file mode 100644
 +	.long	0xedc07834	/* 194: frsqrtes f14,f15          */
 +	.long	0xedc07835	/* 198: frsqrtes. f14,f15         */
 +	.long	0x7c43271e	/* 19c: isel    r2,r3,r4,28       */
-

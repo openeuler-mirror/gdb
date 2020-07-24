@@ -118,4 +118,3 @@ new file mode 100644
 +
 +gdb_test {print strstr("abc","b")} { = 0x[0-9a-f]+ "bc"}
 +gdb_test {print strstr("def","e")} { = 0x[0-9a-f]+ "ef"}
-

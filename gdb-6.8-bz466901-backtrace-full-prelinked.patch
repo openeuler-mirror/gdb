@@ -1,5 +1,3 @@
-Fix resolving of variables at locations lists in prelinked libs (BZ 466901).
-
 diff --git a/gdb/testsuite/gdb.dwarf2/dw2-loclist-prelinked-func.S b/gdb/testsuite/gdb.dwarf2/dw2-loclist-prelinked-func.S
 new file mode 100644
 --- /dev/null
@@ -471,4 +469,3 @@ new file mode 100644
 +
 +# `abort' can get expressed as `*__GI_abort'.
 +gdb_test "bt full" "in \[^ \]*abort \\(.*in func \\(.*\r\n\[\t \]+i = -?\[0-9\].*in main \\(.*" "Backtrace after abort()"
-
