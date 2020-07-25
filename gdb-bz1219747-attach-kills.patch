@@ -1,78 +1,7 @@
-http://sourceware.org/ml/gdb-patches/2015-10/msg00301.html
-
-Hi,
-
-in some cases with deleted main executable GDB will want to kill the inferior.
-
-$ cp /bin/sleep /tmp/sleep;/tmp/sleep 1h&p=$!
-$ rm /tmp/sleep
-$ gdb /tmp/sleep $p
-GNU gdb (GDB) 7.10.50.20151016-cvs
-/tmp/sleep: No such file or directory.
-Attaching to process 9694
-/tmp/sleep (deleted): No such file or directory.
-A program is being debugged already.  Kill it? (y or n) _
-
-The first attachment of "/tmp/sleep" commandline argument errors at:
-
-267               if (scratch_chan < 0)
-268                 perror_with_name (filename);
-1051          if (catch_command_errors_const (exec_file_attach, execarg,
-1052                                          !batch_flag))
-
-Then GDB tries to attach to the process $p:
-
-1082              if (catch_command_errors (attach_command, pid_or_core_arg,
-1083                                        !batch_flag) == 0)
-
-This succeeds and since this moment GDB has a valid inferior.  But despite that
-the lines
-1082              if (catch_command_errors (attach_command, pid_or_core_arg,
-1083                                        !batch_flag) == 0)
-still fail because consequently attach_command() fails to find the associated
-executable file:
-
-267               if (scratch_chan < 0)
-268                 perror_with_name (filename);
-1082              if (catch_command_errors (attach_command, pid_or_core_arg,
-1083                                        !batch_flag) == 0)
-
-and therefore GDB executes the following:
-
-(gdb) bt
-2179	  if (have_inferiors ())
-2180	    {
-2181	      if (!from_tty
-2182		  || !have_live_inferiors ()
-2183		  || query (_("A program is being debugged already.  Kill it? ")))
-2184		iterate_over_inferiors (dispose_inferior, NULL);
-2185	      else
-2186		error (_("Program not killed."));
-2187	    }
-1084		    catch_command_errors (core_file_command, pid_or_core_arg,
-1085					  !batch_flag);
-
-No regressions on {x86_64,x86_64-m32,i686}-fedora24pre-linux-gnu.
-
-Thanks,
-Jan
-
-gdb/ChangeLog
-2015-10-16  Jan Kratochvil  <jan.kratochvil@redhat.com>
-
-	* main.c (captured_main): Run core_file_command for pid_or_core_arg
-	only if not have_inferiors ().
-
-gdb/testsuite/ChangeLog
-2015-10-16  Jan Kratochvil  <jan.kratochvil@redhat.com>
-
-	* gdb.base/attach-kills.c: New.
-	* gdb.base/attach-kills.exp: New.
-
 diff --git a/gdb/main.c b/gdb/main.c
 --- a/gdb/main.c
 +++ b/gdb/main.c
-@@ -1129,7 +1129,10 @@ captured_main_1 (struct captured_main_args *context)
+@@ -1148,7 +1148,10 @@ captured_main_1 (struct captured_main_args *context)
  	{
  	  ret = catch_command_errors (attach_command, pid_or_core_arg,
  				      !batch_flag);
@@ -168,4 +97,3 @@ new file mode 100644
 +}
 +
 +kill_wait_spawned_process $test_spawn_id
-

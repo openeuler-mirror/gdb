@@ -244,4 +244,3 @@ new file mode 100644
 +clean_restart $executable
 +
 +gdb_test "ptype main" {type = int \(void\)}
-

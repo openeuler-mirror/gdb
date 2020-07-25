@@ -94,4 +94,3 @@ new file mode 100644
 +setup_xfail "powerpc*-*-*"
 +
 +gdb_continue_to_end
-

@@ -310,4 +310,3 @@ diff --git a/gdb/testsuite/gdb.arch/powerpc-prologue.exp b/gdb/testsuite/gdb.arc
      verbose "Skipping PowerPC prologue tests."
      return
  }
-

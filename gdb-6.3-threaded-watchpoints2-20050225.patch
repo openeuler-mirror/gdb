@@ -1,47 +1,3 @@
-2005-02-28  Jeff Johnston  <jjohnstn@redhat.com>
-
-	* config/i386/nm-linux.h: Change dr register routines to
-	accept a ptid_t first argument.  Change all calling macros
-	to default the inferior_ptid for the first argument.
-	(i386_linux_insert_watchpoint): New prototype.
-	(i386_linux_remove_watchpoint, i386_linux_insert_hw_breakpoint): Ditto.
-	(i386_linux_remove_hw_breakpoint): Ditto.
-	(target_insert_watchpoint, target_remove_watchpoint): Undef and
-	override.
-	(target_insert_hw_breakpoint, target_remove_hw_breakpoint): Ditto.
-	* config/i386/nm-linux64.h: Ditto except add amd64 versions of
-	the watchpoint/hw-breakpoint insert/remove routines.
-	* i386-nat.c: Include "inferior.h" to define inferior_ptid.
-	* i386-linux-nat.c: Change all dr get/set routines to accept
-	ptid_t as first argument and to use this argument to determine
-	the tid for PTRACE.
-	(i386_linux_set_debug_regs_for_thread): New function.
-	(i386_linux_sync_debug_registers_callback): Ditto.
-	(i386_linux_sync_debug_registers_across_threads): Ditto.
-	(i386_linux_insert_watchpoint, i386_linux_remove_watchpoint): Ditto.
-	(i386_linux_hw_breakpoint, i386_linux_remove_hw_breakpoint): Ditto.
-	(i386_linux_new_thread): Ditto.
-	(_initialize_i386_linux_nat): Ditto.
-	* amd64-linux-nat.c: Change all dr get/set routines to accept
-	ptid_t as first argument and to use this argument to determine
-	the tid for PTRACE.
-	(amd64_linux_set_debug_regs_for_thread): New function.
-	(amd64_linux_sync_debug_registers_callback): Ditto.
-	(amd64_linux_sync_debug_registers_across_threads): Ditto.
-	(amd64_linux_insert_watchpoint, amd64_linux_remove_watchpoint): Ditto.
-	(amd64_linux_hw_breakpoint, amd64_linux_remove_hw_breakpoint): Ditto.
-	(amd64_linux_new_thread): Ditto.
-	(_initialize_amd64_linux_nat): Register linux new thread observer.
-	* testsuite/gdb.threads/watchthreads-threaded.c: New test case.
-	* testsuite/gdb.threads/watchthreads-threaded.exp: Ditto.
-
-[ With recent upstream GDB (6.8) reduced only to the testcase.  ]
-
-[ It was called watchthreads2.{exp,c} before but it conflicted with FSF GDB new
-  testcase of the same name.  ]
-
-FIXME: The testcase does not expects multiple watchpoints hits per one stop.
-
 diff --git a/gdb/testsuite/gdb.threads/watchthreads-threaded.c b/gdb/testsuite/gdb.threads/watchthreads-threaded.c
 new file mode 100644
 --- /dev/null
@@ -244,4 +200,3 @@ new file mode 100644
 +} else {
 +  fail $message 
 +}
-

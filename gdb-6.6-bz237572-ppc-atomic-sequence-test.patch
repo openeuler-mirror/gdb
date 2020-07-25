@@ -1,8 +1,3 @@
-2007-06-25  Jan Kratochvil  <jan.kratochvil@redhat.com>
-
-	* gdb.threads/atomic-seq-threaded.c,
-	gdb.threads/atomic-seq-threaded.exp: New files.
-
 diff --git a/gdb/testsuite/gdb.threads/atomic-seq-threaded.c b/gdb/testsuite/gdb.threads/atomic-seq-threaded.c
 new file mode 100644
 --- /dev/null
@@ -268,4 +263,3 @@ new file mode 100644
 +gdb_test "c" \
 +	 ".*Program exited normally\\..*" \
 +	 "run till program exit"
-

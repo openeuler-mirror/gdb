@@ -444,4 +444,3 @@ new file mode 100644
 +clean_restart ${debugfile}
 +
 +gdb_test "complete p si" "complete p si\r\np size_of_encoded_value"
-
