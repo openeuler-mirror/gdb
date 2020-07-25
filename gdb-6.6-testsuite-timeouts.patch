@@ -22,4 +22,3 @@ diff --git a/gdb/testsuite/gdb.base/annota3.exp b/gdb/testsuite/gdb.base/annota3
  # The commands we test here produce many lines of output; disable "press 
  # <return> to continue" prompts.
  gdb_test_no_output "set height 0"
-

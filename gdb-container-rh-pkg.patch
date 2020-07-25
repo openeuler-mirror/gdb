@@ -1,7 +1,7 @@
 diff --git a/gdb/remote.c b/gdb/remote.c
 --- a/gdb/remote.c
 +++ b/gdb/remote.c
-@@ -13966,7 +13966,17 @@ remote_target::pid_to_exec_file (int pid)
+@@ -13916,7 +13916,17 @@ remote_target::pid_to_exec_file (int pid)
    char *annex = NULL;
  
    if (packet_support (PACKET_qXfer_exec_file) != PACKET_ENABLE)
@@ -20,4 +20,3 @@ diff --git a/gdb/remote.c b/gdb/remote.c
  
    inf = find_inferior_pid (pid);
    if (inf == NULL)
-

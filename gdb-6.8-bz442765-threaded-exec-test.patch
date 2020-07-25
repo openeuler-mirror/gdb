@@ -1,5 +1,3 @@
-Test various forms of threads tracking across exec(2).
-
 diff --git a/gdb/testsuite/gdb.threads/threaded-exec.c b/gdb/testsuite/gdb.threads/threaded-exec.c
 --- a/gdb/testsuite/gdb.threads/threaded-exec.c
 +++ b/gdb/testsuite/gdb.threads/threaded-exec.c
@@ -171,4 +169,3 @@ diff --git a/gdb/testsuite/gdb.threads/threaded-exec.exp b/gdb/testsuite/gdb.thr
  
  gdb_test_multiple {} "Program exited" {
     -re "\r\n\\\[Inferior .* exited normally\\\]\r\n$gdb_prompt $" {
-

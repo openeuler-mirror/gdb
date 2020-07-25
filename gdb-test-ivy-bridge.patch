@@ -459,4 +459,3 @@ new file mode 100644
 +\[^\r\n\]+:\tf3 0f ae d3\t\(             \)?wrfsbase ebx\r
 +\[^\r\n\]+:\tf3 0f ae db\t\(             \)?wrgsbase ebx\r
 +End of assembler dump\\." "intel"
-

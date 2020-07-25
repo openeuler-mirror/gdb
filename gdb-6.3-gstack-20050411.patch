@@ -1,13 +1,7 @@
-2004-11-23  Andrew Cagney  <cagney@redhat.com>
-
-	* Makefile.in (uninstall-gstack, install-gstack): New rules, add
-	to install and uninstall.
-	* gstack.sh, gstack.1: New files.
-
 diff --git a/gdb/Makefile.in b/gdb/Makefile.in
 --- a/gdb/Makefile.in
 +++ b/gdb/Makefile.in
-@@ -1749,7 +1749,7 @@ info install-info clean-info dvi pdf install-pdf html install-html: force
+@@ -1768,7 +1768,7 @@ info install-info clean-info dvi pdf install-pdf html install-html: force
  install: all
  	@$(MAKE) $(FLAGS_TO_PASS) install-only
  
@@ -16,7 +10,7 @@ diff --git a/gdb/Makefile.in b/gdb/Makefile.in
  	transformed_name=`t='$(program_transform_name)'; \
  			  echo gdb | sed -e "$$t"` ; \
  		if test "x$$transformed_name" = x; then \
-@@ -1798,7 +1798,25 @@ install-guile:
+@@ -1817,7 +1817,25 @@ install-guile:
  install-python:
  	$(SHELL) $(srcdir)/../mkinstalldirs $(DESTDIR)$(GDB_DATADIR)/python/gdb
  
@@ -43,7 +37,7 @@ diff --git a/gdb/Makefile.in b/gdb/Makefile.in
  	transformed_name=`t='$(program_transform_name)'; \
  			  echo gdb | sed -e $$t` ; \
  		if test "x$$transformed_name" = x; then \
-@@ -1821,6 +1839,18 @@ uninstall: force $(CONFIG_UNINSTALL)
+@@ -1840,6 +1858,18 @@ uninstall: force $(CONFIG_UNINSTALL)
  	fi
  	@$(MAKE) DO=uninstall "DODIRS=$(SUBDIRS)" $(FLAGS_TO_PASS) subdir_do
  
@@ -247,4 +241,3 @@ new file mode 100644
 +
 +# Kill the test inferior.
 +kill_wait_spawned_process $test_spawn_id
-

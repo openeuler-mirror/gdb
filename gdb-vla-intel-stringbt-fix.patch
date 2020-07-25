@@ -1,37 +1,7 @@
-http://sourceware.org/ml/gdb-patches/2014-08/msg00025.html
-
-On Fri, 01 Aug 2014 09:20:19 +0200, Keven Boell wrote:
-> I just tried it on Fedora 20 i686.  Applied the patch, you mentioned, on top of
-> the Fortran VLA series and executed your dynamic-other-frame test.  Everything
-> is working fine here, I cannot reproduce the crash.
-
-I have it reproducible on Fedora 20 i686 with plain
-CFLAGS=-g ./configure;make;cd gdb/testsuite;make site.exp;runtest gdb.fortran/dynamic-other-frame.exp
-
-Besides that I have updated the testcase with
-	gdb_test_no_output "set print frame-arguments all"
-so that there is no longer needed the patch:
-	[patch] Display Fortran strings in backtraces
-	https://sourceware.org/ml/gdb-patches/2014-07/msg00709.html
-
-The fix below has no regressions for me.  Unfortunately I do not see why you
-cannot reproduce it.
-
-Thanks,
-Jan
-
 diff --git a/gdb/dwarf2loc.c b/gdb/dwarf2loc.c
 --- a/gdb/dwarf2loc.c
 +++ b/gdb/dwarf2loc.c
-@@ -42,6 +42,7 @@
- #include <algorithm>
- #include <vector>
- #include <unordered_set>
-+#include <functional>
- #include "common/underlying.h"
- #include "common/byte-vector.h"
- 
-@@ -2158,6 +2159,20 @@ dwarf2_evaluate_loc_desc_full (struct type *type, struct frame_info *frame,
+@@ -2154,6 +2154,20 @@ dwarf2_evaluate_loc_desc_full (struct type *type, struct frame_info *frame,
    ctx.per_cu = per_cu;
    ctx.obj_address = 0;
  
@@ -166,4 +136,3 @@ new file mode 100644
 +  end interface
 +  call foo ('hello')
 +end
-

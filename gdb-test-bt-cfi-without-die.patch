@@ -1,63 +1,3 @@
-http://sourceware.org/ml/archer/2010-q3/msg00028.html
-
-On Wed, 25 Feb 2009 00:14:29 +0100, Jan Kratochvil wrote:
-> commit 6a37c2b9962258ecf9299cc34a650e64a06acaa5
->
-> There was a regression on gdb.base/savedregs.exp.
->
-> quick_addrmap/require_partial_symbols should be used even for the unwind debug
-> info checking as its load has been also delayed by this branch.
-[...]
-> --- a/gdb/dwarf2-frame.c
-> +++ b/gdb/dwarf2-frame.c
-[...]
-> @@ -1499,6 +1500,14 @@ dwarf2_frame_find_fde (CORE_ADDR *pc)
->        struct dwarf2_fde *fde;
->        CORE_ADDR offset;
->
-> +      if (objfile->quick_addrmap)
-> +	{
-> +	  if (!addrmap_find (objfile->quick_addrmap, *pc))
-> +	    continue;
-> +	}
-> +      /* FIXME: Read-in only .debug_frame/.eh_frame without .debug_info?  */
-> +      require_partial_symbols (objfile);
-> +
-
-but this has caused a different regression (as discussed in the confcall).
-
-QUICK_ADDRMAP is built only from .debug_aranges.  But we can have existing
-built .debug_aranges for CUs in OBJFILE but still some CUs do not need to have
-DWARF at all while they can feature CFIs (.eh_frame or .debug_frame).
-It has been described by Daniel Jacobowitz at:
-	Re: [2/4] RFC: check psymtabs_addrmap before reading FDEs
-	http://sourceware.org/ml/gdb-patches/2010-07/msg00012.html
-
-Sorry for this regression by me (in that fix of a different regression).
-
-Fixed it the "slow way" as this branch is now obsoleted by .gdb-index.
-
-No regressions on {x86_64,x86_64-m32,i686}-fedora13-linux-gnu.
-
-Checked-in.
-
-Thanks,
-Jan
-
-eb8df8566acc1ed963e3e9b77c13b9c2c3db03fb
-
-Test CFI is parsed even for range (function) not described by any DIE.
-
-https://bugzilla.redhat.com/show_bug.cgi?id=614028
-
-gdb/
-	* dwarf2-frame.c (dwarf2_frame_find_fde): Remove the
-	OBJFILE->QUICK_ADDRMAP check.  New comment why.
-
-gdb/testsuite/
-	* gdb.base/cfi-without-die.exp, gdb.base/cfi-without-die-main.c,
-	gdb.base/cfi-without-die-caller.c: New files.
-
 diff --git a/gdb/testsuite/gdb.base/cfi-without-die-caller.c b/gdb/testsuite/gdb.base/cfi-without-die-caller.c
 new file mode 100644
 --- /dev/null
@@ -204,4 +144,3 @@ new file mode 100644
 +# #1  0x00000000004004e9 in caller ()
 +# #2  0x00000000004004cd in main () at ...
 +gdb_test "bt" "#0 +callback \[^\r\n\]+\r\n#1 \[^\r\n\]+ in caller \[^\r\n\]+\r\n#2 \[^\r\n\]+ in main \[^\r\n\]+" "verify unwindin works for CFI without DIEs"
-

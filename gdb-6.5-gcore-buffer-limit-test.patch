@@ -139,4 +139,3 @@ new file mode 100644
 +
 +# Cleanup.
 +exec kill -9 $pid_of_bin
-

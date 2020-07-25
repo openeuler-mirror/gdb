@@ -1,10 +1,7 @@
-gdb returns an incorrect back trace when applying a debuginfo
-https://bugzilla.redhat.com/show_bug.cgi?id=1339862
-
 diff --git a/gdb/solib-svr4.c b/gdb/solib-svr4.c
 --- a/gdb/solib-svr4.c
 +++ b/gdb/solib-svr4.c
-@@ -1347,14 +1347,27 @@ svr4_read_so_list (CORE_ADDR lm, CORE_ADDR prev_lm,
+@@ -1346,14 +1346,27 @@ svr4_read_so_list (svr4_info *info, CORE_ADDR lm, CORE_ADDR prev_lm,
  	}
  
        {
@@ -34,7 +31,7 @@ diff --git a/gdb/solib-svr4.c b/gdb/solib-svr4.c
  	if (build_id != NULL)
  	  {
  	    char *name, *build_id_filename;
-@@ -1369,23 +1382,7 @@ svr4_read_so_list (CORE_ADDR lm, CORE_ADDR prev_lm,
+@@ -1368,23 +1381,7 @@ svr4_read_so_list (svr4_info *info, CORE_ADDR lm, CORE_ADDR prev_lm,
  		xfree (name);
  	      }
  	    else
@@ -225,4 +222,3 @@ new file mode 100644
 +
 +gdb_test "bt"
 +gdb_test "info shared"
-
