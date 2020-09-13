@@ -1,46 +1,10 @@
 Name: gdb
 Version: 9.2
-Release: 1
+Release: 2
 
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ and GPLv2+ with exceptions and GPL+ and LGPLv2+ and LGPLv3+ and BSD and Public Domain and GFDL
 Source: ftp://sourceware.org/pub/gdb/releases/gdb-%{version}.tar.xz
 URL: http://gnu.org/software/gdb/
-
-%global gdb_src gdb-%{version}
-%global gdb_build build-%{_target_platform}
-%global __python %{__python3}
-
-%undefine _debuginfo_subpackages
-
-Summary: GNU Project debugger
-
-Recommends: gcc-gdb-plugin
-Recommends: dnf-command(debuginfo-install)
-Conflicts: gdb-headless < 7.12-29
-Requires: gdb-headless = %{version}-%{release}
-BuildRequires: gdb
-
-%description
-GDB, the GNU Project debugger, allows you to see what is going on inside
-another program while it executes -- or what another program was doing
-at the moment it crashed.
-
-This package is only a stub to install gcc-gdb-plugin for 'compile' commands.
-See package 'gdb-headless'.
-
-%package headless
-Summary: The GNU Project debugger for C, C++, Fortran, Go and other languages
-
-Conflicts: elfutils < 0.149
-Provides: bundled(libiberty) = 20180828
-Provides: bundled(gnulib) = 20161115
-Provides: bundled(binutils) = 20180828
-Provides: bundled(md5-gcc) = 20180828
-
-%global librpmso librpm.so.9
-
-Recommends: default-yama-scope
-Recommends: %{librpmso}()(64bit)
 
 Source1: gdb-gstack.man
 Source2: gdbinit
@@ -148,6 +112,42 @@ Patch99:   gdb-rhbz1829702-fix-python39.patch
 Patch100:  gdb-rhbz1844458-use-fputX_unfiltered.patch
 Patch101:  gdb-rhbz1838777-debuginfod.patch
 # Fedora patch end
+
+%global gdb_src gdb-%{version}
+%global gdb_build build-%{_target_platform}
+%global __python %{__python3}
+
+%undefine _debuginfo_subpackages
+
+Summary: GNU Project debugger
+
+Recommends: gcc-gdb-plugin
+Recommends: dnf-command(debuginfo-install)
+Conflicts: gdb-headless < 7.12-29
+Requires: gdb-headless = %{version}-%{release}
+BuildRequires: gdb
+
+%description
+GDB, the GNU Project debugger, allows you to see what is going on inside
+another program while it executes -- or what another program was doing
+at the moment it crashed.
+
+This package is only a stub to install gcc-gdb-plugin for 'compile' commands.
+See package 'gdb-headless'.
+
+%package headless
+Summary: The GNU Project debugger for C, C++, Fortran, Go and other languages
+
+Conflicts: elfutils < 0.149
+Provides: bundled(libiberty) = 20180828
+Provides: bundled(gnulib) = 20161115
+Provides: bundled(binutils) = 20180828
+Provides: bundled(md5-gcc) = 20180828
+
+%global librpmso librpm.so.9
+
+Recommends: default-yama-scope
+Recommends: %{librpmso}()(64bit)
 
 BuildRequires: rpm-libs autoconf
 BuildRequires: readline-devel >= 6.2-4
@@ -394,6 +394,9 @@ rm -f $RPM_BUILD_ROOT%{_datadir}/gdb/python/gdb/command/backtrace.py
 %{_infodir}/gdb.info*
 
 %changelog
+* Sun sep 13 2020 licihua<licihua@huawei.com> - 9.2-2
+- Change the sequence of patch and sources
+
 * Wed Jul 22 2020 qinyu<qinyu16@huawei.com> - 9.2-1
 - upgrade GDB version to 9.2
 
