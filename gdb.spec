@@ -1,6 +1,6 @@
 Name: gdb
 Version: 9.2
-Release: 2
+Release: 3
 
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ and GPLv2+ with exceptions and GPL+ and LGPLv2+ and LGPLv3+ and BSD and Public Domain and GFDL
 Source: ftp://sourceware.org/pub/gdb/releases/gdb-%{version}.tar.xz
@@ -227,7 +227,7 @@ test -e %{_libdir}/%{librpmso}
 mkdir %{gdb_build}
 cd %{gdb_build}
 
-export CFLAGS="$RPM_OPT_FLAGS -DDNF_DEBUGINFO_INSTALL"
+export CFLAGS="$RPM_OPT_FLAGS -DDNF_DEBUGINFO_INSTALL -fPIC"
 export LDFLAGS="%{?__global_ldflags}"
 export CXXFLAGS="$CFLAGS"
 
@@ -378,8 +378,10 @@ rm -f $RPM_BUILD_ROOT%{_datadir}/gdb/python/gdb/command/backtrace.py
 %{_datadir}/gdb
 
 %files gdbserver
+%ifnarch riscv64
 %{_bindir}/gdbserver
 %{_libdir}/libinproctrace.so
+%endif
 
 %files help
 %{_mandir}/*/gcore.1*
@@ -394,7 +396,11 @@ rm -f $RPM_BUILD_ROOT%{_datadir}/gdb/python/gdb/command/backtrace.py
 %{_infodir}/gdb.info*
 
 %changelog
-* Sun sep 13 2020 licihua<licihua@huawei.com> - 9.2-2
+* Sat Nov 7 2020 Qingqing Li<liqingqing3@huawei.com> - 9.2-3
+- cause riscv64 do not support gdbserver, create a empty package for it.
+- add -fPIC option.
+
+* Sun Sep 13 2020 licihua<licihua@huawei.com> - 9.2-2
 - Change the sequence of patch and sources
 
 * Wed Jul 22 2020 qinyu<qinyu16@huawei.com> - 9.2-1
