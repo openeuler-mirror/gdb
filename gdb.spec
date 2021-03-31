@@ -1,8 +1,8 @@
 Name: gdb
 Version: 9.2
-Release: 1
+Release: 2
 
-License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ and GPLv2+ with exceptions and GPL+ and LGPLv2+ and LGPLv3+ and BSD and Public Domain and GFDL
+License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ and GPLv2+ with exceptions and GPL+ and LGPLv2+ and LGPLv3+ and BSD and Public Domain and GFDL-1.3
 Source: ftp://sourceware.org/pub/gdb/releases/gdb-%{version}.tar.xz
 URL: http://gnu.org/software/gdb/
 
@@ -207,7 +207,7 @@ done
 find -name "*.orig" | xargs rm -f
 
 cat > gdb/version.in << _FOO
-EulerOS %{version}-%{release}
+openEuler %{version}-%{release}
 _FOO
 
 rm -f libdecnumber/gstdint.h
@@ -394,6 +394,9 @@ rm -f $RPM_BUILD_ROOT%{_datadir}/gdb/python/gdb/command/backtrace.py
 %{_infodir}/gdb.info*
 
 %changelog
+* Wed Mar 31 2021 xinghe <xinghe1@huawei.com> - 9.2-2
+- fix typo for name
+
 * Wed Jul 22 2020 qinyu<qinyu16@huawei.com> - 9.2-1
 - upgrade GDB version to 9.2
 
