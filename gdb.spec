@@ -1,8 +1,8 @@
 Name: gdb
 Version: 9.2
-Release: 3
+Release: 4
 
-License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ and GPLv2+ with exceptions and GPL+ and LGPLv2+ and LGPLv3+ and BSD and Public Domain and GFDL
+License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ and GPLv2+ with exceptions and GPL+ and LGPLv2+ and LGPLv3+ and BSD and Public Domain and GFDL-1.3
 Source: ftp://sourceware.org/pub/gdb/releases/gdb-%{version}.tar.xz
 URL: http://gnu.org/software/gdb/
 
@@ -207,7 +207,7 @@ done
 find -name "*.orig" | xargs rm -f
 
 cat > gdb/version.in << _FOO
-EulerOS %{version}-%{release}
+openEuler %{version}-%{release}
 _FOO
 
 rm -f libdecnumber/gstdint.h
@@ -396,6 +396,9 @@ rm -f $RPM_BUILD_ROOT%{_datadir}/gdb/python/gdb/command/backtrace.py
 %{_infodir}/gdb.info*
 
 %changelog
+* Wed Mar 31 2021 xinghe <xinghe1@huawei.com> - 9.2-4
+- fix typo for name
+
 * Sat Nov 7 2020 Qingqing Li<liqingqing3@huawei.com> - 9.2-3
 - cause riscv64 do not support gdbserver, create a empty package for it.
 - add -fPIC option.
