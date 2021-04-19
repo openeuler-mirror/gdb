@@ -1,6 +1,6 @@
 Name: gdb
 Version: 9.2
-Release: 4
+Release: 5
 
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ and GPLv2+ with exceptions and GPL+ and LGPLv2+ and LGPLv3+ and BSD and Public Domain and GFDL-1.3
 Source: ftp://sourceware.org/pub/gdb/releases/gdb-%{version}.tar.xz
@@ -154,7 +154,6 @@ BuildRequires: readline-devel >= 6.2-4
 BuildRequires: gcc-c++ ncurses-devel texinfo gettext flex bison
 BuildRequires: expat-devel xz-devel rpm-devel zlib-devel libselinux-devel
 BuildRequires: python3-devel texinfo-tex
-BuildRequires: texlive-collection-latexrecommended
 BuildRequires: perl-podlators libbabeltrace-devel guile-devel mpfr-devel
 %ifarch %{ix86} x86_64
 BuildRequires: libipt-devel
@@ -396,6 +395,9 @@ rm -f $RPM_BUILD_ROOT%{_datadir}/gdb/python/gdb/command/backtrace.py
 %{_infodir}/gdb.info*
 
 %changelog
+* Mon Apr 19 2021 yuxiangyang <yuxiangyang4@huawei.com> - 9.2-5
+- remove unnecessary build require.
+
 * Wed Mar 31 2021 xinghe <xinghe1@huawei.com> - 9.2-4
 - fix typo for name
 
