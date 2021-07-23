@@ -1,6 +1,6 @@
 Name: gdb
 Version: 9.2
-Release: 5
+Release: 6
 
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ and GPLv2+ with exceptions and GPL+ and LGPLv2+ and LGPLv3+ and BSD and Public Domain and GFDL-1.3
 Source: ftp://sourceware.org/pub/gdb/releases/gdb-%{version}.tar.xz
@@ -125,7 +125,6 @@ Recommends: gcc-gdb-plugin
 Recommends: dnf-command(debuginfo-install)
 Conflicts: gdb-headless < 7.12-29
 Requires: gdb-headless = %{version}-%{release}
-BuildRequires: gdb
 
 %description
 GDB, the GNU Project debugger, allows you to see what is going on inside
@@ -395,6 +394,12 @@ rm -f $RPM_BUILD_ROOT%{_datadir}/gdb/python/gdb/command/backtrace.py
 %{_infodir}/gdb.info*
 
 %changelog
+* Fri Jul 23 2021 zhouwenpei <zhouwenpei1@huawei.com> - 9.2-6
+- remove unnecessary build require.
+
+* Mon Apr 19 2021 yuxiangyang <yuxiangyang4@huawei.com> - 9.2-5
+- remove unnecessary build require.
+
 * Mon Apr 19 2021 yuxiangyang <yuxiangyang4@huawei.com> - 9.2-5
 - remove unnecessary build require.
 
