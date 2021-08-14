@@ -1,6 +1,6 @@
 Name: gdb
 Version: 9.2
-Release: 6
+Release: 7
 
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ and GPLv2+ with exceptions and GPL+ and LGPLv2+ and LGPLv3+ and BSD and Public Domain and GFDL-1.3
 Source: ftp://sourceware.org/pub/gdb/releases/gdb-%{version}.tar.xz
@@ -112,6 +112,8 @@ Patch99:   gdb-rhbz1829702-fix-python39.patch
 Patch100:  gdb-rhbz1844458-use-fputX_unfiltered.patch
 Patch101:  gdb-rhbz1838777-debuginfod.patch
 # Fedora patch end
+
+Patch102:  0001-adjust-include-order-to-avoid-gnulib-error.patch 
 
 %global gdb_src gdb-%{version}
 %global gdb_build build-%{_target_platform}
@@ -394,6 +396,9 @@ rm -f $RPM_BUILD_ROOT%{_datadir}/gdb/python/gdb/command/backtrace.py
 %{_infodir}/gdb.info*
 
 %changelog
+* Fri Aug 13 2021 zhouwenpei <zhouwenpei1@huawei.com> - 9.2-7
+- adjust include order to avoid gnulib error
+
 * Fri Jul 23 2021 zhouwenpei <zhouwenpei1@huawei.com> - 9.2-6
 - remove unnecessary build require.
 
