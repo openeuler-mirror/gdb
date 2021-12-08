@@ -1,3 +1,11 @@
+From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
+From: Jan Kratochvil <jan.kratochvil@redhat.com>
+Date: Fri, 23 Mar 2018 20:42:44 +0100
+Subject: gdb-rhbz1553104-s390x-arch12-test.patch
+
+;; [s390x] Backport arch12 instructions decoding (RH BZ 1553104).
+;; =fedoratest
+
 diff --git a/gdb/testsuite/gdb.arch/s390x-arch12.S b/gdb/testsuite/gdb.arch/s390x-arch12.S
 new file mode 100644
 --- /dev/null

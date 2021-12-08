@@ -1,3 +1,30 @@
+From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
+From: Fedora GDB patches <invalid@email.com>
+Date: Fri, 27 Oct 2017 21:07:50 +0200
+Subject: 
+ gdb-6.6-buildid-locate-misleading-warning-missing-debuginfo-rhbz981154.patch
+
+;; Fix 'gdb gives highly misleading error when debuginfo pkg is present,
+;; but not corresponding binary pkg' (RH BZ 981154).
+;;=push+jan
+
+Comments by Sergio Durigan Junior <sergiodj@redhat.com>:
+
+  This is the fix for RH BZ #981154
+
+  It is mainly a testcase addition, but a minor fix in the gdb/build-id.c
+  file was also needed.
+
+  gdb/build-id.c was added by:
+
+  commit dc294be54c96414035eed7d53dafdea0a6f31a72
+  Author: Tom Tromey <tromey@redhat.com>
+  Date:   Tue Oct 8 19:56:15 2013 +0000
+
+  and had a little thinko there.  The variable 'filename' needs to be set to
+  NULL after it is free'd, otherwise the code below thinks that it is still
+  valid and doesn't print the necessary warning ("Try: yum install ...").
+
 diff --git a/gdb/testsuite/gdb.base/rhbz981154-misleading-yum-install-warning.exp b/gdb/testsuite/gdb.base/rhbz981154-misleading-yum-install-warning.exp
 new file mode 100644
 --- /dev/null

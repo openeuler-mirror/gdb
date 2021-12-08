@@ -1,3 +1,11 @@
+From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
+From: Fedora GDB patches <invalid@email.com>
+Date: Fri, 27 Oct 2017 21:07:50 +0200
+Subject: gdb-bz601887-dwarf4-rh-test.patch
+
+;; Backport DWARF-4 support (BZ 601887, Tom Tromey).
+;;=fedoratest
+
 diff --git a/gdb/testsuite/gdb.dwarf2/rh-dwarf4-x86_64.S b/gdb/testsuite/gdb.dwarf2/rh-dwarf4-x86_64.S
 new file mode 100644
 --- /dev/null
@@ -225,11 +233,11 @@ new file mode 100644
 +    && ![istarget *-*-openbsd*]
 +    && ![istarget arm-*-eabi*]
 +    && ![istarget powerpc-*-eabi*]} {
-+    return 0  
++    return 0
 +}
 +
 +if {![istarget x86_64-*]} {
-+    return 0  
++    return 0
 +}
 +
 +set testfile "rh-dwarf4-x86_64"

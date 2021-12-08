@@ -1,3 +1,11 @@
+From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
+From: Fedora GDB patches <invalid@email.com>
+Date: Fri, 27 Oct 2017 21:07:50 +0200
+Subject: gdb-rhbz1398387-tab-crash-test.patch
+
+;; New testcase for: Fix <tab>-completion crash (Gary Benson, RH BZ 1398387).
+;;=fedoratest
+
 diff --git a/gdb/testsuite/gdb.base/tab-crash.bz2.uu b/gdb/testsuite/gdb.base/tab-crash.bz2.uu
 new file mode 100644
 --- /dev/null
@@ -420,7 +428,7 @@ new file mode 100644
 +
 +if { ![istarget x86_64-*-* ] || ![is_lp64_target] } {
 +    return
-+}   
++}
 +
 +standard_testfile
 +
