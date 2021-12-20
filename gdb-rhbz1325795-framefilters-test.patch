@@ -1,3 +1,11 @@
+From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
+From: Fedora GDB patches <invalid@email.com>
+Date: Fri, 27 Oct 2017 21:07:50 +0200
+Subject: gdb-rhbz1325795-framefilters-test.patch
+
+;; New test for Python "Cannot locate object file for block" (for RH BZ 1325795).
+;;=fedoratest
+
 diff --git a/gdb/testsuite/gdb.python/py-framefilter-thread.c b/gdb/testsuite/gdb.python/py-framefilter-thread.c
 new file mode 100644
 --- /dev/null

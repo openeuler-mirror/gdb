@@ -1,8 +1,60 @@
+From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
+From: Jeff Johnston <jjohnstn@redhat.com>
+Date: Fri, 27 Oct 2017 21:07:50 +0200
+Subject: gdb-6.3-threaded-watchpoints2-20050225.patch
+
+;; Test sibling threads to set threaded watchpoints for x86 and x86-64
+;;=fedoratest
+
+2005-02-28  Jeff Johnston  <jjohnstn@redhat.com>
+
+	* config/i386/nm-linux.h: Change dr register routines to
+	accept a ptid_t first argument.  Change all calling macros
+	to default the inferior_ptid for the first argument.
+	(i386_linux_insert_watchpoint): New prototype.
+	(i386_linux_remove_watchpoint, i386_linux_insert_hw_breakpoint): Ditto.
+	(i386_linux_remove_hw_breakpoint): Ditto.
+	(target_insert_watchpoint, target_remove_watchpoint): Undef and
+	override.
+	(target_insert_hw_breakpoint, target_remove_hw_breakpoint): Ditto.
+	* config/i386/nm-linux64.h: Ditto except add amd64 versions of
+	the watchpoint/hw-breakpoint insert/remove routines.
+	* i386-nat.c: Include "inferior.h" to define inferior_ptid.
+	* i386-linux-nat.c: Change all dr get/set routines to accept
+	ptid_t as first argument and to use this argument to determine
+	the tid for PTRACE.
+	(i386_linux_set_debug_regs_for_thread): New function.
+	(i386_linux_sync_debug_registers_callback): Ditto.
+	(i386_linux_sync_debug_registers_across_threads): Ditto.
+	(i386_linux_insert_watchpoint, i386_linux_remove_watchpoint): Ditto.
+	(i386_linux_hw_breakpoint, i386_linux_remove_hw_breakpoint): Ditto.
+	(i386_linux_new_thread): Ditto.
+	(_initialize_i386_linux_nat): Ditto.
+	* amd64-linux-nat.c: Change all dr get/set routines to accept
+	ptid_t as first argument and to use this argument to determine
+	the tid for PTRACE.
+	(amd64_linux_set_debug_regs_for_thread): New function.
+	(amd64_linux_sync_debug_registers_callback): Ditto.
+	(amd64_linux_sync_debug_registers_across_threads): Ditto.
+	(amd64_linux_insert_watchpoint, amd64_linux_remove_watchpoint): Ditto.
+	(amd64_linux_hw_breakpoint, amd64_linux_remove_hw_breakpoint): Ditto.
+	(amd64_linux_new_thread): Ditto.
+	(_initialize_amd64_linux_nat): Register linux new thread observer.
+	* testsuite/gdb.threads/watchthreads-threaded.c: New test case.
+	* testsuite/gdb.threads/watchthreads-threaded.exp: Ditto.
+
+[ With recent upstream GDB (6.8) reduced only to the testcase.  ]
+
+[ It was called watchthreads2.{exp,c} before but it conflicted with FSF GDB new
+  testcase of the same name.  ]
+
+FIXME: The testcase does not expects multiple watchpoints hits per one stop.
+
 diff --git a/gdb/testsuite/gdb.threads/watchthreads-threaded.c b/gdb/testsuite/gdb.threads/watchthreads-threaded.c
 new file mode 100644
 --- /dev/null
 +++ b/gdb/testsuite/gdb.threads/watchthreads-threaded.c
-@@ -0,0 +1,66 @@
+@@ -0,0 +1,65 @@
 +/* This testcase is part of GDB, the GNU debugger.
 +
 +   Copyright 2002, 2003, 2004, 2005 Free Software Foundation, Inc.
@@ -20,8 +72,8 @@ new file mode 100644
 +   You should have received a copy of the GNU General Public License
 +   along with this program; if not, write to the Free Software
 +   Foundation, Inc., 59 Temple Place - Suite 330,
-+   Boston, MA 02111-1307, USA.  
-+ 
++   Boston, MA 02111-1307, USA.
++
 +   This file is copied from schedlock.c.  */
 +
 +#include <stdio.h>
@@ -68,7 +120,6 @@ new file mode 100644
 +
 +    pthread_exit(NULL);
 +}
-+
 diff --git a/gdb/testsuite/gdb.threads/watchthreads-threaded.exp b/gdb/testsuite/gdb.threads/watchthreads-threaded.exp
 new file mode 100644
 --- /dev/null
@@ -90,7 +141,7 @@ new file mode 100644
 +#
 +# You should have received a copy of the GNU General Public License
 +# along with this program; if not, write to the Free Software
-+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  
++# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 +
 +# Check that GDB can support multiple watchpoints across threads.
 +
@@ -161,9 +212,9 @@ new file mode 100644
 +       { set args_2 1; set test_flag 1 }
 +    -re "Hardware watchpoint 4: args\\\[3\\\].*Old value = 0.*New value = 1.*main \\\(\\\) at .*watchthreads-threaded.c:$init_line.*$gdb_prompt $"
 +       { set args_3 1; set test_flag 1 }
-+    -re "Hardware watchpoint 3: args\\\[2\\\].*Old value = $args_2.*New value = [expr $args_2+1].*in thread_function \\\(arg=0x2\\\) at .*watchthreads-threaded.c:$inc_line.*$gdb_prompt $"
++    -re "Hardware watchpoint 3: args\\\[2\\\].*Old value = $args_2.*New value = [expr $args_2+1].*thread_function \\\(arg=0x2\\\) at .*watchthreads-threaded.c:$inc_line.*$gdb_prompt $"
 +       { set args_2 [expr $args_2+1]; set test_flag 1 }
-+    -re "Hardware watchpoint 4: args\\\[3\\\].*Old value = $args_3.*New value = [expr $args_3+1].*in thread_function \\\(arg=0x3\\\) at .*watchthreads-threaded.c:$inc_line.*$gdb_prompt $"
++    -re "Hardware watchpoint 4: args\\\[3\\\].*Old value = $args_3.*New value = [expr $args_3+1].*thread_function \\\(arg=0x3\\\) at .*watchthreads-threaded.c:$inc_line.*$gdb_prompt $"
 +       { set args_3 [expr $args_3+1]; set test_flag 1 }
 +  }
 +  # If we fail above, don't bother continuing loop
@@ -180,7 +231,7 @@ new file mode 100644
 +# Verify that we hit first watchpoint in child thread.
 +set message "watchpoint on args\[2\] hit in thread"
 +if { $args_2 > 1 } {
-+  pass $message 
++  pass $message
 +} else {
 +  fail $message
 +}
@@ -188,15 +239,15 @@ new file mode 100644
 +# Verify that we hit second watchpoint in child thread.
 +set message "watchpoint on args\[3\] hit in thread"
 +if { $args_3 > 1 } {
-+  pass $message 
++  pass $message
 +} else {
-+  fail $message 
++  fail $message
 +}
 +
 +# Verify that all watchpoint hits are accounted for.
 +set message "combination of threaded watchpoints = 30 + initial values"
 +if { [expr $args_2+$args_3] == [expr [expr 30+$init_args_2]+$init_args_3] } {
-+  pass $message 
++  pass $message
 +} else {
-+  fail $message 
++  fail $message
 +}

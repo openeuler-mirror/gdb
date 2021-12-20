@@ -1,3 +1,24 @@
+From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
+From: Fedora GDB patches <invalid@email.com>
+Date: Fri, 27 Oct 2017 21:07:50 +0200
+Subject: gdb-rhbz1186476-internal-error-unqualified-name-re-set-test.patch
+
+;; Fix 'backport GDB 7.4 fix to RHEL 6.6 GDB' [Original Sourceware bug
+;; description: 'C++ (and objc): Internal error on unqualified name
+;; re-set', PR 11657] (RH BZ 1186476).
+;;=fedoratest
+
+Comments from Sergio Durigan Junior:
+
+  The "proper" fix for this whole problem would be to backport the
+  "ambiguous linespec" patch series.  However, it is really not
+  recommended to do that for RHEL GDB, because the patch series is too
+  big and could introduce unwanted regressions.  Instead, what we
+  chose to do was to replace the gdb_assert call by a warning (which
+  allows the user to continue the debugging session), and tell the
+  user that, although more than one location was found for his/her
+  breakpoint, only one will be used.
+
 diff --git a/gdb/testsuite/gdb.cp/gdb-rhbz1186476-internal-error-unqualified-name-re-set-main.cc b/gdb/testsuite/gdb.cp/gdb-rhbz1186476-internal-error-unqualified-name-re-set-main.cc
 new file mode 100644
 --- /dev/null
