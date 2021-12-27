@@ -1,3 +1,13 @@
+From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
+From: Fedora GDB patches <invalid@email.com>
+Date: Fri, 27 Oct 2017 21:07:50 +0200
+Subject: gdb-6.8-bz442765-threaded-exec-test.patch
+
+;; Test various forms of threads tracking across exec() (BZ 442765).
+;;=fedoratest
+
+Test various forms of threads tracking across exec(2).
+
 diff --git a/gdb/testsuite/gdb.threads/threaded-exec.c b/gdb/testsuite/gdb.threads/threaded-exec.c
 --- a/gdb/testsuite/gdb.threads/threaded-exec.c
 +++ b/gdb/testsuite/gdb.threads/threaded-exec.c
@@ -165,7 +175,7 @@ diff --git a/gdb/testsuite/gdb.threads/threaded-exec.exp b/gdb/testsuite/gdb.thr
 +gdb_load ${binfile_nothreads}
  
 -gdb_run_cmd
-+gdb_run_cmd ${binfile_nothreads} ${binfile_threads} 0
++gdb_run_cmd [list ${binfile_nothreads} ${binfile_threads} 0]
  
  gdb_test_multiple {} "Program exited" {
     -re "\r\n\\\[Inferior .* exited normally\\\]\r\n$gdb_prompt $" {

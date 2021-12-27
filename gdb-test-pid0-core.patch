@@ -1,3 +1,19 @@
+From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
+From: Fedora GDB patches <invalid@email.com>
+Date: Fri, 27 Oct 2017 21:07:50 +0200
+Subject: gdb-test-pid0-core.patch
+
+;; New test gdb.arch/x86_64-pid0-core.exp for kernel PID 0 cores (BZ 611435).
+;;=fedoratest
+
+https://bugzilla.redhat.com/show_bug.cgi?id=611435
+
+Fix:
+Re: [RFA]corelow.c: Add tid to add_to_thread_list
+http://sourceware.org/ml/gdb-patches/2010-08/msg00085.html
+http://sourceware.org/ml/gdb-cvs/2010-08/msg00026.html
+2e5bcfdef1ec3883d48c3f87a4be5c0dff25e17e
+
 diff --git a/gdb/testsuite/gdb.arch/x86_64-pid0-core.core.bz2.uu b/gdb/testsuite/gdb.arch/x86_64-pid0-core.core.bz2.uu
 new file mode 100644
 --- /dev/null
@@ -29,22 +45,22 @@ new file mode 100644
 +++ b/gdb/testsuite/gdb.arch/x86_64-pid0-core.exp
 @@ -0,0 +1,46 @@
 +# This testcase is part of GDB, the GNU debugger.
-+# 
++#
 +# Copyright 2010 Free Software Foundation, Inc.
-+# 
++#
 +# This program is free software; you can redistribute it and/or modify
 +# it under the terms of the GNU General Public License as published by
 +# the Free Software Foundation; either version 2 of the License, or
 +# (at your option) any later version.
-+# 
++#
 +# This program is distributed in the hope that it will be useful,
 +# but WITHOUT ANY WARRANTY; without even the implied warranty of
 +# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 +# GNU General Public License for more details.
-+# 
++#
 +# You should have received a copy of the GNU General Public License
 +# along with this program; if not, write to the Free Software
-+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  
++# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 +
 +# Some kernel core files have PID 0 - for the idle task.
 +

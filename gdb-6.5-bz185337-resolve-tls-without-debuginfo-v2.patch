@@ -1,17 +1,60 @@
+From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
+From: Jan Kratochvil <jan.kratochvil@redhat.com>
+Date: Fri, 27 Oct 2017 21:07:50 +0200
+Subject: gdb-6.5-bz185337-resolve-tls-without-debuginfo-v2.patch
+
+;; Support TLS symbols (+`errno' suggestion if no pthread is found) (BZ 185337).
+;;=push+jan: It should be replaced by Infinity project.
+
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=185337
+
+2008-02-24  Jan Kratochvil  <jan.kratochvil@redhat.com>
+
+	Port to GDB-6.8pre.
+
+currently for trivial nonthreaded helloworld with no debug info up to -ggdb2 you
+will get:
+        (gdb) p errno
+        [some error]
+
+* with -ggdb2 and less "errno" in fact does not exist anywhere as it was
+  compiled to "(*__errno_location ())" and the macro definition is not present.
+  Unfortunately gdb will find the TLS symbol and it will try to access it but
+  as the program has been compiled without -lpthread the TLS base register
+  (%gs on i386) is not setup and it will result in:
+        Cannot access memory at address 0x8
+
+Attached suggestion patch how to deal with the most common "errno" symbol
+for the most common under-ggdb3 compiled programs.
+
+Original patch hooked into target_translate_tls_address.  But its inferior
+call invalidates `struct frame *' in the callers - RH BZ 690908.
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1166549
+
+2007-11-03  Jan Kratochvil  <jan.kratochvil@redhat.com>
+
+	* ./gdb/dwarf2read.c (read_partial_die, dwarf2_linkage_name): Prefer
+	DW_AT_MIPS_linkage_name over DW_AT_name now only for non-C.
+
+glibc-debuginfo-2.7-2.x86_64: /usr/lib/debug/lib64/libc.so.6.debug:
+  <81a2>     DW_AT_name        : (indirect string, offset: 0x280e): __errno_location
+  <81a8>     DW_AT_MIPS_linkage_name: (indirect string, offset: 0x2808): *__GI___errno_location
+
 diff --git a/gdb/printcmd.c b/gdb/printcmd.c
 --- a/gdb/printcmd.c
 +++ b/gdb/printcmd.c
-@@ -1214,6 +1214,10 @@ print_command_1 (const char *args, int voidprint)
+@@ -1306,6 +1306,10 @@ process_print_command_args (const char *args, value_print_options *print_opts,
  
    if (exp != nullptr && *exp)
      {
 +      /* '*((int *(*) (void)) __errno_location) ()' is incompatible with
 +	 function descriptors.  */
-+      if (target_has_execution && strcmp (exp, "errno") == 0)
++      if (target_has_execution () && strcmp (exp, "errno") == 0)
 +	exp = "*(*(int *(*)(void)) __errno_location) ()";
-       expression_up expr = parse_expression (exp);
-       val = evaluate_expression (expr.get ());
-     }
+       /* VOIDPRINT is true to indicate that we do want to print a void
+ 	 value, so invert it for parse_expression.  */
+       expression_up expr = parse_expression (exp, nullptr, !voidprint);
 diff --git a/gdb/testsuite/gdb.dwarf2/dw2-errno.c b/gdb/testsuite/gdb.dwarf2/dw2-errno.c
 new file mode 100644
 --- /dev/null
