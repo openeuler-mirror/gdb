@@ -1,7 +1,34 @@
+From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
+From: Jan Kratochvil <jan.kratochvil@redhat.com>
+Date: Fri, 27 Oct 2017 21:07:50 +0200
+Subject: gdb-6.7-testsuite-stable-results.patch
+
+;; Testsuite fixes for more stable/comparable results.
+;;=fedoratest
+
+gdb/testsuite/gdb.base/fileio.c:
+gdb/testsuite/gdb.base/fileio.exp:
+2007-12-08  Jan Kratochvil  <jan.kratochvil@redhat.com>
+
+	* gdb.base/fileio.c (ROOTSUBDIR): New macro.
+	(main): CHDIR into ROOTSUBDIR.  CHOWN ROOTSUBDIR and CHDIR into
+	ROOTSUBDIR if we are being run as root.
+	* gdb.base/fileio.exp: Change the startup and finish cleanup.
+	Change the test file reference to be into the `fileio.dir' directory.
+
+sources/gdb/testsuite/gdb.base/dump.exp:
+Found on RHEL-5.s390x.
+
+gdb-6.8.50.20090209/gdb/testsuite/gdb.base/auxv.exp:
+random FAIL: gdb.base/auxv.exp: matching auxv data from live and gcore
+
+gdb-6.8.50.20090209/gdb/testsuite/gdb.base/annota1.exp:
+frames-invalid can happen asynchronously.
+
 diff --git a/gdb/testsuite/gdb.base/fileio.c b/gdb/testsuite/gdb.base/fileio.c
 --- a/gdb/testsuite/gdb.base/fileio.c
 +++ b/gdb/testsuite/gdb.base/fileio.c
-@@ -560,6 +560,28 @@ strerrno (int err)
+@@ -559,6 +559,28 @@ strerrno (int err)
  int
  main ()
  {

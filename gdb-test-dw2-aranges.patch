@@ -1,3 +1,33 @@
+From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
+From: Fedora GDB patches <invalid@email.com>
+Date: Fri, 27 Oct 2017 21:07:50 +0200
+Subject: gdb-test-dw2-aranges.patch
+
+;; [archer-tromey-delayed-symfile] New test gdb.dwarf2/dw2-aranges.exp.
+;;=fedoratest
+
+[archer-tromey-delayed-symfile]
+
+commit 77fa7778a37b0d28a7e4e5235f074a10ecf1815d
+Author: Jan Kratochvil <jkratoch@host1.dyn.jankratochvil.net>
+Date:   Sat Aug 15 15:05:54 2009 +0200
+
+    Test for "handle incorrect aranges".
+
+    readelf:
+    Contents of the .debug_aranges section:
+
+      Length:                   8
+      Version:                  2
+      Offset into .debug_info:  0x0
+      Pointer Size:             0
+      Segment Size:             0
+
+        Address    Length
+    Floating point exception
+
+    	* gdb.dwarf2/dw2-aranges.exp, gdb.dwarf2/dw2-aranges.S: New files.
+
 diff --git a/gdb/testsuite/gdb.dwarf2/dw2-aranges.S b/gdb/testsuite/gdb.dwarf2/dw2-aranges.S
 new file mode 100644
 --- /dev/null
@@ -173,7 +203,7 @@ new file mode 100644
 +    && ![istarget *-*-openbsd*]
 +    && ![istarget arm-*-eabi*]
 +    && ![istarget powerpc-*-eabi*]} {
-+    return 0  
++    return 0
 +}
 +
 +set testfile "dw2-aranges"

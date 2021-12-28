@@ -18,20 +18,20 @@ Change-Id: I3cbf2f317630bb72810b00f2d9b2c4b99fa812ad
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/gdb/c-exp.y b/gdb/c-exp.y
-index 3403a85..d17f104 100644
+index 93b10f0..396bd6a 100644
 --- a/gdb/c-exp.y
 +++ b/gdb/c-exp.y
-@@ -166,7 +166,7 @@ static void check_parameter_typelist (std::vector<struct type *> *);
- static void write_destructor_name (struct parser_state *par_state,
- 				   struct stoken);
+@@ -167,7 +167,7 @@ static struct stoken operator_stoken (const char *);
+ static struct stoken typename_stoken (const char *);
+ static void check_parameter_typelist (std::vector<struct type *> *);
  
 -#ifdef YYBISON
 +#if defined(YYBISON) && YYBISON < 30800
  static void c_print_token (FILE *file, int type, YYSTYPE value);
  #define YYPRINT(FILE, TYPE, VALUE) c_print_token (FILE, TYPE, VALUE)
  #endif
-@@ -3311,7 +3311,7 @@ c_parse (struct parser_state *par_state)
-   return yyparse ();
+@@ -3446,7 +3446,7 @@ c_parse (struct parser_state *par_state)
+   return result;
  }
  
 -#ifdef YYBISON
@@ -40,5 +40,6 @@ index 3403a85..d17f104 100644
  /* This is called via the YYPRINT macro when parser debugging is
     enabled.  It prints a token's value.  */
 -- 
-2.32.0
+2.30.0
+
 

@@ -1,3 +1,17 @@
+From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
+From: Fedora GDB patches <invalid@email.com>
+Date: Fri, 27 Oct 2017 21:07:50 +0200
+Subject: gdb-6.6-bz230000-power6-disassembly-test.patch
+
+;; Testcase for PPC Power6/DFP instructions disassembly (BZ 230000).
+;;=fedoratest
+
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=230000
+
+The original testcase
+	https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=230000#c1
+requires too recent GCC.
+
 diff --git a/gdb/testsuite/gdb.arch/powerpc-power6.exp b/gdb/testsuite/gdb.arch/powerpc-power6.exp
 new file mode 100644
 --- /dev/null
@@ -17,7 +31,7 @@ new file mode 100644
 +#
 +# You should have received a copy of the GNU General Public License
 +# along with this program; if not, write to the Free Software
-+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  
++# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 +
 +# Test PowerPC Power6 instructions disassembly.
 +

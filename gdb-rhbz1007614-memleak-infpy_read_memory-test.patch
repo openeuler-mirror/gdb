@@ -1,3 +1,33 @@
+From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
+From: Fedora GDB patches <invalid@email.com>
+Date: Fri, 27 Oct 2017 21:07:50 +0200
+Subject: gdb-rhbz1007614-memleak-infpy_read_memory-test.patch
+
+;; Fix 'memory leak in infpy_read_memory()' (RH BZ 1007614)
+;;=fedoratest
+
+Original message by Tom Tromey:
+
+  <https://sourceware.org/ml/gdb-patches/2012-03/msg00955.html>
+  Message-ID: <871uoc1va3.fsf@fleche.redhat.com>
+
+Comment from Sergio Durigan Junior:
+
+  In order to correctly test this patch, I wrote a testcase based on Jan
+  Kratochvil's <gdb/testsuite/gdb.base/gcore-excessive-memory.exp>.  The
+  testcase, which can be seen below, tests GDB in order to see if the
+  amount of memory being leaked is minimal, as requested in the bugzilla.
+  It is hard to define what "minimum" is, so I ran the testcase on all
+  supported RHEL architectures and came up with an average.
+
+commit cc0265cdda9dc7e8665e8bfcf5b4477489daf27c
+Author: Tom Tromey <tromey@redhat.com>
+Date:   Wed Mar 28 17:38:08 2012 +0000
+
+    	* python/py-inferior.c (infpy_read_memory): Remove cleanups and
+    	explicitly free 'buffer' on exit paths.  Decref 'membuf_object'
+    	before returning.
+
 diff --git a/gdb/testsuite/gdb.python/py-gdb-rhbz1007614-memleak-infpy_read_memory.c b/gdb/testsuite/gdb.python/py-gdb-rhbz1007614-memleak-infpy_read_memory.c
 new file mode 100644
 --- /dev/null

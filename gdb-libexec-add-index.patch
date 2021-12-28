@@ -1,3 +1,16 @@
+From FEDORA_PATCHES Mon Sep 17 00:00:00 2001
+From: Fedora GDB patches <invalid@email.com>
+Date: Fri, 27 Oct 2017 21:07:50 +0200
+Subject: gdb-libexec-add-index.patch
+
+;; Fix gdb-headless /usr/bin/ executables (BZ 1390251).
+;;
+;; Also, make /usr/bin/gdb.minimal be the default GDB used, if it's
+;; present.  For rationale, see:
+;;
+;;   https://fedoraproject.org/wiki/Changes/Minimal_GDB_in_buildroot
+;;=fedora
+
 diff --git a/gdb/contrib/gdb-add-index.sh b/gdb/contrib/gdb-add-index.sh
 --- a/gdb/contrib/gdb-add-index.sh
 +++ b/gdb/contrib/gdb-add-index.sh
