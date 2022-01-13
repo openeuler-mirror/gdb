@@ -1,6 +1,6 @@
 Name: gdb
 Version: 9.2
-Release: 3
+Release: 4
 
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ and GPLv2+ with exceptions and GPL+ and LGPLv2+ and LGPLv3+ and BSD and Public Domain and GFDL-1.3
 Source: ftp://sourceware.org/pub/gdb/releases/gdb-%{version}.tar.xz
@@ -148,6 +148,7 @@ Patch99:   gdb-rhbz1829702-fix-python39.patch
 Patch100:  gdb-rhbz1844458-use-fputX_unfiltered.patch
 Patch101:  gdb-rhbz1838777-debuginfod.patch
 # Fedora patch end
+Patch102:  gdb-When-unavailable-fetch-VG-from-ptrace.patch
 
 BuildRequires: rpm-libs autoconf
 BuildRequires: readline-devel >= 6.2-4
@@ -394,6 +395,9 @@ rm -f $RPM_BUILD_ROOT%{_datadir}/gdb/python/gdb/command/backtrace.py
 %{_infodir}/gdb.info*
 
 %changelog
+* Thu Jan 13 2022 hewenliang <hewenliang4@huawei.com> - 9.2-4
+- fix When unavailable, fetch VG from ptrace.
+
 * Wed Mar 31 2021 xinghe <xinghe1@huawei.com> - 9.2-3
 - fix typo for name
 
