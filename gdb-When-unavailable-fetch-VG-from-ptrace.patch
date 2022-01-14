@@ -1,0 +1,88 @@
+From 2d07da271eee9a83a1f5c975204d7d6dfd66fe1f Mon Sep 17 00:00:00 2001
+From: Luis Machado <luis.machado@linaro.org>
+Date: Mon, 16 Mar 2020 14:09:25 -0300
+Subject: [PATCH 1/1] [AArch64] When unavailable, fetch VG from ptrace.
+
+I was doing some SVE tests on system QEMU and noticed quite a few failures
+related to inferior function calls. Any attempt to do an inferior function
+call would result in the following:
+
+Unable to set VG register.: Success.
+
+This happens because, after an inferior function call, GDB attempts to restore
+the regcache state and updates the SVE register in order. Since the Z registers
+show up before the VG register, VG is still INVALID by the time the first Z
+register is being updated. So when executing the following code in
+aarch64_sve_set_vq:
+
+if (reg_buf->get_register_status (AARCH64_SVE_VG_REGNUM) != REG_VALID)
+  return false;
+
+By returning false, we signal something is wrong, then we get to this:
+
+  /* First store vector length to the thread.  This is done first to ensure the
+     ptrace buffers read from the kernel are the correct size.  */
+  if (!aarch64_sve_set_vq (tid, regcache))
+    perror_with_name (_("Unable to set VG register."));
+
+Ideally we'd always have a valid VG before attempting to set the Z registers,
+but in this case the ordering of registers doesn't make that possible.
+
+I considered reordering the registers to put VG before the Z registers, like
+the DWARF numbering, but that would break backwards compatibility with
+existing implementations. Also, the Z register numbering is pinned to the V
+registers, and adding VG before Z would create a gap for non-SVE targets,
+since we wouldn't be able to undefine VG for non-SVE targets.
+
+As a compromise, it seems we can safely fetch the VG register value from
+ptrace. The value in the kernel is likely the updated value anyway.
+
+This patch fixed all the failures i saw in the testsuite and caused no further
+regressions.
+
+gdb/ChangeLog:
+
+2020-03-19  Luis Machado  <luis.machado@linaro.org>
+
+	* nat/aarch64-sve-linux-ptrace.c (aarch64_sve_set_vq): If vg is not
+	valid, fetch vg value from ptrace.
+---
+ gdb/nat/aarch64-sve-linux-ptrace.c | 21 ++++++++++++++++++---
+ 1 file changed, 18 insertions(+), 3 deletions(-)
+
+diff --git a/gdb/nat/aarch64-sve-linux-ptrace.c b/gdb/nat/aarch64-sve-linux-ptrace.c
+index b8f0711f9be..2ce90ccfd7e 100644
+--- a/gdb/nat/aarch64-sve-linux-ptrace.c
++++ b/gdb/nat/aarch64-sve-linux-ptrace.c
+@@ -92,11 +92,26 @@ aarch64_sve_set_vq (int tid, uint64_t vq)
+ bool
+ aarch64_sve_set_vq (int tid, struct reg_buffer_common *reg_buf)
+ {
++  uint64_t reg_vg = 0;
++
++  /* The VG register may not be valid if we've not collected any value yet.
++     This can happen, for example,  if we're restoring the regcache after an
++     inferior function call, and the VG register comes after the Z
++     registers.  */
+   if (reg_buf->get_register_status (AARCH64_SVE_VG_REGNUM) != REG_VALID)
+-    return false;
++  {
++    /* If vg is not available yet, fetch it from ptrace.  The VG value from
++       ptrace is likely the correct one.  */
++    uint64_t vq = aarch64_sve_get_vq (tid);
+ 
+-  uint64_t reg_vg = 0;
+-  reg_buf->raw_collect (AARCH64_SVE_VG_REGNUM, &reg_vg);
++    /* If something went wrong, just bail out.  */
++    if (vq == 0)
++      return false;
++
++    reg_vg = sve_vg_from_vq (vq);
++  }
++  else
++    reg_buf->raw_collect (AARCH64_SVE_VG_REGNUM, &reg_vg);
+ 
+   return aarch64_sve_set_vq (tid, sve_vq_from_vg (reg_vg));
+ }
+-- 
+2.27.0
