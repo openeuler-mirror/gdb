@@ -1,6 +1,6 @@
 Name: gdb
 Version: 11.1
-Release: 1
+Release: 2
 
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ and GPLv2+ with exceptions and GPL+ and LGPLv2+ and LGPLv3+ and BSD and Public Domain and GFDL-1.3
 Source: ftp://sourceware.org/pub/gdb/releases/gdb-%{version}.tar.xz
@@ -94,6 +94,10 @@ Patch81: gdb-rhbz2022177-dprintf-2.patch
 # Fedra patch end
 
 Patch82: 0001-Make-c-exp.y-work-with-Bison-3.8.patch
+
+Patch83: 0001-gdb-Add-LoongArch-bfd-support.patch
+Patch84: 0002-gdb-Add-LoongArch-opcodes-support.patch
+Patch85: 0003-gdb-Add-LoongArch-gdb-support.patch
 
 %global gdb_src gdb-%{version}
 %global gdb_build build-%{_target_platform}
@@ -365,6 +369,9 @@ rm -f $RPM_BUILD_ROOT%{_datadir}/gdb/python/gdb/command/backtrace.py
 %{_infodir}/gdb.info*
 
 %changelog
+* Tue Mar 31 2022 Qing Zhang <zhangqing@loongson.cn> - 11.1-2
+- add loongarch support
+
 * Mon Dec 27 2021 zhouwenpei <zhouwenpei1@huawei.com> - 11.1-1
 - upgrade GDB version to 11.1
 
