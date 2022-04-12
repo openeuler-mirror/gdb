@@ -1,6 +1,6 @@
 Name: gdb
 Version: 11.1
-Release: 1
+Release: 2
 
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ and GPLv2+ with exceptions and GPL+ and LGPLv2+ and LGPLv3+ and BSD and Public Domain and GFDL-1.3
 Source: ftp://sourceware.org/pub/gdb/releases/gdb-%{version}.tar.xz
@@ -92,6 +92,8 @@ Patch79: gdb-rhbz-853071-update-manpages.patch
 Patch80: gdb-rhbz2022177-dprintf-1.patch
 Patch81: gdb-rhbz2022177-dprintf-2.patch
 # Fedra patch end
+
+Patch82: 0001-Make-c-exp.y-work-with-Bison-3.8.patch
 
 %global gdb_src gdb-%{version}
 %global gdb_build build-%{_target_platform}
@@ -363,6 +365,9 @@ rm -f $RPM_BUILD_ROOT%{_datadir}/gdb/python/gdb/command/backtrace.py
 %{_infodir}/gdb.info*
 
 %changelog
+* Tue Apr 12 2022 zhouwenpei <zhouwenpei1@h-partners.com> - 11.1-2
+- fix gdb build error via cherry-pick upstream patch
+
 * Wed Dec 8 2021 zhouwenpei <zhouwenpei1@huawei.com> - 11.1-1
 - upgrade GDB version to 11.1
 

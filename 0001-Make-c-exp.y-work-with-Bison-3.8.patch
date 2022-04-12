@@ -1,0 +1,45 @@
+From cb9f257adb210ad1f1e9abea1b8e8675a96077df Mon Sep 17 00:00:00 2001
+From: Christian Biesinger <cbiesinger@google.com>
+Date: Fri, 8 Oct 2021 16:09:46 -0400
+Subject: [PATCH 1/1] Make c-exp.y work with Bison 3.8+
+
+When using Bison 3.8, we get this error:
+
+    ../../gdb/c-exp.y:3455:1: error: 'void c_print_token(FILE*, int, YYSTYPE)' defined but not used [-Werror=unused-function]
+
+That's because bison 3.8 removed YYPRINT support:
+https://savannah.gnu.org/forum/forum.php?forum_id=10047
+
+Accordingly, this patch only defines that function for Bison < 3.8.
+
+Change-Id: I3cbf2f317630bb72810b00f2d9b2c4b99fa812ad
+---
+ gdb/c-exp.y | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/gdb/c-exp.y b/gdb/c-exp.y
+index 93b10f0..396bd6a 100644
+--- a/gdb/c-exp.y
++++ b/gdb/c-exp.y
+@@ -167,7 +167,7 @@ static struct stoken operator_stoken (const char *);
+ static struct stoken typename_stoken (const char *);
+ static void check_parameter_typelist (std::vector<struct type *> *);
+ 
+-#ifdef YYBISON
++#if defined(YYBISON) && YYBISON < 30800
+ static void c_print_token (FILE *file, int type, YYSTYPE value);
+ #define YYPRINT(FILE, TYPE, VALUE) c_print_token (FILE, TYPE, VALUE)
+ #endif
+@@ -3446,7 +3446,7 @@ c_parse (struct parser_state *par_state)
+   return result;
+ }
+ 
+-#ifdef YYBISON
++#if defined(YYBISON) && YYBISON < 30800
+ 
+ /* This is called via the YYPRINT macro when parser debugging is
+    enabled.  It prints a token's value.  */
+-- 
+2.30.0
+
+
