@@ -23,10 +23,10 @@ Signed-off-by: Qing Zhang <zhangqing@loongson.cn>
  create mode 100644 gdb-11.1/opcodes/loongarch-dis.c
  create mode 100644 gdb-11.1/opcodes/loongarch-opc.c
 
-diff --git a/gdb-11.1/include/dis-asm.h b/gdb-11.1/include/dis-asm.h
+diff --git a/include/dis-asm.h b/include/dis-asm.h
 index 0b91ab4..c0bc1d5 100644
---- a/gdb-11.1/include/dis-asm.h
-+++ b/gdb-11.1/include/dis-asm.h
+--- a/include/dis-asm.h
++++ b/include/dis-asm.h
 @@ -307,6 +307,7 @@ extern void print_arm_disassembler_options (FILE *);
  extern void print_arc_disassembler_options (FILE *);
  extern void print_s390_disassembler_options (FILE *);
@@ -35,11 +35,11 @@ index 0b91ab4..c0bc1d5 100644
  extern bool aarch64_symbol_is_valid (asymbol *, struct disassemble_info *);
  extern bool arm_symbol_is_valid (asymbol *, struct disassemble_info *);
  extern bool csky_symbol_is_valid (asymbol *, struct disassemble_info *);
-diff --git a/gdb-11.1/include/opcode/loongarch.h b/gdb-11.1/include/opcode/loongarch.h
+diff --git a/include/opcode/loongarch.h b/include/opcode/loongarch.h
 new file mode 100644
 index 0000000..c392234
 --- /dev/null
-+++ b/gdb-11.1/include/opcode/loongarch.h
++++ b/include/opcode/loongarch.h
 @@ -0,0 +1,239 @@
 +/* LoongArch assembler/disassembler support.
 +
@@ -280,10 +280,10 @@ index 0000000..c392234
 +#endif
 +
 +#endif /* _LOONGARCH_H_ */
-diff --git a/gdb-11.1/opcodes/Makefile.am b/gdb-11.1/opcodes/Makefile.am
+diff --git a/opcodes/Makefile.am b/opcodes/Makefile.am
 index 0e04b4c..c45fc29 100644
---- a/gdb-11.1/opcodes/Makefile.am
-+++ b/gdb-11.1/opcodes/Makefile.am
+--- a/opcodes/Makefile.am
++++ b/opcodes/Makefile.am
 @@ -164,6 +164,9 @@ TARGET_LIBOPCODES_CFILES = \
  	lm32-ibld.c \
  	lm32-opc.c \
@@ -294,10 +294,10 @@ index 0e04b4c..c45fc29 100644
  	m10200-dis.c \
  	m10200-opc.c \
  	m10300-dis.c \
-diff --git a/gdb-11.1/opcodes/Makefile.in b/gdb-11.1/opcodes/Makefile.in
+diff --git a/opcodes/Makefile.in b/opcodes/Makefile.in
 index 42c15f0..8ba01c9 100644
---- a/gdb-11.1/opcodes/Makefile.in
-+++ b/gdb-11.1/opcodes/Makefile.in
+--- a/opcodes/Makefile.in
++++ b/opcodes/Makefile.in
 @@ -555,6 +555,9 @@ TARGET_LIBOPCODES_CFILES = \
  	lm32-ibld.c \
  	lm32-opc.c \
@@ -318,10 +318,10 @@ index 42c15f0..8ba01c9 100644
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m10200-dis.Plo@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m10200-opc.Plo@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/m10300-dis.Plo@am__quote@
-diff --git a/gdb-11.1/opcodes/configure b/gdb-11.1/opcodes/configure
+diff --git a/opcodes/configure b/opcodes/configure
 index 3513e40..8b0d15b 100755
---- a/gdb-11.1/opcodes/configure
-+++ b/gdb-11.1/opcodes/configure
+--- a/opcodes/configure
++++ b/opcodes/configure
 @@ -11,7 +11,7 @@
  ## -------------------- ##
  ## M4sh Initialization. ##
@@ -339,10 +339,10 @@ index 3513e40..8b0d15b 100755
  
  	"")			;;
  	*)		as_fn_error $? "*** unknown target architecture $arch" "$LINENO" 5 ;;
-diff --git a/gdb-11.1/opcodes/configure.ac b/gdb-11.1/opcodes/configure.ac
+diff --git a/opcodes/configure.ac b/opcodes/configure.ac
 index e564f06..4853b9e 100644
---- a/gdb-11.1/opcodes/configure.ac
-+++ b/gdb-11.1/opcodes/configure.ac
+--- a/opcodes/configure.ac
++++ b/opcodes/configure.ac
 @@ -355,6 +355,7 @@ if test x${all_targets} = xfalse ; then
  	bfd_z80_arch)		ta="$ta z80-dis.lo" ;;
  	bfd_z8k_arch)		ta="$ta z8k-dis.lo" ;;
@@ -351,10 +351,10 @@ index e564f06..4853b9e 100644
  
  	"")			;;
  	*)		AC_MSG_ERROR(*** unknown target architecture $arch) ;;
-diff --git a/gdb-11.1/opcodes/disassemble.c b/gdb-11.1/opcodes/disassemble.c
+diff --git a/opcodes/disassemble.c b/opcodes/disassemble.c
 index 8590e94..61e666c 100644
---- a/gdb-11.1/opcodes/disassemble.c
-+++ b/gdb-11.1/opcodes/disassemble.c
+--- a/opcodes/disassemble.c
++++ b/opcodes/disassemble.c
 @@ -49,6 +49,7 @@
  #define ARCH_ip2k
  #define ARCH_iq2000
@@ -385,10 +385,10 @@ index 8590e94..61e666c 100644
  
    return;
  }
-diff --git a/gdb-11.1/opcodes/disassemble.h b/gdb-11.1/opcodes/disassemble.h
+diff --git a/opcodes/disassemble.h b/opcodes/disassemble.h
 index 8ee54dc..4e3ea23 100644
---- a/gdb-11.1/opcodes/disassemble.h
-+++ b/gdb-11.1/opcodes/disassemble.h
+--- a/opcodes/disassemble.h
++++ b/opcodes/disassemble.h
 @@ -100,6 +100,7 @@ extern int print_insn_xtensa		(bfd_vma, disassemble_info *);
  extern int print_insn_z80		(bfd_vma, disassemble_info *);
  extern int print_insn_z8001		(bfd_vma, disassemble_info *);
@@ -397,11 +397,11 @@ index 8ee54dc..4e3ea23 100644
  
  extern disassembler_ftype csky_get_disassembler (bfd *);
  extern disassembler_ftype rl78_get_disassembler (bfd *);
-diff --git a/gdb-11.1/opcodes/loongarch-coder.c b/gdb-11.1/opcodes/loongarch-coder.c
+diff --git a/opcodes/loongarch-coder.c b/opcodes/loongarch-coder.c
 new file mode 100644
 index 0000000..f5e10b9
 --- /dev/null
-+++ b/gdb-11.1/opcodes/loongarch-coder.c
++++ b/opcodes/loongarch-coder.c
 @@ -0,0 +1,481 @@
 +/* LoongArch opcode support.
 +   Copyright (C) 2021-2022 Free Software Foundation, Inc.
@@ -884,11 +884,11 @@ index 0000000..f5e10b9
 +      *dest++ = *src++;
 +    }
 +}
-diff --git a/gdb-11.1/opcodes/loongarch-dis.c b/gdb-11.1/opcodes/loongarch-dis.c
+diff --git a/opcodes/loongarch-dis.c b/opcodes/loongarch-dis.c
 new file mode 100644
 index 0000000..9dcf989
 --- /dev/null
-+++ b/gdb-11.1/opcodes/loongarch-dis.c
++++ b/opcodes/loongarch-dis.c
 @@ -0,0 +1,342 @@
 +/* LoongArch opcode support.
 +   Copyright (C) 2021-2022 Free Software Foundation, Inc.
@@ -1232,11 +1232,11 @@ index 0000000..9dcf989
 +  my_disinfo.target = pc;
 +  disassemble_one (insn, &my_disinfo);
 +}
-diff --git a/gdb-11.1/opcodes/loongarch-opc.c b/gdb-11.1/opcodes/loongarch-opc.c
+diff --git a/opcodes/loongarch-opc.c b/opcodes/loongarch-opc.c
 new file mode 100644
 index 0000000..62a2edb
 --- /dev/null
-+++ b/gdb-11.1/opcodes/loongarch-opc.c
++++ b/opcodes/loongarch-opc.c
 @@ -0,0 +1,798 @@
 +/* LoongArch opcode support.
 +   Copyright (C) 2021-2022 Free Software Foundation, Inc.
@@ -2036,10 +2036,10 @@ index 0000000..62a2edb
 +  { &LARCH_opts.ase_df, loongarch_double_float_load_store_opcodes,	0, 0, { 0 }, 0, 0 },
 +  { 0 },
 +};
-diff --git a/gdb-11.1/opcodes/po/POTFILES.in b/gdb-11.1/opcodes/po/POTFILES.in
+diff --git a/opcodes/po/POTFILES.in b/opcodes/po/POTFILES.in
 index 0659b99..b1037a4 100644
---- a/gdb-11.1/opcodes/po/POTFILES.in
-+++ b/gdb-11.1/opcodes/po/POTFILES.in
+--- a/opcodes/po/POTFILES.in
++++ b/opcodes/po/POTFILES.in
 @@ -111,6 +111,9 @@ lm32-ibld.c
  lm32-opc.c
  lm32-opc.h

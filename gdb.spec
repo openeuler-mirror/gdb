@@ -1,6 +1,6 @@
 Name: gdb
 Version: 11.1
-Release: 2
+Release: 3
 
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ and GPLv2+ with exceptions and GPL+ and LGPLv2+ and LGPLv3+ and BSD and Public Domain and GFDL-1.3
 Source: ftp://sourceware.org/pub/gdb/releases/gdb-%{version}.tar.xz
@@ -95,9 +95,11 @@ Patch81: gdb-rhbz2022177-dprintf-2.patch
 
 Patch82: 0001-Make-c-exp.y-work-with-Bison-3.8.patch
 
+%ifarch loongarch64
 Patch83: 0001-gdb-Add-LoongArch-bfd-support.patch
 Patch84: 0002-gdb-Add-LoongArch-opcodes-support.patch
 Patch85: 0003-gdb-Add-LoongArch-gdb-support.patch
+%endif
 
 %global gdb_src gdb-%{version}
 %global gdb_build build-%{_target_platform}
@@ -351,7 +353,7 @@ rm -f $RPM_BUILD_ROOT%{_datadir}/gdb/python/gdb/command/backtrace.py
 %{_datadir}/gdb
 
 %files gdbserver
-%ifnarch riscv64
+%ifnarch riscv64 loongarch64
 %{_bindir}/gdbserver
 %{_libdir}/libinproctrace.so
 %endif
@@ -369,6 +371,9 @@ rm -f $RPM_BUILD_ROOT%{_datadir}/gdb/python/gdb/command/backtrace.py
 %{_infodir}/gdb.info*
 
 %changelog
+* Thu Jun 02 2022 xu_ping <xuping33@h-partners.com> - 11.1-3
+- modify the patch for loongarch64
+
 * Tue Mar 31 2022 Qing Zhang <zhangqing@loongson.cn> - 11.1-2
 - add loongarch support
 

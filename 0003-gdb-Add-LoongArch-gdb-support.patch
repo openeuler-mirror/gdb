@@ -73,10 +73,10 @@ Signed-off-by: Qing Zhang <zhangqing@loongson.cn>
  create mode 100644 gdb-11.1/gdb/nat/loongarch-linux-watch.c
  create mode 100644 gdb-11.1/gdb/nat/loongarch-linux-watch.h
 
-diff --git a/gdb-11.1/gdb/Makefile.in b/gdb-11.1/gdb/Makefile.in
+diff --git a/gdb/Makefile.in b/gdb/Makefile.in
 index b8729ed..c9cbc5d 100644
---- a/gdb-11.1/gdb/Makefile.in
-+++ b/gdb-11.1/gdb/Makefile.in
+--- a/gdb/Makefile.in
++++ b/gdb/Makefile.in
 @@ -726,6 +726,8 @@ ALL_TARGET_OBS = \
  	arch/i386.o \
  	arch/ppc-linux-common.o \
@@ -132,11 +132,11 @@ index b8729ed..c9cbc5d 100644
  	m32r-linux-nat.c \
  	m32r-linux-tdep.c \
  	m32r-tdep.c \
-diff --git a/gdb-11.1/gdb/arch/loongarch-linux-nat.c b/gdb-11.1/gdb/arch/loongarch-linux-nat.c
+diff --git a/gdb/arch/loongarch-linux-nat.c b/gdb/arch/loongarch-linux-nat.c
 new file mode 100644
 index 0000000..70bf742
 --- /dev/null
-+++ b/gdb-11.1/gdb/arch/loongarch-linux-nat.c
++++ b/gdb/arch/loongarch-linux-nat.c
 @@ -0,0 +1,94 @@
 +/* Copyright (C) 2021 Free Software Foundation, Inc.
 +
@@ -232,11 +232,11 @@ index 0000000..70bf742
 +  return loongarch_create_target_description (rlen, fpu32, fpu64, lbt, lsx,
 +					      lasx);
 +}
-diff --git a/gdb-11.1/gdb/arch/loongarch-linux-nat.h b/gdb-11.1/gdb/arch/loongarch-linux-nat.h
+diff --git a/gdb/arch/loongarch-linux-nat.h b/gdb/arch/loongarch-linux-nat.h
 new file mode 100644
 index 0000000..a9cd453
 --- /dev/null
-+++ b/gdb-11.1/gdb/arch/loongarch-linux-nat.h
++++ b/gdb/arch/loongarch-linux-nat.h
 @@ -0,0 +1,35 @@
 +/*
 +   Copyright (C) 2021 Free Software Foundation, Inc.
@@ -273,11 +273,11 @@ index 0000000..a9cd453
 +extern struct target_desc *loongarch_linux_read_description_runtime (int tid);
 +
 +#endif
-diff --git a/gdb-11.1/gdb/arch/loongarch.c b/gdb-11.1/gdb/arch/loongarch.c
+diff --git a/gdb/arch/loongarch.c b/gdb/arch/loongarch.c
 new file mode 100644
 index 0000000..007c638
 --- /dev/null
-+++ b/gdb-11.1/gdb/arch/loongarch.c
++++ b/gdb/arch/loongarch.c
 @@ -0,0 +1,84 @@
 +/* Copyright (C) 2021 Free Software Foundation, Inc.
 +
@@ -363,11 +363,11 @@ index 0000000..007c638
 +    gdb_assert_not_reached ("rlen unknown");
 +  return NULL;
 +}
-diff --git a/gdb-11.1/gdb/arch/loongarch.h b/gdb-11.1/gdb/arch/loongarch.h
+diff --git a/gdb/arch/loongarch.h b/gdb/arch/loongarch.h
 new file mode 100644
 index 0000000..9d9f65b
 --- /dev/null
-+++ b/gdb-11.1/gdb/arch/loongarch.h
++++ b/gdb/arch/loongarch.h
 @@ -0,0 +1,37 @@
 +/*
 +   Copyright (C) 2021 Free Software Foundation, Inc.
@@ -406,10 +406,10 @@ index 0000000..9d9f65b
 +				     int lsx, int lasx);
 +
 +#endif
-diff --git a/gdb-11.1/gdb/configure.host b/gdb-11.1/gdb/configure.host
+diff --git a/gdb/configure.host b/gdb/configure.host
 index e94a19b..21a4310 100644
---- a/gdb-11.1/gdb/configure.host
-+++ b/gdb-11.1/gdb/configure.host
+--- a/gdb/configure.host
++++ b/gdb/configure.host
 @@ -64,6 +64,7 @@ arc*)			gdb_host_cpu=arc ;;
  arm*)			gdb_host_cpu=arm ;;
  hppa*)			gdb_host_cpu=pa ;;
@@ -427,10 +427,10 @@ index e94a19b..21a4310 100644
  m68*-*-linux*)		gdb_host=linux ;;
  m68*-*-netbsdelf* | m68*-*-knetbsd*-gnu)
  			gdb_host=nbsdelf ;;
-diff --git a/gdb-11.1/gdb/configure.nat b/gdb-11.1/gdb/configure.nat
+diff --git a/gdb/configure.nat b/gdb/configure.nat
 index e34cccf..ce5cbc7 100644
---- a/gdb-11.1/gdb/configure.nat
-+++ b/gdb-11.1/gdb/configure.nat
+--- a/gdb/configure.nat
++++ b/gdb/configure.nat
 @@ -258,6 +258,10 @@ case ${gdb_host} in
  		# Host: Intel IA-64 running GNU/Linux
  		NATDEPFILES="${NATDEPFILES} ia64-linux-nat.o"
@@ -442,10 +442,10 @@ index e34cccf..ce5cbc7 100644
  	    m32r)
  		# Host: M32R based machine running GNU/Linux
  		NATDEPFILES="${NATDEPFILES} m32r-linux-nat.o"
-diff --git a/gdb-11.1/gdb/configure.tgt b/gdb-11.1/gdb/configure.tgt
+diff --git a/gdb/configure.tgt b/gdb/configure.tgt
 index 97a5a57..0b24ee2 100644
---- a/gdb-11.1/gdb/configure.tgt
-+++ b/gdb-11.1/gdb/configure.tgt
+--- a/gdb/configure.tgt
++++ b/gdb/configure.tgt
 @@ -97,6 +97,9 @@ xtensa*)
  	cpu_obs="xtensa-tdep.o xtensa-config.o solib-svr4.o"
  	;;
@@ -468,10 +468,10 @@ index 97a5a57..0b24ee2 100644
  m32c-*-*)
  	# Target: Renesas M32C family
  	gdb_target_obs="m32c-tdep.o"
-diff --git a/gdb-11.1/gdb/doc/gdb.texinfo b/gdb-11.1/gdb/doc/gdb.texinfo
+diff --git a/gdb/doc/gdb.texinfo b/gdb/doc/gdb.texinfo
 index 8608c86..d563d59 100644
---- a/gdb-11.1/gdb/doc/gdb.texinfo
-+++ b/gdb-11.1/gdb/doc/gdb.texinfo
+--- a/gdb/doc/gdb.texinfo
++++ b/gdb/doc/gdb.texinfo
 @@ -46047,6 +46047,7 @@ registers using the capitalization used in the description.
  * ARC Features::
  * ARM Features::
@@ -496,10 +496,10 @@ index 8608c86..d563d59 100644
  @node MicroBlaze Features
  @subsection MicroBlaze Features
  @cindex target descriptions, MicroBlaze features
-diff --git a/gdb-11.1/gdb/features/Makefile b/gdb-11.1/gdb/features/Makefile
+diff --git a/gdb/features/Makefile b/gdb/features/Makefile
 index ded8c3b..504e689 100644
---- a/gdb-11.1/gdb/features/Makefile
-+++ b/gdb-11.1/gdb/features/Makefile
+--- a/gdb/features/Makefile
++++ b/gdb/features/Makefile
 @@ -74,6 +74,7 @@ arm-expedite = r11,sp,pc
  i386-expedite = ebp,esp,eip
  amd64-expedite = rbp,rsp,rip
@@ -531,11 +531,11 @@ index ded8c3b..504e689 100644
  	riscv/rv32e-xregs.xml \
  	riscv/32bit-cpu.xml \
  	riscv/32bit-fpu.xml \
-diff --git a/gdb-11.1/gdb/features/loongarch/base32.c b/gdb-11.1/gdb/features/loongarch/base32.c
+diff --git a/gdb/features/loongarch/base32.c b/gdb/features/loongarch/base32.c
 new file mode 100644
 index 0000000..b6f2d06
 --- /dev/null
-+++ b/gdb-11.1/gdb/features/loongarch/base32.c
++++ b/gdb/features/loongarch/base32.c
 @@ -0,0 +1,47 @@
 +/* THIS FILE IS GENERATED.  -*- buffer-read-only: t -*- vi:set ro:
 +  Original: base32.xml */
@@ -584,11 +584,11 @@ index 0000000..b6f2d06
 +  tdesc_create_reg (feature, "badvaddr", regnum++, 1, "general", 32, "code_ptr");
 +  return regnum;
 +}
-diff --git a/gdb-11.1/gdb/features/loongarch/base32.xml b/gdb-11.1/gdb/features/loongarch/base32.xml
+diff --git a/gdb/features/loongarch/base32.xml b/gdb/features/loongarch/base32.xml
 new file mode 100644
 index 0000000..0afe81b
 --- /dev/null
-+++ b/gdb-11.1/gdb/features/loongarch/base32.xml
++++ b/gdb/features/loongarch/base32.xml
 @@ -0,0 +1,45 @@
 +<?xml version="1.0"?>
 +<!-- Copyright (C) 2021 Free Software Foundation, Inc.
@@ -635,11 +635,11 @@ index 0000000..0afe81b
 +  <reg name="pc" bitsize="32" type="code_ptr" group="general"/>
 +  <reg name="badvaddr" bitsize="32" type="code_ptr" group="general"/>
 +</feature>
-diff --git a/gdb-11.1/gdb/features/loongarch/base64.c b/gdb-11.1/gdb/features/loongarch/base64.c
+diff --git a/gdb/features/loongarch/base64.c b/gdb/features/loongarch/base64.c
 new file mode 100644
 index 0000000..3ee2d9a
 --- /dev/null
-+++ b/gdb-11.1/gdb/features/loongarch/base64.c
++++ b/gdb/features/loongarch/base64.c
 @@ -0,0 +1,47 @@
 +/* THIS FILE IS GENERATED.  -*- buffer-read-only: t -*- vi:set ro:
 +  Original: base64.xml */
@@ -688,11 +688,11 @@ index 0000000..3ee2d9a
 +  tdesc_create_reg (feature, "badvaddr", regnum++, 1, "general", 64, "code_ptr");
 +  return regnum;
 +}
-diff --git a/gdb-11.1/gdb/features/loongarch/base64.xml b/gdb-11.1/gdb/features/loongarch/base64.xml
+diff --git a/gdb/features/loongarch/base64.xml b/gdb/features/loongarch/base64.xml
 new file mode 100644
 index 0000000..b53479f
 --- /dev/null
-+++ b/gdb-11.1/gdb/features/loongarch/base64.xml
++++ b/gdb/features/loongarch/base64.xml
 @@ -0,0 +1,45 @@
 +<?xml version="1.0"?>
 +<!-- Copyright (C) 2021 Free Software Foundation, Inc.
@@ -739,11 +739,11 @@ index 0000000..b53479f
 +  <reg name="pc" bitsize="64" type="code_ptr" group="general"/>
 +  <reg name="badvaddr" bitsize="64" type="code_ptr" group="general"/>
 +</feature>
-diff --git a/gdb-11.1/gdb/features/loongarch/fpu32.c b/gdb-11.1/gdb/features/loongarch/fpu32.c
+diff --git a/gdb/features/loongarch/fpu32.c b/gdb/features/loongarch/fpu32.c
 new file mode 100644
 index 0000000..bf8964a
 --- /dev/null
-+++ b/gdb-11.1/gdb/features/loongarch/fpu32.c
++++ b/gdb/features/loongarch/fpu32.c
 @@ -0,0 +1,54 @@
 +/* THIS FILE IS GENERATED.  -*- buffer-read-only: t -*- vi:set ro:
 +  Original: fpu32.xml */
@@ -799,11 +799,11 @@ index 0000000..bf8964a
 +  tdesc_create_reg (feature, "fcsr", regnum++, 1, "float", 32, "uint32");
 +  return regnum;
 +}
-diff --git a/gdb-11.1/gdb/features/loongarch/fpu32.xml b/gdb-11.1/gdb/features/loongarch/fpu32.xml
+diff --git a/gdb/features/loongarch/fpu32.xml b/gdb/features/loongarch/fpu32.xml
 new file mode 100644
 index 0000000..8421730
 --- /dev/null
-+++ b/gdb-11.1/gdb/features/loongarch/fpu32.xml
++++ b/gdb/features/loongarch/fpu32.xml
 @@ -0,0 +1,53 @@
 +<?xml version="1.0"?>
 +<!-- Copyright (C) 2021 Free Software Foundation, Inc.
@@ -858,11 +858,11 @@ index 0000000..8421730
 +  <reg name="fcc7" bitsize="8" type="uint8" group="float"/>
 +  <reg name="fcsr" bitsize="32" type="uint32" group="float"/>
 +</feature>
-diff --git a/gdb-11.1/gdb/features/loongarch/fpu64.c b/gdb-11.1/gdb/features/loongarch/fpu64.c
+diff --git a/gdb/features/loongarch/fpu64.c b/gdb/features/loongarch/fpu64.c
 new file mode 100644
 index 0000000..f9e24c3
 --- /dev/null
-+++ b/gdb-11.1/gdb/features/loongarch/fpu64.c
++++ b/gdb/features/loongarch/fpu64.c
 @@ -0,0 +1,62 @@
 +/* THIS FILE IS GENERATED.  -*- buffer-read-only: t -*- vi:set ro:
 +  Original: fpu64.xml */
@@ -926,11 +926,11 @@ index 0000000..f9e24c3
 +  tdesc_create_reg (feature, "fcsr", regnum++, 1, "float", 32, "uint32");
 +  return regnum;
 +}
-diff --git a/gdb-11.1/gdb/features/loongarch/fpu64.xml b/gdb-11.1/gdb/features/loongarch/fpu64.xml
+diff --git a/gdb/features/loongarch/fpu64.xml b/gdb/features/loongarch/fpu64.xml
 new file mode 100644
 index 0000000..420be8b
 --- /dev/null
-+++ b/gdb-11.1/gdb/features/loongarch/fpu64.xml
++++ b/gdb/features/loongarch/fpu64.xml
 @@ -0,0 +1,58 @@
 +<?xml version="1.0"?>
 +<!-- Copyright (C) 2021 Free Software Foundation, Inc.
@@ -990,11 +990,11 @@ index 0000000..420be8b
 +  <reg name="fcc7" bitsize="8" type="uint8" group="float"/>
 +  <reg name="fcsr" bitsize="32" type="uint32" group="float"/>
 +</feature>
-diff --git a/gdb-11.1/gdb/features/loongarch/lasx.c b/gdb-11.1/gdb/features/loongarch/lasx.c
+diff --git a/gdb/features/loongarch/lasx.c b/gdb/features/loongarch/lasx.c
 new file mode 100644
 index 0000000..96e3ea9
 --- /dev/null
-+++ b/gdb-11.1/gdb/features/loongarch/lasx.c
++++ b/gdb/features/loongarch/lasx.c
 @@ -0,0 +1,80 @@
 +/* THIS FILE IS GENERATED.  -*- buffer-read-only: t -*- vi:set ro:
 +  Original: lasx.xml */
@@ -1076,11 +1076,11 @@ index 0000000..96e3ea9
 +  tdesc_create_reg (feature, "xr31", regnum++, 1, "lasx", 256, "lasxv");
 +  return regnum;
 +}
-diff --git a/gdb-11.1/gdb/features/loongarch/lasx.xml b/gdb-11.1/gdb/features/loongarch/lasx.xml
+diff --git a/gdb/features/loongarch/lasx.xml b/gdb/features/loongarch/lasx.xml
 new file mode 100644
 index 0000000..6f73df0
 --- /dev/null
-+++ b/gdb-11.1/gdb/features/loongarch/lasx.xml
++++ b/gdb/features/loongarch/lasx.xml
 @@ -0,0 +1,59 @@
 +<?xml version="1.0"?>
 +<!-- Copyright (C) 2021 Free Software Foundation, Inc.
@@ -1141,11 +1141,11 @@ index 0000000..6f73df0
 +  <reg name="xr30" bitsize="256" type="lasxv" group="lasx"/>
 +  <reg name="xr31" bitsize="256" type="lasxv" group="lasx"/>
 +</feature>
-diff --git a/gdb-11.1/gdb/features/loongarch/lbt32.c b/gdb-11.1/gdb/features/loongarch/lbt32.c
+diff --git a/gdb/features/loongarch/lbt32.c b/gdb/features/loongarch/lbt32.c
 new file mode 100644
 index 0000000..d245c75
 --- /dev/null
-+++ b/gdb-11.1/gdb/features/loongarch/lbt32.c
++++ b/gdb/features/loongarch/lbt32.c
 @@ -0,0 +1,19 @@
 +/* THIS FILE IS GENERATED.  -*- buffer-read-only: t -*- vi:set ro:
 +  Original: lbt32.xml */
@@ -1166,11 +1166,11 @@ index 0000000..d245c75
 +  tdesc_create_reg (feature, "x86_top", regnum++, 1, "lbt", 8, "uint8");
 +  return regnum;
 +}
-diff --git a/gdb-11.1/gdb/features/loongarch/lbt32.xml b/gdb-11.1/gdb/features/loongarch/lbt32.xml
+diff --git a/gdb/features/loongarch/lbt32.xml b/gdb/features/loongarch/lbt32.xml
 new file mode 100644
 index 0000000..1c0133e
 --- /dev/null
-+++ b/gdb-11.1/gdb/features/loongarch/lbt32.xml
++++ b/gdb/features/loongarch/lbt32.xml
 @@ -0,0 +1,17 @@
 +<?xml version="1.0"?>
 +<!-- Copyright (C) 2021 Free Software Foundation, Inc.
@@ -1189,11 +1189,11 @@ index 0000000..1c0133e
 +  <reg name="EFLAG" bitsize="32" type="uint32" group="lbt"/>
 +  <reg name="x86_top" bitsize="8" type="uint8" group="lbt"/>
 +</feature>
-diff --git a/gdb-11.1/gdb/features/loongarch/lbt64.c b/gdb-11.1/gdb/features/loongarch/lbt64.c
+diff --git a/gdb/features/loongarch/lbt64.c b/gdb/features/loongarch/lbt64.c
 new file mode 100644
 index 0000000..ecef330
 --- /dev/null
-+++ b/gdb-11.1/gdb/features/loongarch/lbt64.c
++++ b/gdb/features/loongarch/lbt64.c
 @@ -0,0 +1,19 @@
 +/* THIS FILE IS GENERATED.  -*- buffer-read-only: t -*- vi:set ro:
 +  Original: lbt64.xml */
@@ -1214,11 +1214,11 @@ index 0000000..ecef330
 +  tdesc_create_reg (feature, "x86_top", regnum++, 1, "lbt", 8, "uint8");
 +  return regnum;
 +}
-diff --git a/gdb-11.1/gdb/features/loongarch/lbt64.xml b/gdb-11.1/gdb/features/loongarch/lbt64.xml
+diff --git a/gdb/features/loongarch/lbt64.xml b/gdb/features/loongarch/lbt64.xml
 new file mode 100644
 index 0000000..1df26f5
 --- /dev/null
-+++ b/gdb-11.1/gdb/features/loongarch/lbt64.xml
++++ b/gdb/features/loongarch/lbt64.xml
 @@ -0,0 +1,17 @@
 +<?xml version="1.0"?>
 +<!-- Copyright (C) 2021 Free Software Foundation, Inc.
@@ -1237,11 +1237,11 @@ index 0000000..1df26f5
 +  <reg name="EFLAG" bitsize="32" type="uint32" group="lbt"/>
 +  <reg name="x86_top" bitsize="8" type="uint8" group="lbt"/>
 +</feature>
-diff --git a/gdb-11.1/gdb/features/loongarch/lsx.c b/gdb-11.1/gdb/features/loongarch/lsx.c
+diff --git a/gdb/features/loongarch/lsx.c b/gdb/features/loongarch/lsx.c
 new file mode 100644
 index 0000000..dd253f3
 --- /dev/null
-+++ b/gdb-11.1/gdb/features/loongarch/lsx.c
++++ b/gdb/features/loongarch/lsx.c
 @@ -0,0 +1,80 @@
 +/* THIS FILE IS GENERATED.  -*- buffer-read-only: t -*- vi:set ro:
 +  Original: lsx.xml */
@@ -1323,11 +1323,11 @@ index 0000000..dd253f3
 +  tdesc_create_reg (feature, "vr31", regnum++, 1, "lsx", 128, "lsxv");
 +  return regnum;
 +}
-diff --git a/gdb-11.1/gdb/features/loongarch/lsx.xml b/gdb-11.1/gdb/features/loongarch/lsx.xml
+diff --git a/gdb/features/loongarch/lsx.xml b/gdb/features/loongarch/lsx.xml
 new file mode 100644
 index 0000000..a0a6ba4
 --- /dev/null
-+++ b/gdb-11.1/gdb/features/loongarch/lsx.xml
++++ b/gdb/features/loongarch/lsx.xml
 @@ -0,0 +1,59 @@
 +<?xml version="1.0"?>
 +<!-- Copyright (C) 2021 Free Software Foundation, Inc.
@@ -1388,11 +1388,11 @@ index 0000000..a0a6ba4
 +  <reg name="vr30" bitsize="128" type="lsxv" group="lsx"/>
 +  <reg name="vr31" bitsize="128" type="lsxv" group="lsx"/>
 +</feature>
-diff --git a/gdb-11.1/gdb/loongarch-linux-nat.c b/gdb-11.1/gdb/loongarch-linux-nat.c
+diff --git a/gdb/loongarch-linux-nat.c b/gdb/loongarch-linux-nat.c
 new file mode 100644
 index 0000000..f31eff4
 --- /dev/null
-+++ b/gdb-11.1/gdb/loongarch-linux-nat.c
++++ b/gdb/loongarch-linux-nat.c
 @@ -0,0 +1,876 @@
 +/* Target-dependent code for GNU/Linux LoongArch.
 +
@@ -2270,11 +2270,11 @@ index 0000000..f31eff4
 +  linux_target = &the_loongarch_linux_nat_target;
 +  add_inf_child_target (&the_loongarch_linux_nat_target);
 +}
-diff --git a/gdb-11.1/gdb/loongarch-linux-tdep.c b/gdb-11.1/gdb/loongarch-linux-tdep.c
+diff --git a/gdb/loongarch-linux-tdep.c b/gdb/loongarch-linux-tdep.c
 new file mode 100644
 index 0000000..1145d9e
 --- /dev/null
-+++ b/gdb-11.1/gdb/loongarch-linux-tdep.c
++++ b/gdb/loongarch-linux-tdep.c
 @@ -0,0 +1,699 @@
 +/* Target-dependent code for GNU/Linux LoongArch.
 +
@@ -2975,11 +2975,11 @@ index 0000000..1145d9e
 +  gdbarch_register_osabi (bfd_arch_loongarch, bfd_mach_loongarch64,
 +                          GDB_OSABI_LINUX, loongarch_linux_init_abi);
 +}
-diff --git a/gdb-11.1/gdb/loongarch-linux-tdep.h b/gdb-11.1/gdb/loongarch-linux-tdep.h
+diff --git a/gdb/loongarch-linux-tdep.h b/gdb/loongarch-linux-tdep.h
 new file mode 100644
 index 0000000..e3456a8
 --- /dev/null
-+++ b/gdb-11.1/gdb/loongarch-linux-tdep.h
++++ b/gdb/loongarch-linux-tdep.h
 @@ -0,0 +1,48 @@
 +/* GNU/Linux on LoongArch target support, prototypes.
 +
@@ -3029,11 +3029,11 @@ index 0000000..e3456a8
 +extern const struct regset loongarch_elf_lasxregset;
 +
 +#endif
-diff --git a/gdb-11.1/gdb/loongarch-tdep.c b/gdb-11.1/gdb/loongarch-tdep.c
+diff --git a/gdb/loongarch-tdep.c b/gdb/loongarch-tdep.c
 new file mode 100644
 index 0000000..87331bd
 --- /dev/null
-+++ b/gdb-11.1/gdb/loongarch-tdep.c
++++ b/gdb/loongarch-tdep.c
 @@ -0,0 +1,1925 @@
 +/* Target-dependent code for GNU/Linux LoongArch.
 +
@@ -4960,11 +4960,11 @@ index 0000000..87331bd
 +When non-zero, loongarch specific debugging is enabled."),
 +			     NULL, NULL, &setdebuglist, &showdebuglist);
 +}
-diff --git a/gdb-11.1/gdb/loongarch-tdep.h b/gdb-11.1/gdb/loongarch-tdep.h
+diff --git a/gdb/loongarch-tdep.h b/gdb/loongarch-tdep.h
 new file mode 100644
 index 0000000..c673c9e
 --- /dev/null
-+++ b/gdb-11.1/gdb/loongarch-tdep.h
++++ b/gdb/loongarch-tdep.h
 @@ -0,0 +1,60 @@
 +/* Target-dependent code for GNU/Linux LoongArch.
 +
@@ -5026,11 +5026,11 @@ index 0000000..c673c9e
 +};
 +
 +#endif /* LOONGARCH_TDEP_H  */
-diff --git a/gdb-11.1/gdb/nat/loongarch-linux-watch.c b/gdb-11.1/gdb/nat/loongarch-linux-watch.c
+diff --git a/gdb/nat/loongarch-linux-watch.c b/gdb/nat/loongarch-linux-watch.c
 new file mode 100644
 index 0000000..f7c0dbf
 --- /dev/null
-+++ b/gdb-11.1/gdb/nat/loongarch-linux-watch.c
++++ b/gdb/nat/loongarch-linux-watch.c
 @@ -0,0 +1,330 @@
 +/* Copyright (C) 2021 Free Software Foundation, Inc.
 +   Contributed by Loongson Ltd.
@@ -5362,11 +5362,11 @@ index 0000000..f7c0dbf
 +      w = w->next;
 +    }
 +}
-diff --git a/gdb-11.1/gdb/nat/loongarch-linux-watch.h b/gdb-11.1/gdb/nat/loongarch-linux-watch.h
+diff --git a/gdb/nat/loongarch-linux-watch.h b/gdb/nat/loongarch-linux-watch.h
 new file mode 100644
 index 0000000..ab80b44
 --- /dev/null
-+++ b/gdb-11.1/gdb/nat/loongarch-linux-watch.h
++++ b/gdb/nat/loongarch-linux-watch.h
 @@ -0,0 +1,132 @@
 +/* Copyright (C) 2021 Free Software Foundation, Inc.
 +   Contributed by Loongson Ltd.
@@ -5500,10 +5500,10 @@ index 0000000..ab80b44
 +					  int force);
 +
 +#endif /* #define LOONGARCH_LINUX_WATCH_H  */
-diff --git a/gdb-11.1/gdb/remote.c b/gdb-11.1/gdb/remote.c
+diff --git a/gdb/remote.c b/gdb/remote.c
 index f2271ad..94abdca 100644
---- a/gdb-11.1/gdb/remote.c
-+++ b/gdb-11.1/gdb/remote.c
+--- a/gdb/remote.c
++++ b/gdb/remote.c
 @@ -2070,6 +2070,8 @@ enum {
    PACKET_qXfer_statictrace_read,
    PACKET_qXfer_traceframe_info,
@@ -5557,10 +5557,10 @@ index f2271ad..94abdca 100644
    add_packet_config_cmd (&remote_protocol_packets[PACKET_qGetTLSAddr],
  			 "qGetTLSAddr", "get-thread-local-storage-address",
  			 0);
-diff --git a/gdb-11.1/gdb/target.h b/gdb-11.1/gdb/target.h
+diff --git a/gdb/target.h b/gdb/target.h
 index ddd4f38..f3f6045 100644
---- a/gdb-11.1/gdb/target.h
-+++ b/gdb-11.1/gdb/target.h
+--- a/gdb/target.h
++++ b/gdb/target.h
 @@ -135,6 +135,9 @@ enum inferior_event_type
  
  enum target_object
@@ -5571,10 +5571,10 @@ index ddd4f38..f3f6045 100644
    /* AVR target specific transfer.  See "avr-tdep.c" and "remote.c".  */
    TARGET_OBJECT_AVR,
    /* Transfer up-to LEN bytes of memory starting at OFFSET.  */
-diff --git a/gdb-11.1/gdb/testsuite/gdb.base/dump.exp b/gdb-11.1/gdb/testsuite/gdb.base/dump.exp
+diff --git a/gdb/testsuite/gdb.base/dump.exp b/gdb/testsuite/gdb.base/dump.exp
 index 52c6983..53e6873 100644
---- a/gdb-11.1/gdb/testsuite/gdb.base/dump.exp
-+++ b/gdb-11.1/gdb/testsuite/gdb.base/dump.exp
+--- a/gdb/testsuite/gdb.base/dump.exp
++++ b/gdb/testsuite/gdb.base/dump.exp
 @@ -145,11 +145,13 @@ make_dump_file "dump srec val [set intarr1.srec] intarray" \
  make_dump_file "dump srec val [set intstr1.srec] intstruct" \
  	"dump struct as value, srec"
@@ -5603,10 +5603,10 @@ index 52c6983..53e6873 100644
  
  make_dump_file "dump tekhex mem [set intarr2.tekhex] $array_start $array_end" \
  	"dump array as memory, tekhex"
-diff --git a/gdb-11.1/gdb/testsuite/gdb.base/float.exp b/gdb-11.1/gdb/testsuite/gdb.base/float.exp
+diff --git a/gdb/testsuite/gdb.base/float.exp b/gdb/testsuite/gdb.base/float.exp
 index dc5e2fa..d179a8f 100644
---- a/gdb-11.1/gdb/testsuite/gdb.base/float.exp
-+++ b/gdb-11.1/gdb/testsuite/gdb.base/float.exp
+--- a/gdb/testsuite/gdb.base/float.exp
++++ b/gdb/testsuite/gdb.base/float.exp
 @@ -120,6 +120,8 @@ if { [is_aarch64_target] } then {
  	      pass "info float (without FPU)"
  	}
@@ -5616,10 +5616,10 @@ index dc5e2fa..d179a8f 100644
  } else {
      gdb_test "info float" "No floating.point info available for this processor." "info float (unknown target)"
  }
-diff --git a/gdb-11.1/gdb/testsuite/gdb.trace/entry-values.exp b/gdb-11.1/gdb/testsuite/gdb.trace/entry-values.exp
+diff --git a/gdb/testsuite/gdb.trace/entry-values.exp b/gdb/testsuite/gdb.trace/entry-values.exp
 index 3695a1e..f19f5b9 100644
---- a/gdb-11.1/gdb/testsuite/gdb.trace/entry-values.exp
-+++ b/gdb-11.1/gdb/testsuite/gdb.trace/entry-values.exp
+--- a/gdb/testsuite/gdb.trace/entry-values.exp
++++ b/gdb/testsuite/gdb.trace/entry-values.exp
 @@ -62,6 +62,8 @@ if { [istarget "arm*-*-*"] || [istarget "aarch64*-*-*"] } {
      # returns.  The only exception is JALRC, in which case execution
      # resumes from `insn1' instead.
@@ -5629,10 +5629,10 @@ index 3695a1e..f19f5b9 100644
  } else {
      set call_insn "call"
  }
-diff --git a/gdb-11.1/gdb/testsuite/gdb.xml/tdesc-regs.exp b/gdb-11.1/gdb/testsuite/gdb.xml/tdesc-regs.exp
+diff --git a/gdb/testsuite/gdb.xml/tdesc-regs.exp b/gdb/testsuite/gdb.xml/tdesc-regs.exp
 index 7402ba8..4b94747 100644
---- a/gdb-11.1/gdb/testsuite/gdb.xml/tdesc-regs.exp
-+++ b/gdb-11.1/gdb/testsuite/gdb.xml/tdesc-regs.exp
+--- a/gdb/testsuite/gdb.xml/tdesc-regs.exp
++++ b/gdb/testsuite/gdb.xml/tdesc-regs.exp
 @@ -83,6 +83,11 @@ switch -glob -- [istarget] {
  	set regdir "i386/"
          set core-regs {64bit-core.xml 64bit-sse.xml}
