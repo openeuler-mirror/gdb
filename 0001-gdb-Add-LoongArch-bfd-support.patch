@@ -32,10 +32,10 @@ Signed-off-by: Qing Zhang <zhangqing@loongson.cn>
  create mode 100644 gdb-11.1/bfd/elfxx-loongarch.h
  create mode 100644 gdb-11.1/include/elf/loongarch.h
 
-diff --git a/gdb-11.1/bfd/Makefile.am b/gdb-11.1/bfd/Makefile.am
+diff --git a/bfd/Makefile.am b/bfd/Makefile.am
 index ed2f701..097177b 100644
---- a/gdb-11.1/bfd/Makefile.am
-+++ b/gdb-11.1/bfd/Makefile.am
+--- a/bfd/Makefile.am
++++ b/bfd/Makefile.am
 @@ -118,6 +118,7 @@ ALL_MACHINES = \
  	cpu-ip2k.lo \
  	cpu-iq2000.lo \
@@ -102,10 +102,10 @@ index ed2f701..097177b 100644
  elf32-riscv.c : elfnn-riscv.c
  	echo "#line 1 \"elfnn-riscv.c\"" > $@
  	$(SED) -e s/NN/32/g < $< >> $@
-diff --git a/gdb-11.1/bfd/Makefile.in b/gdb-11.1/bfd/Makefile.in
+diff --git a/bfd/Makefile.in b/bfd/Makefile.in
 index 12807d9..a76b653 100644
---- a/gdb-11.1/bfd/Makefile.in
-+++ b/gdb-11.1/bfd/Makefile.in
+--- a/bfd/Makefile.in
++++ b/bfd/Makefile.in
 @@ -543,6 +543,7 @@ ALL_MACHINES = \
  	cpu-ip2k.lo \
  	cpu-iq2000.lo \
@@ -204,10 +204,10 @@ index 12807d9..a76b653 100644
  elf32-riscv.c : elfnn-riscv.c
  	echo "#line 1 \"elfnn-riscv.c\"" > $@
  	$(SED) -e s/NN/32/g < $< >> $@
-diff --git a/gdb-11.1/bfd/archures.c b/gdb-11.1/bfd/archures.c
+diff --git a/bfd/archures.c b/bfd/archures.c
 index 390691b..b1e8869 100644
---- a/gdb-11.1/bfd/archures.c
-+++ b/gdb-11.1/bfd/archures.c
+--- a/bfd/archures.c
++++ b/bfd/archures.c
 @@ -555,6 +555,9 @@ DESCRIPTION
  .#define bfd_mach_ck807		6
  .#define bfd_mach_ck810		7
@@ -234,10 +234,10 @@ index 390691b..b1e8869 100644
      &bfd_m32c_arch,
      &bfd_m32r_arch,
      &bfd_m68hc11_arch,
-diff --git a/gdb-11.1/bfd/bfd-in2.h b/gdb-11.1/bfd/bfd-in2.h
+diff --git a/bfd/bfd-in2.h b/bfd/bfd-in2.h
 index 57b3c45..ca9e814 100644
---- a/gdb-11.1/bfd/bfd-in2.h
-+++ b/gdb-11.1/bfd/bfd-in2.h
+--- a/bfd/bfd-in2.h
++++ b/bfd/bfd-in2.h
 @@ -1932,6 +1932,9 @@ enum bfd_architecture
  #define bfd_mach_ck807         6
  #define bfd_mach_ck810         7
@@ -300,10 +300,10 @@ index 57b3c45..ca9e814 100644
    BFD_RELOC_UNUSED };
  
  typedef enum bfd_reloc_code_real bfd_reloc_code_real_type;
-diff --git a/gdb-11.1/bfd/config.bfd b/gdb-11.1/bfd/config.bfd
+diff --git a/bfd/config.bfd b/bfd/config.bfd
 index 30087e3..a5ed3da 100644
---- a/gdb-11.1/bfd/config.bfd
-+++ b/gdb-11.1/bfd/config.bfd
+--- a/bfd/config.bfd
++++ b/bfd/config.bfd
 @@ -182,6 +182,7 @@ hppa*)		 targ_archs=bfd_hppa_arch ;;
  i[3-7]86)	 targ_archs=bfd_i386_arch ;;
  ia16)		 targ_archs=bfd_i386_arch ;;
@@ -333,10 +333,10 @@ index 30087e3..a5ed3da 100644
  # END OF targmatch.h
    bpf-*-*)
      echo "*** Configuration $targ is not fully supported." >&2
-diff --git a/gdb-11.1/bfd/configure b/gdb-11.1/bfd/configure
+diff --git a/bfd/configure b/bfd/configure
 index daa5124..e6c7fb7 100755
---- a/gdb-11.1/bfd/configure
-+++ b/gdb-11.1/bfd/configure
+--- a/bfd/configure
++++ b/bfd/configure
 @@ -13338,6 +13338,8 @@ do
      l1om_elf64_fbsd_vec)	 tb="$tb elf64-x86-64.lo elfxx-x86.lo elf-ifunc.lo elf64.lo $elf"; target_size=64 ;;
      lm32_elf32_vec)		 tb="$tb elf32-lm32.lo elf32.lo $elf" ;;
@@ -346,10 +346,10 @@ index daa5124..e6c7fb7 100755
      m32c_elf32_vec)		 tb="$tb elf32-m32c.lo elf32.lo $elf" ;;
      m32r_elf32_vec)		 tb="$tb elf32-m32r.lo elf32.lo $elf" ;;
      m32r_elf32_le_vec)		 tb="$tb elf32-m32r.lo elf32.lo $elf" ;;
-diff --git a/gdb-11.1/bfd/configure.ac b/gdb-11.1/bfd/configure.ac
+diff --git a/bfd/configure.ac b/bfd/configure.ac
 index 07a75ed..f1da356 100644
---- a/gdb-11.1/bfd/configure.ac
-+++ b/gdb-11.1/bfd/configure.ac
+--- a/bfd/configure.ac
++++ b/bfd/configure.ac
 @@ -528,6 +528,8 @@ do
      l1om_elf64_fbsd_vec)	 tb="$tb elf64-x86-64.lo elfxx-x86.lo elf-ifunc.lo elf64.lo $elf"; target_size=64 ;;
      lm32_elf32_vec)		 tb="$tb elf32-lm32.lo elf32.lo $elf" ;;
@@ -359,11 +359,11 @@ index 07a75ed..f1da356 100644
      m32c_elf32_vec)		 tb="$tb elf32-m32c.lo elf32.lo $elf" ;;
      m32r_elf32_vec)		 tb="$tb elf32-m32r.lo elf32.lo $elf" ;;
      m32r_elf32_le_vec)		 tb="$tb elf32-m32r.lo elf32.lo $elf" ;;
-diff --git a/gdb-11.1/bfd/cpu-loongarch.c b/gdb-11.1/bfd/cpu-loongarch.c
+diff --git a/bfd/cpu-loongarch.c b/bfd/cpu-loongarch.c
 new file mode 100644
 index 0000000..e866c3e
 --- /dev/null
-+++ b/gdb-11.1/bfd/cpu-loongarch.c
++++ b/bfd/cpu-loongarch.c
 @@ -0,0 +1,61 @@
 +/* BFD support for LoongArch.
 +   Copyright (C) 2021-2022 Free Software Foundation, Inc.
@@ -426,10 +426,10 @@ index 0000000..e866c3e
 +  &bfd_loongarch32_arch,	/* Next in list.  */
 +  0,
 +};
-diff --git a/gdb-11.1/bfd/elf-bfd.h b/gdb-11.1/bfd/elf-bfd.h
+diff --git a/bfd/elf-bfd.h b/bfd/elf-bfd.h
 index 8f985ab..651db97 100644
---- a/gdb-11.1/bfd/elf-bfd.h
-+++ b/gdb-11.1/bfd/elf-bfd.h
+--- a/bfd/elf-bfd.h
++++ b/bfd/elf-bfd.h
 @@ -508,6 +508,7 @@ enum elf_target_id
    I386_ELF_DATA,
    IA64_ELF_DATA,
@@ -453,10 +453,10 @@ index 8f985ab..651db97 100644
  
  /* Internal structure which holds information to be included in the
     PRPSINFO section of Linux core files.
-diff --git a/gdb-11.1/bfd/elf.c b/gdb-11.1/bfd/elf.c
+diff --git a/bfd/elf.c b/bfd/elf.c
 index 8f6531f..d71fe79 100644
---- a/gdb-11.1/bfd/elf.c
-+++ b/gdb-11.1/bfd/elf.c
+--- a/bfd/elf.c
++++ b/bfd/elf.c
 @@ -9958,6 +9958,30 @@ elfcore_grok_gdb_tdesc (bfd *abfd, Elf_Internal_Note *note)
    return elfcore_make_note_pseudosection (abfd, ".gdb-tdesc", note);
  }
@@ -594,11 +594,11 @@ index 8f6531f..d71fe79 100644
    return NULL;
  }
  
-diff --git a/gdb-11.1/bfd/elfnn-loongarch.c b/gdb-11.1/bfd/elfnn-loongarch.c
+diff --git a/bfd/elfnn-loongarch.c b/bfd/elfnn-loongarch.c
 new file mode 100644
 index 0000000..8aaf157
 --- /dev/null
-+++ b/gdb-11.1/bfd/elfnn-loongarch.c
++++ b/bfd/elfnn-loongarch.c
 @@ -0,0 +1,3425 @@
 +/* LoongArch-specific support for NN-bit ELF.
 +   Copyright (C) 2021-2022 Free Software Foundation, Inc.
@@ -4025,11 +4025,11 @@ index 0000000..8aaf157
 +#define elf_backend_grok_psinfo loongarch_elf_grok_psinfo
 +
 +#include "elfNN-target.h"
-diff --git a/gdb-11.1/bfd/elfxx-loongarch.c b/gdb-11.1/bfd/elfxx-loongarch.c
+diff --git a/bfd/elfxx-loongarch.c b/bfd/elfxx-loongarch.c
 new file mode 100644
 index 0000000..6f7c822
 --- /dev/null
-+++ b/gdb-11.1/bfd/elfxx-loongarch.c
++++ b/bfd/elfxx-loongarch.c
 @@ -0,0 +1,891 @@
 +/* LoongArch-specific support for ELF.
 +   Copyright (C) 2021-2022 Free Software Foundation, Inc.
@@ -4922,11 +4922,11 @@ index 0000000..6f7c822
 +  return ((loongarch_reloc_howto_type *)
 +	  howto)->adjust_reloc_bits(howto, fix_val);
 +}
-diff --git a/gdb-11.1/bfd/elfxx-loongarch.h b/gdb-11.1/bfd/elfxx-loongarch.h
+diff --git a/bfd/elfxx-loongarch.h b/bfd/elfxx-loongarch.h
 new file mode 100644
 index 0000000..8ea63d0
 --- /dev/null
-+++ b/gdb-11.1/bfd/elfxx-loongarch.h
++++ b/bfd/elfxx-loongarch.h
 @@ -0,0 +1,41 @@
 +/* LoongArch-specific backend routines.
 +   Copyright (C) 2021-2022 Free Software Foundation, Inc.
@@ -4969,10 +4969,10 @@ index 0000000..8ea63d0
 +	|| ELF_ST_VISIBILITY ((H)->other) != STV_DEFAULT) \
 +	&& (H)->def_regular \
 +	&& (H)->type == STT_GNU_IFUNC))
-diff --git a/gdb-11.1/bfd/libbfd.h b/gdb-11.1/bfd/libbfd.h
+diff --git a/bfd/libbfd.h b/bfd/libbfd.h
 index c37ddc0..48e2978 100644
---- a/gdb-11.1/bfd/libbfd.h
-+++ b/gdb-11.1/bfd/libbfd.h
+--- a/bfd/libbfd.h
++++ b/bfd/libbfd.h
 @@ -3413,6 +3413,49 @@ static const char *const bfd_reloc_code_real_names[] = { "@@uninitialized@@",
    "BFD_RELOC_CKCORE_PCREL_BLOOP_IMM4BY4",
    "BFD_RELOC_CKCORE_PCREL_BLOOP_IMM12BY4",
@@ -5023,10 +5023,10 @@ index c37ddc0..48e2978 100644
   "@@overflow: BFD_RELOC_UNUSED@@",
  };
  #endif
-diff --git a/gdb-11.1/bfd/po/BLD-POTFILES.in b/gdb-11.1/bfd/po/BLD-POTFILES.in
+diff --git a/bfd/po/BLD-POTFILES.in b/bfd/po/BLD-POTFILES.in
 index f81e2b4..0ecbbcf 100644
---- a/gdb-11.1/bfd/po/BLD-POTFILES.in
-+++ b/gdb-11.1/bfd/po/BLD-POTFILES.in
+--- a/bfd/po/BLD-POTFILES.in
++++ b/bfd/po/BLD-POTFILES.in
 @@ -1,10 +1,12 @@
  bfdver.h
  elf32-aarch64.c
@@ -5040,10 +5040,10 @@ index f81e2b4..0ecbbcf 100644
  elf64-riscv.c
  elf64-target.h
  peigen.c
-diff --git a/gdb-11.1/bfd/po/SRC-POTFILES.in b/gdb-11.1/bfd/po/SRC-POTFILES.in
+diff --git a/bfd/po/SRC-POTFILES.in b/bfd/po/SRC-POTFILES.in
 index c83b86c..cd41295 100644
---- a/gdb-11.1/bfd/po/SRC-POTFILES.in
-+++ b/gdb-11.1/bfd/po/SRC-POTFILES.in
+--- a/bfd/po/SRC-POTFILES.in
++++ b/bfd/po/SRC-POTFILES.in
 @@ -72,6 +72,7 @@ cpu-iq2000.c
  cpu-k1om.c
  cpu-l1om.c
@@ -5061,10 +5061,10 @@ index c83b86c..cd41295 100644
  elfxx-mips.c
  elfxx-mips.h
  elfxx-riscv.c
-diff --git a/gdb-11.1/bfd/reloc.c b/gdb-11.1/bfd/reloc.c
+diff --git a/bfd/reloc.c b/bfd/reloc.c
 index 6d920e1..30826fe 100644
---- a/gdb-11.1/bfd/reloc.c
-+++ b/gdb-11.1/bfd/reloc.c
+--- a/bfd/reloc.c
++++ b/bfd/reloc.c
 @@ -8171,6 +8171,95 @@ ENUM
  ENUMDOC
    S12Z relocations.
@@ -5161,10 +5161,10 @@ index 6d920e1..30826fe 100644
  ENDSENUM
    BFD_RELOC_UNUSED
  CODE_FRAGMENT
-diff --git a/gdb-11.1/bfd/targets.c b/gdb-11.1/bfd/targets.c
+diff --git a/bfd/targets.c b/bfd/targets.c
 index 89b49e7..8f5abb1 100644
---- a/gdb-11.1/bfd/targets.c
-+++ b/gdb-11.1/bfd/targets.c
+--- a/bfd/targets.c
++++ b/bfd/targets.c
 @@ -768,6 +768,8 @@ extern const bfd_target l1om_elf64_vec;
  extern const bfd_target l1om_elf64_fbsd_vec;
  extern const bfd_target lm32_elf32_vec;
@@ -5187,10 +5187,10 @@ index 89b49e7..8f5abb1 100644
  #endif /* not SELECT_VECS */
  
  /* Always support S-records, for convenience.  */
-diff --git a/gdb-11.1/include/elf/common.h b/gdb-11.1/include/elf/common.h
+diff --git a/include/elf/common.h b/include/elf/common.h
 index 7eefef9..972a2d0 100644
---- a/gdb-11.1/include/elf/common.h
-+++ b/gdb-11.1/include/elf/common.h
+--- a/include/elf/common.h
++++ b/include/elf/common.h
 @@ -677,8 +677,18 @@
  					/*   note name must be "LINUX".  */
  #define NT_ARC_V2	0x600		/* ARC HS accumulator/extra registers.  */
@@ -5211,11 +5211,11 @@ index 7eefef9..972a2d0 100644
  #define NT_SIGINFO	0x53494749	/* Fields of siginfo_t.  */
  #define NT_FILE		0x46494c45	/* Description of mapped files.  */
  
-diff --git a/gdb-11.1/include/elf/loongarch.h b/gdb-11.1/include/elf/loongarch.h
+diff --git a/include/elf/loongarch.h b/include/elf/loongarch.h
 new file mode 100644
 index 0000000..b7aa4ff
 --- /dev/null
-+++ b/gdb-11.1/include/elf/loongarch.h
++++ b/include/elf/loongarch.h
 @@ -0,0 +1,128 @@
 +/* Copyright (C) 2021-2022 Free Software Foundation, Inc.
 +   Contributed by Loongson Ltd.
