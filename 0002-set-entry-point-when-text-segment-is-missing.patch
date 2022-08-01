@@ -1,0 +1,30 @@
+From 6490b5d2ec9c575757308c860c48b75c8e824bfe Mon Sep 17 00:00:00 2001
+From: cenhuilin <cenhuilin@kylinos.cn>
+Date: Fri, 8 Jul 2022 03:22:14 +0000
+Subject: [PATCH] gdb set entry point when text segment is missing
+
+---
+ gdb/symfile.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/gdb/symfile.c b/gdb/symfile.c
+index 0eb48d0..9137183 100644
+--- a/gdb/symfile.c
++++ b/gdb/symfile.c
+@@ -863,7 +863,12 @@ init_entry_point_info (struct objfile *objfile)
+ 	}
+ 
+       if (!found)
+-	ei->the_bfd_section_index = SECT_OFF_TEXT (objfile);
++	{
++	  if (objfile->sect_index_text == -1)
++	    ei->entry_point_p = 0;
++	  else
++	    ei->the_bfd_section_index = objfile->sect_index_text;
++	}
+     }
+ }
+ 
+-- 
+2.33.0
+
