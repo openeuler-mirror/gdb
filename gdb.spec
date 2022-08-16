@@ -1,6 +1,6 @@
 Name: gdb
 Version: 11.1
-Release: 3
+Release: 4
 
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ and GPLv2+ with exceptions and GPL+ and LGPLv2+ and LGPLv3+ and BSD and Public Domain and GFDL-1.3
 Source: ftp://sourceware.org/pub/gdb/releases/gdb-%{version}.tar.xz
@@ -230,7 +230,9 @@ export CXXFLAGS="$CFLAGS"
 	--with-lzma						\
 	--without-libunwind					\
 	--enable-64-bit-bfd					\
+%ifnarch riscv64
 	--enable-inprocess-agent				\
+%endif
 	--with-system-zlib					\
 %ifarch %{ix86} x86_64
 	--with-intel-pt						\
@@ -348,8 +350,8 @@ rm -f $RPM_BUILD_ROOT%{_datadir}/gdb/python/gdb/command/backtrace.py
 %{_datadir}/gdb
 
 %files gdbserver
-%ifnarch riscv64
 %{_bindir}/gdbserver
+%ifnarch riscv64
 %{_libdir}/libinproctrace.so
 %endif
 
@@ -366,6 +368,9 @@ rm -f $RPM_BUILD_ROOT%{_datadir}/gdb/python/gdb/command/backtrace.py
 %{_infodir}/gdb.info*
 
 %changelog
+* Mon Aug 15 2022 laokz <laokz@foxmail.com> - 11.1-4
+- fix riscv64 relevant config
+
 * Fri Jul  8 2022 cenhuilin <cenhuilin@kylinos.cn> - 11.1-3
 - set entry point when text segment is missing
 
