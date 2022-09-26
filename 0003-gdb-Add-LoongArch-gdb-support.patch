@@ -1,77 +1,77 @@
-From 5143f24613f98a3c7b3ce0fc133b41f3adaef752 Mon Sep 17 00:00:00 2001
+From ef2f4994997351182739fce55e32a6a1228739b0 Mon Sep 17 00:00:00 2001
 From: Qing Zhang <zhangqing@loongson.cn>
 Date: Tue, 29 Mar 2022 16:11:47 +0800
-Subject: [PATCH 3/4] gdb-Add LoongArch gdb support
+Subject: [PATCH 3/5] gdb-Add LoongArch gdb support
 
 Signed-off-by: Qing Zhang <zhangqing@loongson.cn>
 ---
- gdb-11.1/gdb/Makefile.in                      |   13 +
- gdb-11.1/gdb/arch/loongarch-linux-nat.c       |   94 +
- gdb-11.1/gdb/arch/loongarch-linux-nat.h       |   35 +
- gdb-11.1/gdb/arch/loongarch.c                 |   84 +
- gdb-11.1/gdb/arch/loongarch.h                 |   37 +
- gdb-11.1/gdb/configure.host                   |    3 +
- gdb-11.1/gdb/configure.nat                    |    4 +
- gdb-11.1/gdb/configure.tgt                    |    8 +
- gdb-11.1/gdb/doc/gdb.texinfo                  |   10 +
- gdb-11.1/gdb/features/Makefile                |   10 +
- gdb-11.1/gdb/features/loongarch/base32.c      |   47 +
- gdb-11.1/gdb/features/loongarch/base32.xml    |   45 +
- gdb-11.1/gdb/features/loongarch/base64.c      |   47 +
- gdb-11.1/gdb/features/loongarch/base64.xml    |   45 +
- gdb-11.1/gdb/features/loongarch/fpu32.c       |   54 +
- gdb-11.1/gdb/features/loongarch/fpu32.xml     |   53 +
- gdb-11.1/gdb/features/loongarch/fpu64.c       |   62 +
- gdb-11.1/gdb/features/loongarch/fpu64.xml     |   58 +
- gdb-11.1/gdb/features/loongarch/lasx.c        |   80 +
- gdb-11.1/gdb/features/loongarch/lasx.xml      |   59 +
- gdb-11.1/gdb/features/loongarch/lbt32.c       |   19 +
- gdb-11.1/gdb/features/loongarch/lbt32.xml     |   17 +
- gdb-11.1/gdb/features/loongarch/lbt64.c       |   19 +
- gdb-11.1/gdb/features/loongarch/lbt64.xml     |   17 +
- gdb-11.1/gdb/features/loongarch/lsx.c         |   80 +
- gdb-11.1/gdb/features/loongarch/lsx.xml       |   59 +
- gdb-11.1/gdb/loongarch-linux-nat.c            |  876 ++++++++
- gdb-11.1/gdb/loongarch-linux-tdep.c           |  699 ++++++
- gdb-11.1/gdb/loongarch-linux-tdep.h           |   48 +
- gdb-11.1/gdb/loongarch-tdep.c                 | 1925 +++++++++++++++++
- gdb-11.1/gdb/loongarch-tdep.h                 |   60 +
- gdb-11.1/gdb/nat/loongarch-linux-watch.c      |  330 +++
- gdb-11.1/gdb/nat/loongarch-linux-watch.h      |  132 ++
- gdb-11.1/gdb/remote.c                         |   25 +
- gdb-11.1/gdb/target.h                         |    3 +
- gdb-11.1/gdb/testsuite/gdb.base/dump.exp      |    4 +
- gdb-11.1/gdb/testsuite/gdb.base/float.exp     |    2 +
- .../gdb/testsuite/gdb.trace/entry-values.exp  |    2 +
- gdb-11.1/gdb/testsuite/gdb.xml/tdesc-regs.exp |    5 +
+ gdb/Makefile.in                          |   13 +
+ gdb/arch/loongarch-linux-nat.c           |   94 ++
+ gdb/arch/loongarch-linux-nat.h           |   35 +
+ gdb/arch/loongarch.c                     |   84 +
+ gdb/arch/loongarch.h                     |   37 +
+ gdb/configure.host                       |    3 +
+ gdb/configure.nat                        |    4 +
+ gdb/configure.tgt                        |    8 +
+ gdb/doc/gdb.texinfo                      |   10 +
+ gdb/features/Makefile                    |   10 +
+ gdb/features/loongarch/base32.c          |   47 +
+ gdb/features/loongarch/base32.xml        |   45 +
+ gdb/features/loongarch/base64.c          |   47 +
+ gdb/features/loongarch/base64.xml        |   45 +
+ gdb/features/loongarch/fpu32.c           |   54 +
+ gdb/features/loongarch/fpu32.xml         |   53 +
+ gdb/features/loongarch/fpu64.c           |   62 +
+ gdb/features/loongarch/fpu64.xml         |   58 +
+ gdb/features/loongarch/lasx.c            |   80 +
+ gdb/features/loongarch/lasx.xml          |   59 +
+ gdb/features/loongarch/lbt32.c           |   19 +
+ gdb/features/loongarch/lbt32.xml         |   17 +
+ gdb/features/loongarch/lbt64.c           |   19 +
+ gdb/features/loongarch/lbt64.xml         |   17 +
+ gdb/features/loongarch/lsx.c             |   80 +
+ gdb/features/loongarch/lsx.xml           |   59 +
+ gdb/loongarch-linux-nat.c                |  876 ++++++++++
+ gdb/loongarch-linux-tdep.c               |  699 ++++++++
+ gdb/loongarch-linux-tdep.h               |   48 +
+ gdb/loongarch-tdep.c                     | 1925 ++++++++++++++++++++++
+ gdb/loongarch-tdep.h                     |   60 +
+ gdb/nat/loongarch-linux-watch.c          |  330 ++++
+ gdb/nat/loongarch-linux-watch.h          |  132 ++
+ gdb/remote.c                             |   25 +
+ gdb/target.h                             |    3 +
+ gdb/testsuite/gdb.base/dump.exp          |    4 +
+ gdb/testsuite/gdb.base/float.exp         |    2 +
+ gdb/testsuite/gdb.trace/entry-values.exp |    2 +
+ gdb/testsuite/gdb.xml/tdesc-regs.exp     |    5 +
  39 files changed, 5170 insertions(+)
- create mode 100644 gdb-11.1/gdb/arch/loongarch-linux-nat.c
- create mode 100644 gdb-11.1/gdb/arch/loongarch-linux-nat.h
- create mode 100644 gdb-11.1/gdb/arch/loongarch.c
- create mode 100644 gdb-11.1/gdb/arch/loongarch.h
- create mode 100644 gdb-11.1/gdb/features/loongarch/base32.c
- create mode 100644 gdb-11.1/gdb/features/loongarch/base32.xml
- create mode 100644 gdb-11.1/gdb/features/loongarch/base64.c
- create mode 100644 gdb-11.1/gdb/features/loongarch/base64.xml
- create mode 100644 gdb-11.1/gdb/features/loongarch/fpu32.c
- create mode 100644 gdb-11.1/gdb/features/loongarch/fpu32.xml
- create mode 100644 gdb-11.1/gdb/features/loongarch/fpu64.c
- create mode 100644 gdb-11.1/gdb/features/loongarch/fpu64.xml
- create mode 100644 gdb-11.1/gdb/features/loongarch/lasx.c
- create mode 100644 gdb-11.1/gdb/features/loongarch/lasx.xml
- create mode 100644 gdb-11.1/gdb/features/loongarch/lbt32.c
- create mode 100644 gdb-11.1/gdb/features/loongarch/lbt32.xml
- create mode 100644 gdb-11.1/gdb/features/loongarch/lbt64.c
- create mode 100644 gdb-11.1/gdb/features/loongarch/lbt64.xml
- create mode 100644 gdb-11.1/gdb/features/loongarch/lsx.c
- create mode 100644 gdb-11.1/gdb/features/loongarch/lsx.xml
- create mode 100644 gdb-11.1/gdb/loongarch-linux-nat.c
- create mode 100644 gdb-11.1/gdb/loongarch-linux-tdep.c
- create mode 100644 gdb-11.1/gdb/loongarch-linux-tdep.h
- create mode 100644 gdb-11.1/gdb/loongarch-tdep.c
- create mode 100644 gdb-11.1/gdb/loongarch-tdep.h
- create mode 100644 gdb-11.1/gdb/nat/loongarch-linux-watch.c
- create mode 100644 gdb-11.1/gdb/nat/loongarch-linux-watch.h
+ create mode 100644 gdb/arch/loongarch-linux-nat.c
+ create mode 100644 gdb/arch/loongarch-linux-nat.h
+ create mode 100644 gdb/arch/loongarch.c
+ create mode 100644 gdb/arch/loongarch.h
+ create mode 100644 gdb/features/loongarch/base32.c
+ create mode 100644 gdb/features/loongarch/base32.xml
+ create mode 100644 gdb/features/loongarch/base64.c
+ create mode 100644 gdb/features/loongarch/base64.xml
+ create mode 100644 gdb/features/loongarch/fpu32.c
+ create mode 100644 gdb/features/loongarch/fpu32.xml
+ create mode 100644 gdb/features/loongarch/fpu64.c
+ create mode 100644 gdb/features/loongarch/fpu64.xml
+ create mode 100644 gdb/features/loongarch/lasx.c
+ create mode 100644 gdb/features/loongarch/lasx.xml
+ create mode 100644 gdb/features/loongarch/lbt32.c
+ create mode 100644 gdb/features/loongarch/lbt32.xml
+ create mode 100644 gdb/features/loongarch/lbt64.c
+ create mode 100644 gdb/features/loongarch/lbt64.xml
+ create mode 100644 gdb/features/loongarch/lsx.c
+ create mode 100644 gdb/features/loongarch/lsx.xml
+ create mode 100644 gdb/loongarch-linux-nat.c
+ create mode 100644 gdb/loongarch-linux-tdep.c
+ create mode 100644 gdb/loongarch-linux-tdep.h
+ create mode 100644 gdb/loongarch-tdep.c
+ create mode 100644 gdb/loongarch-tdep.h
+ create mode 100644 gdb/nat/loongarch-linux-watch.c
+ create mode 100644 gdb/nat/loongarch-linux-watch.h
 
 diff --git a/gdb/Makefile.in b/gdb/Makefile.in
 index b8729ed..c9cbc5d 100644
@@ -5646,5 +5646,5 @@ index 7402ba8..4b94747 100644
  
  # If no core registers were specified, assume this target does not
 -- 
-2.20.1
+2.36.0
 
