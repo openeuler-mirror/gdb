@@ -1,6 +1,6 @@
 Name: gdb
 Version: 11.1
-Release: 1
+Release: 2
 
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ and GPLv2+ with exceptions and GPL+ and LGPLv2+ and LGPLv3+ and BSD and Public Domain and GFDL-1.3
 Source: ftp://sourceware.org/pub/gdb/releases/gdb-%{version}.tar.xz
@@ -365,6 +365,9 @@ rm -f $RPM_BUILD_ROOT%{_datadir}/gdb/python/gdb/command/backtrace.py
 %{_infodir}/gdb.info*
 
 %changelog
+* Tue Oct 25 2022 yaowenbin <yaowenbin1@huawei.com> - 11.1-2
+- upgrade GDB release to 2
+
 * Mon Dec 27 2021 zhouwenpei <zhouwenpei1@huawei.com> - 11.1-1
 - upgrade GDB version to 11.1
 
