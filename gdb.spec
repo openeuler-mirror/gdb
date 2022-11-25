@@ -1,6 +1,6 @@
 Name: gdb
 Version: 11.1
-Release: 2
+Release: 3
 
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ and GPLv2+ with exceptions and GPL+ and LGPLv2+ and LGPLv3+ and BSD and Public Domain and GFDL-1.3
 Source: ftp://sourceware.org/pub/gdb/releases/gdb-%{version}.tar.xz
@@ -98,6 +98,7 @@ Patch82: 0001-Make-c-exp.y-work-with-Bison-3.8.patch
 %global gdb_src gdb-%{version}
 %global gdb_build build-%{_target_platform}
 %global __python %{__python3}
+%global vendor %{?_vendor:%{_vendor}}%{!?_vendor:openEuler}
 
 %undefine _debuginfo_subpackages
 
@@ -178,7 +179,7 @@ find -name "*.info*"|xargs rm -f
 find -name "*.orig" | xargs rm -f
 
 cat > gdb/version.in << _FOO
-openEuler %{version}-%{release}
+%{vendor} %{version}-%{release}
 _FOO
 
 rm -f libdecnumber/gstdint.h
@@ -365,6 +366,9 @@ rm -f $RPM_BUILD_ROOT%{_datadir}/gdb/python/gdb/command/backtrace.py
 %{_infodir}/gdb.info*
 
 %changelog
+* Wed Nov 23 2022 Wenyu Liu <liuwenyu7@huawei.com> - 11.1-3
+- Eliminate hard coding issues for vendor name in gdb/version.in
+
 * Tue Oct 25 2022 yaowenbin <yaowenbin1@huawei.com> - 11.1-2
 - upgrade GDB release to 2
 
