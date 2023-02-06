@@ -1,6 +1,6 @@
 Name: gdb
 Version: 12.1
-Release: 1
+Release: 2
 
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ and GPLv2+ with exceptions and GPL+ and LGPLv2+ and LGPLv3+ and BSD and Public Domain and GFDL-1.3
 Source: https://ftp.gnu.org/gnu/gdb/gdb-%{version}.tar.xz
@@ -87,6 +87,7 @@ Patch76: gdb-sw22395-constify-target_desc.patch
 # Fedra patch end
 
 Patch83: 0002-set-entry-point-when-text-segment-is-missing.patch
+Patch84: 0003-Add-support-for-readline-8.2.patch
 
 %global gdb_src gdb-%{version}
 %global gdb_build build-%{_target_platform}
@@ -362,6 +363,9 @@ rm -f $RPM_BUILD_ROOT%{_datadir}/gdb/python/gdb/command/backtrace.py
 %{_infodir}/ctf-spec.info.gz
 
 %changelog
+* Mon Feb 6 2023 Wenyu Liu <liuwenyu7@huawei.com> - 12.1-2
+- Add support for readline 8.2
+
 * Fri Nov 18 2022 yaowenbin <yaowenbin1@huawei.com> - 12.1-1
 - upgrade GDB version to 12.1
 
