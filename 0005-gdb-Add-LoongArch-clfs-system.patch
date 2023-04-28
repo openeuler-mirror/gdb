@@ -1,0 +1,423 @@
+From a7e8aa01fceed4213a2b9677a6ad4cf3d80d3a37 Mon Sep 17 00:00:00 2001
+From: Qing Zhang <zhangqing@loongson.cn>
+Date: Fri, 23 Sep 2022 14:04:19 +0800
+Subject: [PATCH 5/5] gdb-Add LoongArch clfs system
+
+Signed-off-by: Qing Zhang <zhangqing@loongson.cn>
+---
+ gdb/arch/loongarch-linux-nat.c    | 15 ++++----
+ gdb/arch/loongarch.c              | 18 ++++------
+ gdb/arch/loongarch.h              |  4 +--
+ gdb/features/loongarch/base32.c   |  3 +-
+ gdb/features/loongarch/base32.xml |  3 +-
+ gdb/features/loongarch/base64.c   |  3 +-
+ gdb/features/loongarch/base64.xml |  3 +-
+ gdb/loongarch-linux-nat.c         | 10 +++---
+ gdb/loongarch-linux-tdep.c        | 58 ++++++++++++++++++-------------
+ gdb/loongarch-linux-tdep.h        |  4 +--
+ gdb/loongarch-tdep.c              | 14 +++++---
+ gdb/loongarch-tdep.h              |  3 +-
+ 12 files changed, 76 insertions(+), 62 deletions(-)
+
+diff --git a/gdb/arch/loongarch-linux-nat.c b/gdb/arch/loongarch-linux-nat.c
+index 70bf742..baf59f8 100644
+--- a/gdb/arch/loongarch-linux-nat.c
++++ b/gdb/arch/loongarch-linux-nat.c
+@@ -43,23 +43,23 @@ loongarch_cpucfg_may_ptrace (uint64_t rj, int tid)
+ struct target_desc *
+ loongarch_linux_read_description_runtime (int tid)
+ {
+-  int rlen, fpu32, fpu64, lbt, lsx, lasx;
++  int rlen, flen, lbt, lsx, lasx;
+ 
+   uint32_t cpucfg1 = loongarch_cpucfg_may_ptrace (1, tid);
+   rlen = cpucfg1 & 0x2 /* LA64 */ ? 64 : 32;
+ 
+   uint32_t cpucfg2 = loongarch_cpucfg_may_ptrace (2, tid);
+-  fpu32 = 0, fpu64 = 0;
++  flen = 0;
+   if (cpucfg2 & 0x4 /* FP_DP */)
+-    fpu64 = 1;
++    flen = 64;
+   else if (cpucfg2 & 0x2 /* FP_SP */)
+-    fpu32 = 1;
+-  if (fpu32 || fpu64)
++    flen = 32;
++  if (flen)
+     {
+       loongarch_elf_fpregset_t regset;
+       struct iovec iovec = { .iov_base = &regset, .iov_len = sizeof (regset) };
+       if (ptrace (PTRACE_GETREGSET, tid, NT_FPREGSET, &iovec) < 0)
+-	fpu32 = 0, fpu64 = 0;
++	flen = 0;
+     }
+ 
+   lbt = 0;
+@@ -89,6 +89,5 @@ loongarch_linux_read_description_runtime (int tid)
+ 	lasx = 1;
+     }
+ 
+-  return loongarch_create_target_description (rlen, fpu32, fpu64, lbt, lsx,
+-					      lasx);
++  return loongarch_create_target_description (rlen, flen, lbt, lsx, lasx);
+ }
+diff --git a/gdb/arch/loongarch.c b/gdb/arch/loongarch.c
+index 34307f5..9eab0aa 100644
+--- a/gdb/arch/loongarch.c
++++ b/gdb/arch/loongarch.c
+@@ -31,7 +31,7 @@ unsigned int loongarch_debug = 0;
+ #include <../features/loongarch/lasx.c>
+ 
+ target_desc *
+-loongarch_create_target_description (int rlen, int fpu32, int fpu64, int lbt,
++loongarch_create_target_description (int rlen, int flen, int lbt,
+ 				     int lsx, int lasx)
+ {
+   gdb_assert (rlen == 32 || rlen == 64);
+@@ -50,10 +50,10 @@ loongarch_create_target_description (int rlen, int fpu32, int fpu64, int lbt,
+   else
+     gdb_assert_not_reached ("rlen unknown");
+ 
+-  if (fpu32)
+-    regnum = create_feature_loongarch_fpu32 (tdesc.get (), regnum);
+-  else if (fpu64)
++  if (flen == 64)
+     regnum = create_feature_loongarch_fpu64 (tdesc.get (), regnum);
++  else if (flen == 32)
++    regnum = create_feature_loongarch_fpu32 (tdesc.get (), regnum);
+ 
+   if (lbt && rlen == 32)
+     regnum = create_feature_loongarch_lbt32 (tdesc.get (), regnum);
+@@ -70,13 +70,7 @@ loongarch_create_target_description (int rlen, int fpu32, int fpu64, int lbt,
+ }
+ 
+ target_desc *
+-loongarch_get_base_target_description (int rlen)
++loongarch_get_base_target_description (int rlen, int flen)
+ {
+-  if (rlen == 64)
+-    return loongarch_create_target_description (64, 0, 0, 0, 0, 0);
+-  else if (rlen == 32)
+-    return loongarch_create_target_description (32, 0, 0, 0, 0, 0);
+-  else
+-    gdb_assert_not_reached ("rlen unknown");
+-  return NULL;
++    return loongarch_create_target_description (rlen, flen, 0, 0, 0);
+ }
+diff --git a/gdb/arch/loongarch.h b/gdb/arch/loongarch.h
+index dfe011f..997afab 100644
+--- a/gdb/arch/loongarch.h
++++ b/gdb/arch/loongarch.h
+@@ -26,10 +26,10 @@ extern unsigned int loongarch_debug;
+ 
+ struct target_desc;
+ 
+-extern struct target_desc *loongarch_get_base_target_description (int rlen);
++extern struct target_desc *loongarch_get_base_target_description (int rlen, int flen);
+ 
+ extern struct target_desc *
+-loongarch_create_target_description (int rlen, int fpu32, int fpu64, int lbt,
++loongarch_create_target_description (int rlen, int flen, int lbt,
+ 				     int lsx, int lasx);
+ 
+ #endif
+diff --git a/gdb/features/loongarch/base32.c b/gdb/features/loongarch/base32.c
+index b6f2d06..3fb35ef 100644
+--- a/gdb/features/loongarch/base32.c
++++ b/gdb/features/loongarch/base32.c
+@@ -41,7 +41,8 @@ create_feature_loongarch_base32 (struct target_desc *result, long regnum)
+   tdesc_create_reg (feature, "r29", regnum++, 1, "general", 32, "uint32");
+   tdesc_create_reg (feature, "r30", regnum++, 1, "general", 32, "uint32");
+   tdesc_create_reg (feature, "r31", regnum++, 1, "general", 32, "uint32");
++  tdesc_create_reg (feature, "orig_a0", regnum++, 1, "general", 32, "uint32");
+   tdesc_create_reg (feature, "pc", regnum++, 1, "general", 32, "code_ptr");
+-  tdesc_create_reg (feature, "badvaddr", regnum++, 1, "general", 32, "code_ptr");
++  tdesc_create_reg (feature, "badv", regnum++, 1, "general", 32, "code_ptr");
+   return regnum;
+ }
+diff --git a/gdb/features/loongarch/base32.xml b/gdb/features/loongarch/base32.xml
+index 0afe81b..4c44dbe 100644
+--- a/gdb/features/loongarch/base32.xml
++++ b/gdb/features/loongarch/base32.xml
+@@ -40,6 +40,7 @@
+   <reg name="r29" bitsize="32" type="uint32" group="general"/>
+   <reg name="r30" bitsize="32" type="uint32" group="general"/>
+   <reg name="r31" bitsize="32" type="uint32" group="general"/>
++  <reg name="orig_a0" bitsize="32" type="uint32" group="general"/>
+   <reg name="pc" bitsize="32" type="code_ptr" group="general"/>
+-  <reg name="badvaddr" bitsize="32" type="code_ptr" group="general"/>
++  <reg name="badv" bitsize="32" type="code_ptr" group="general"/>
+ </feature>
+diff --git a/gdb/features/loongarch/base64.c b/gdb/features/loongarch/base64.c
+index 3ee2d9a..d84d425 100644
+--- a/gdb/features/loongarch/base64.c
++++ b/gdb/features/loongarch/base64.c
+@@ -41,7 +41,8 @@ create_feature_loongarch_base64 (struct target_desc *result, long regnum)
+   tdesc_create_reg (feature, "r29", regnum++, 1, "general", 64, "uint64");
+   tdesc_create_reg (feature, "r30", regnum++, 1, "general", 64, "uint64");
+   tdesc_create_reg (feature, "r31", regnum++, 1, "general", 64, "uint64");
++  tdesc_create_reg (feature, "orig_a0", regnum++, 1, "general", 64, "uint64");
+   tdesc_create_reg (feature, "pc", regnum++, 1, "general", 64, "code_ptr");
+-  tdesc_create_reg (feature, "badvaddr", regnum++, 1, "general", 64, "code_ptr");
++  tdesc_create_reg (feature, "badv", regnum++, 1, "general", 64, "code_ptr");
+   return regnum;
+ }
+diff --git a/gdb/features/loongarch/base64.xml b/gdb/features/loongarch/base64.xml
+index b53479f..05d766e 100644
+--- a/gdb/features/loongarch/base64.xml
++++ b/gdb/features/loongarch/base64.xml
+@@ -40,6 +40,7 @@
+   <reg name="r29" bitsize="64" type="uint64" group="general"/>
+   <reg name="r30" bitsize="64" type="uint64" group="general"/>
+   <reg name="r31" bitsize="64" type="uint64" group="general"/>
++  <reg name="orig_a0" bitsize="64" type="uint64" group="general"/>
+   <reg name="pc" bitsize="64" type="code_ptr" group="general"/>
+-  <reg name="badvaddr" bitsize="64" type="code_ptr" group="general"/>
++  <reg name="badv" bitsize="64" type="code_ptr" group="general"/>
+ </feature>
+diff --git a/gdb/loongarch-linux-nat.c b/gdb/loongarch-linux-nat.c
+index f31eff4..e79b660 100644
+--- a/gdb/loongarch-linux-nat.c
++++ b/gdb/loongarch-linux-nat.c
+@@ -89,7 +89,7 @@ loongarch_linux_nat_target::read_description ()
+   return loongarch_linux_read_description_runtime (inferior_ptid.pid ());
+ }
+ 
+-/* Fill GDB's register array with the general-purpose, pc and badvaddr
++/* Fill GDB's register array with the general-purpose, orig_a0, pc and badv
+    register values from the current thread.  */
+ 
+ static void
+@@ -99,7 +99,8 @@ fetch_gregs_from_thread (struct regcache *regcache, int regno, pid_t tid)
+   loongarch_elf_gregset_t regset;
+ 
+   if ((regno == -1) || (regs->r <= regno && regno < regs->r + 32) ||
+-      (regs->pc == regno) || (regs->badvaddr == regno))
++      (regs->orig_a0 == regno) || (regs->pc == regno) ||
++      (regs->badv == regno))
+   {
+     struct iovec iovec = { .iov_base = &regset, .iov_len = sizeof (regset) };
+ 
+@@ -111,7 +112,7 @@ fetch_gregs_from_thread (struct regcache *regcache, int regno, pid_t tid)
+   }
+ }
+ 
+-/* Store to the current thread the valid general-purpose, pc and badvaddr
++/* Store to the current thread the valid general-purpose, orig_a0, pc and badv
+    register values in the GDB's register array.  */
+ 
+ static void
+@@ -121,7 +122,8 @@ store_gregs_to_thread (struct regcache *regcache, int regno, pid_t tid)
+   loongarch_elf_gregset_t regset;
+ 
+   if ((regno == -1) || (regs->r <= regno && regno < regs->r + 32) ||
+-      (regs->pc == regno) || (regs->badvaddr == regno))
++      (regs->orig_a0 == regno) || (regs->pc == regno) ||
++      (regs->badv == regno))
+   {
+     struct iovec iovec = { .iov_base = &regset, .iov_len = sizeof (regset) };
+ 
+diff --git a/gdb/loongarch-linux-tdep.c b/gdb/loongarch-linux-tdep.c
+index 1145d9e..7b4b9fa 100644
+--- a/gdb/loongarch-linux-tdep.c
++++ b/gdb/loongarch-linux-tdep.c
+@@ -63,19 +63,24 @@ loongarch_supply_elf_gregset (const struct regset *r,
+ 	regcache->raw_supply (regs->r + i, (const void *)buf);
+ 	}
+ 
++      /* Size base (orig_a0) = regsize * regs->orig_a0.  */
++      buf = (const gdb_byte*)gprs + regsize * regs->orig_a0;
++      regcache->raw_supply (regs->orig_a0, (const void *)buf);
++
+       /* Size base (pc) = regsize * regs->pc.  */
+       buf = (const gdb_byte*)gprs + regsize * regs->pc;
+       regcache->raw_supply (regs->pc, (const void *)buf);
+ 
+-      /* Size base (badvaddr) = regsize * regs->badvaddr.  */
+-      buf = (const gdb_byte*)gprs + regsize * regs->badvaddr;
+-      regcache->raw_supply (regs->badvaddr, (const void *)buf);
++      /* Size base (badv) = regsize * regs->badv.  */
++      buf = (const gdb_byte*)gprs + regsize * regs->badv;
++      regcache->raw_supply (regs->badv, (const void *)buf);
+     }
+   else if (regs->r == regno)
+     regcache->raw_supply_zeroed (regno);
+   else if ((regs->r < regno && regno < regs->r + 32)
++	  || (regs->orig_a0 == regno)
+ 	  || (regs->pc == regno)
+-	  || (regs->badvaddr == regno))
++	  || (regs->badv == regno))
+     {
+     /* Offset offset (regno) = regsize * (regno - regs->r).  */
+     buf = (const gdb_byte*)gprs + regsize * (regno - regs->r);
+@@ -101,17 +106,22 @@ loongarch_fill_elf_gregset (const struct regset *r,
+ 	regcache->raw_collect (regs->r + i, (void *)buf);
+ 	}
+ 
++      /* Size base (orig_a0) = regsize * regs->orig_a0.  */
++      buf = (gdb_byte *)gprs + regsize * regs->orig_a0;
++      regcache->raw_collect (regs->orig_a0, (void *)buf);
++
+       /* Size base (pc) = regsize * regs->pc.  */
+       buf = (gdb_byte *)gprs + regsize * regs->pc;
+       regcache->raw_collect (regs->pc, (void *)buf);
+ 
+-      /* Size base (badvaddr) = regsize * regs->badvaddr.  */
+-      buf = (gdb_byte *)gprs + regsize * regs->badvaddr;
+-      regcache->raw_collect (regs->badvaddr, (void *)buf);
++      /* Size base (badv) = regsize * regs->badv.  */
++      buf = (gdb_byte *)gprs + regsize * regs->badv;
++      regcache->raw_collect (regs->badv, (void *)buf);
+     }
+   else if ((regs->r <= regno && regno < regs->r + 32)
++	  ||(regs->orig_a0 == regno)
+ 	  ||(regs->pc == regno)
+-	  ||(regs->badvaddr == regno))
++	  ||(regs->badv == regno))
+     {
+     /* Offset offset (regno) = regsize * (regno - regs->r).  */
+     buf = (gdb_byte *)gprs + regsize * (regno - regs->r);
+@@ -541,42 +551,42 @@ static const struct target_desc *
+ loongarch_linux_core_read_description (struct gdbarch *gdbarch,
+ 				       struct target_ops *target, bfd *abfd)
+ {
+-  int rlen, fpu32, fpu64, lbt, lsx, lasx;
++  int rlen, flen, fpu64, lbt, lsx, lasx;
+ 
+   rlen = 64;
+-  fpu32 = 0;
+ 
+   fpu64 = !!bfd_get_section_by_name (abfd, ".reg2");
+   lbt = !!bfd_get_section_by_name (abfd, ".reg-loongarch-lbt");
+   lsx = !!bfd_get_section_by_name (abfd, ".reg-loongarch-lsx");
+   lasx = !!bfd_get_section_by_name (abfd, ".reg-loongarch-lasx");
+ 
+-  return loongarch_create_target_description (rlen, fpu32, fpu64, lbt, lsx,
+-					      lasx);
++  if (fpu64)
++    flen = 64;
++  else
++    flen = 0;
++
++  return loongarch_create_target_description (rlen, flen, lbt, lsx, lasx);
+ }
+ 
+ /* The RT signal frames look like this:
+    struct rt_sigframe {
+-     u32 rs_ass[4];
+-     u32 rs_pad[2];
+      struct siginfo rs_info;
+-     struct ucontext rs_uc;
++     struct ucontext rs_uctx;
+    };
+ 
+    struct ucontext {
+      unsigned long           uc_flags;
+      struct ucontext         *uc_link;
+      stack_t                 uc_stack;
+-     struct sigcontext       uc_mcontext;
+      sigset_t                uc_sigmask;
+-     unsigned long long      uc_extcontext[0];
+-   };  */
+-
+-#define RTSIGFRAME_SIGINFO_SIZE	    136
+-#define RTSIGFRAME_SIGINFO_OFFSET   (6 * 4)
+-#define UCONTEXT_SIGCONTEXT_OFFSET  64
+-#define RTSIGFRAME_SIGCONTEXT_OFFSET  (RTSIGFRAME_SIGINFO_OFFSET \
+-                                       + RTSIGFRAME_SIGINFO_SIZE \
++     _u8              __unused[1024 / 8 - sizeof(sigset_t)];
++     struct sigcontext       uc_mcontext;
++   };
++};  */
++
++#define RTSIGFRAME_SIGINFO_SIZE	    128
++#define UCONTEXT_SIGCONTEXT_OFFSET  176
++#define RTSIGFRAME_SIGCONTEXT_OFFSET  (RTSIGFRAME_SIGINFO_SIZE \
+                                        + UCONTEXT_SIGCONTEXT_OFFSET)
+ 
+ static void
+diff --git a/gdb/loongarch-linux-tdep.h b/gdb/loongarch-linux-tdep.h
+index e3456a8..bb70043 100644
+--- a/gdb/loongarch-linux-tdep.h
++++ b/gdb/loongarch-linux-tdep.h
+@@ -26,10 +26,10 @@
+ #define ELF_NGREG   45
+ #define ELF_NFPREG  34
+ 
+-typedef uint64_t loongarch_elf_gregset_t[ELF_NGREG];
++typedef unsigned long loongarch_elf_gregset_t[ELF_NGREG];
+ extern const struct regset loongarch_elf_gregset;
+ 
+-typedef uint64_t loongarch_elf_fpregset_t[ELF_NFPREG];
++typedef double loongarch_elf_fpregset_t[ELF_NFPREG];
+ extern const struct regset loongarch_elf_fpregset;
+ 
+ /* Regset variable size.  */
+diff --git a/gdb/loongarch-tdep.c b/gdb/loongarch-tdep.c
+index 87331bd..d306bbc 100644
+--- a/gdb/loongarch-tdep.c
++++ b/gdb/loongarch-tdep.c
+@@ -1383,7 +1383,8 @@ loongarch_register_reggroup_p (struct gdbarch *gdbarch, int regnum,
+     return 1;
+ 
+   if (group == general_reggroup
+-      && (regs->pc == regnum || regs->badvaddr == regnum
++      && (regs->orig_a0 == regnum || regs->pc == regnum
++	  || regs->badv == regnum
+ 	  || (regs->r <= regnum && regnum < regs->r + 32)))
+     return 1;
+ 
+@@ -1561,8 +1562,8 @@ loongarch_gdbarch_init (struct gdbarch_info info, struct gdbarch_list *arches)
+   memset (tdep, 0, sizeof (*tdep));
+   memset (&tdep->regs, -1, sizeof (tdep->regs));
+ 
+-  /* If abfd is nullptr then a EF_LOONGARCH_ABI_LP64 is returned in
+-     its default state.  */
++  /* If abfd is nullptr then a EF_LOONGARCH_ABI_LP64 | EF_LOONGARCH_FLOAT_ABI_DOUBLE
++     is returned in its default state.  */
+   if (info.abfd != NULL
+       && bfd_get_flavour (info.abfd) == bfd_target_elf_flavour)
+     {
+@@ -1587,7 +1588,8 @@ loongarch_gdbarch_init (struct gdbarch_info info, struct gdbarch_list *arches)
+   /* Check any target description for validity.  */
+   if (!tdesc_has_registers (tdesc))
+     tdesc = loongarch_get_base_target_description (
+-      EF_LOONGARCH_IS_ILP32 (tdep->ef_abi) ? 32 : 64);
++      EF_LOONGARCH_IS_ILP32 (tdep->ef_abi) ? 32 : 64,
++      EF_LOONGARCH_IS_SINGLE_FLOAT (tdep->ef_abi) ? 32 : 64);
+ 
+   int valid_p = 1;
+   const struct tdesc_feature *feature;
+@@ -1602,11 +1604,13 @@ loongarch_gdbarch_init (struct gdbarch_info info, struct gdbarch_list *arches)
+   for (i = 0; i < 32; i++)
+     valid_p &= tdesc_numbered_register (feature, tdesc_data.get (), regnum++,
+ 					loongarch_r_normal_name[i] + 1);
++  valid_p &= tdesc_numbered_register (feature, tdesc_data.get (),
++				      tdep->regs.orig_a0 = regnum++, "orig_a0");
+   valid_p &= tdesc_numbered_register (feature, tdesc_data.get (),
+ 				      tdep->regs.pc = regnum++, "pc");
+   valid_p
+     &= tdesc_numbered_register (feature, tdesc_data.get (),
+-				tdep->regs.badvaddr = regnum++, "badvaddr");
++				tdep->regs.badv = regnum++, "badv");
+ 
+   if ((feature = tdesc_find_feature (tdesc, "org.gnu.gdb.loongarch.fpu")))
+     {
+diff --git a/gdb/loongarch-tdep.h b/gdb/loongarch-tdep.h
+index c673c9e..12bc78e 100644
+--- a/gdb/loongarch-tdep.h
++++ b/gdb/loongarch-tdep.h
+@@ -37,8 +37,9 @@ struct gdbarch_tdep
+     int r;
+     int ra;
+     int sp;
++    int orig_a0;
+     int pc;
+-    int badvaddr;
++    int badv;
+ 
+     int f;
+     int fcc;
+-- 
+2.36.0
+
