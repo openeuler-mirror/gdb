@@ -1,6 +1,6 @@
 Name: gdb
 Version: 12.1
-Release: 2
+Release: 3
 
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ and GPLv2+ with exceptions and GPL+ and LGPLv2+ and LGPLv3+ and BSD and Public Domain and GFDL-1.3
 Source: https://ftp.gnu.org/gnu/gdb/gdb-%{version}.tar.xz
@@ -196,6 +196,11 @@ export CFLAGS="$RPM_OPT_FLAGS -DDNF_DEBUGINFO_INSTALL -fPIC"
 export LDFLAGS="%{?__global_ldflags}"
 export CXXFLAGS="$CFLAGS"
 
+%if "%toolchain" == "clang"
+	export CFLAGS="$CFLAGS -Wno-error=mismatched-tags -Wno-error=switch -Wno-unused -Wno-unknown-warning-option"
+	export CXXFLAGS="$CXXFLAGS -Wno-error=mismatched-tags -Wno-error=switch -Wno-unused -Wno-unknown-warning-option"
+%endif
+
 ../configure							\
 	--prefix=%{_prefix}					\
 	--libdir=%{_libdir}					\
@@ -275,12 +280,12 @@ do
 done
 
 %if 0%{?_enable_debug_packages:1}
-mkdir -p $RPM_BUILD_ROOT/usr/lib/debug%{_bindir}
-cp -p ./gdb/gdb-gdb.py $RPM_BUILD_ROOT/usr/lib/debug%{_bindir}/
-for pyo in "" "-O";do
-  %{__python3} $pyo -c 'import compileall, re, sys; sys.exit (not compileall.compile_dir("'"$RPM_BUILD_ROOT/usr/lib/debug%{_bindir}"'", 1, "'"/usr/lib/debug%{_bindir}"'"))'
+mkdir -p $RPM_BUILD_ROOT%{_libdir}/debug%{_bindir}
+cp -p ./gdb/gdb-gdb.py $RPM_BUILD_ROOT%{_libdir}/debug%{_bindir}/
+for pyo in "" "-O"; do
+		%{__python3} $pyo -c 'import compileall, re, sys; sys.exit (not compileall.compile_dir("'"$RPM_BUILD_ROOT%{_libdir}/debug%{_bindir}"'", 1, "'"%{_libdir}/debug%{_bindir}"'"))'
 done
-%endif # 0%{?_enable_debug_packages:1}
+%endif
 
 for i in $(echo bin lib $(basename %{_libdir}) sbin|tr ' ' '\n'|sort -u);do
   mkdir -p $RPM_BUILD_ROOT%{_datadir}/gdb/auto-load/%{_prefix}/$i
@@ -335,6 +340,11 @@ rm -f $RPM_BUILD_ROOT%{_datadir}/gdb/python/gdb/command/backtrace.py
 %{_bindir}/gstack
 %{_bindir}/pstack
 %{_includedir}/gdb
+%if 0%{?_enable_debug_packages:1}
+%{_libdir}/debug/usr/bin/__pycache__/gdb-gdb.cpython-310.opt-1.pyc
+%{_libdir}/debug/usr/bin/__pycache__/gdb-gdb.cpython-310.pyc
+%{_libdir}/debug/usr/bin/gdb-gdb.py
+%endif
 
 %files headless
 %{_prefix}/libexec/gdb
@@ -363,6 +373,9 @@ rm -f $RPM_BUILD_ROOT%{_datadir}/gdb/python/gdb/command/backtrace.py
 %{_infodir}/ctf-spec.info.gz
 
 %changelog
+* Sat May 06 2023 yoo <sunyuechi@iscas.ac.cn> - 12.1-3
+- fix clang build error
+
 * Mon Feb 6 2023 Wenyu Liu <liuwenyu7@huawei.com> - 12.1-2
 - Add support for readline 8.2
 
