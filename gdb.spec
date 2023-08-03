@@ -1,6 +1,6 @@
 Name: gdb
 Version: 12.1
-Release: 5
+Release: 6
 
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ and GPLv2+ with exceptions and GPL+ and LGPLv2+ and LGPLv3+ and BSD and Public Domain and GFDL-1.3
 Source: https://ftp.gnu.org/gnu/gdb/gdb-%{version}.tar.xz
@@ -93,6 +93,7 @@ Patch80: gdb-python-remove-Python-2-support.patch
 Patch81: gdb-Use-bool-for-evregpy_no_listeners_p.patch
 Patch82: gdb-Make-import-gdb.events-work.patch
 Patch83: gdb-Handle-Python-3.11-deprecation-of-PySys_SetPath-and-.patch
+Patch84: gdb-libctf-update-regexp-to-allow-makeinfo-to-build-docu.patch
 
 %global gdb_src gdb-%{version}
 %global gdb_build build-%{_target_platform}
@@ -368,6 +369,9 @@ rm -f $RPM_BUILD_ROOT%{_datadir}/gdb/python/gdb/command/backtrace.py
 %{_infodir}/ctf-spec.info.gz
 
 %changelog
+* Thu Aug 3 2023 Wenyu Liu <liuwenyu7@huawei.com> - 12.1-6
+- libctf: update regexp to allow makeinfo to build document
+
 * Thu Jul 27 2023 Wenyu Liu <liuwenyu7@huawei.com> - 12.1-5
 - Handle Python 3.11 deprecation of PySys_SetPath and Py_SetProgramName
 
