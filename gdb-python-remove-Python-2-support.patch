@@ -1,0 +1,1375 @@
+From 18a8874936fb0701086108c4dddf26c3072b6bb0 Mon Sep 17 00:00:00 2001
+From: Simon Marchi <simon.marchi@polymtl.ca>
+Date: Thu, 23 Dec 2021 20:20:46 -0500
+Subject: [PATCH] gdb/python: remove Python 2 support
+
+New in this version:
+
+ - Add a PY_MAJOR_VERSION check in configure.ac / AC_TRY_LIBPYTHON.  If
+   the user passes --with-python=python2, this will cause a configure
+   failure saying that GDB only supports Python 3.
+
+Support for Python 2 is a maintenance burden for any patches touching
+Python support.  Among others, the differences between Python 2 and 3
+string and integer types are subtle.  It requires a lot of effort and
+thinking to get something that behaves correctly on both.  And that's if
+the author and reviewer of the patch even remember to test with Python
+2.
+
+See this thread for an example:
+
+  https://sourceware.org/pipermail/gdb-patches/2021-December/184260.html
+
+So, remove Python 2 support.  Update the documentation to state that GDB
+can be built against Python 3 (as opposed to Python 2 or 3).
+
+Update all the spots that use:
+
+ - sys.version_info
+ - IS_PY3K
+ - PY_MAJOR_VERSION
+ - gdb_py_is_py3k
+
+... to only keep the Python 3 portions and drop the use of some
+now-removed compatibility macros.
+
+I did not update the configure script more than just removing the
+explicit references to Python 2.  We could maybe do more there, like
+check the Python version and reject it if that version is not
+supported.  Otherwise (with this patch), things will only fail at
+compile time, so it won't really be clear to the user that they are
+trying to use an unsupported Python version.  But I'm a bit lost in the
+configure code that checks for Python, so I kept that for later.
+
+Change-Id: I75b0f79c148afbe3c07ac664cfa9cade052c0c62
+---
+ gdb/NEWS                                      |  3 +
+ gdb/README                                    |  2 +-
+ gdb/configure                                 | 78 +------------------
+ gdb/configure.ac                              | 18 ++---
+ gdb/doc/python.texi                           |  2 -
+ gdb/python/lib/gdb/__init__.py                |  2 +-
+ gdb/python/lib/gdb/command/explore.py         | 22 +++---
+ gdb/python/lib/gdb/printer/bound_registers.py |  7 +-
+ gdb/python/lib/gdb/printing.py                |  9 +--
+ gdb/python/lib/gdb/xmethod.py                 |  8 +-
+ gdb/python/py-arch.c                          |  6 --
+ gdb/python/py-evts.c                          |  6 --
+ gdb/python/py-framefilter.c                   |  6 +-
+ gdb/python/py-membuf.c                        | 73 +----------------
+ gdb/python/py-param.c                         |  8 --
+ gdb/python/py-record-btrace.c                 | 17 +---
+ gdb/python/py-type.c                          | 13 ----
+ gdb/python/py-utils.c                         | 47 +----------
+ gdb/python/py-value.c                         | 66 ----------------
+ gdb/python/python-internal.h                  | 10 ---
+ gdb/python/python.c                           | 19 -----
+ gdb/testsuite/gdb.python/py-inferior.exp      |  6 +-
+ .../py-mi-var-info-path-expression.py         | 12 +--
+ gdb/testsuite/gdb.python/py-record-btrace.exp |  6 +-
+ gdb/testsuite/gdb.python/py-send-packet.py    | 58 ++++----------
+ gdb/testsuite/gdb.python/py-shared.exp        |  7 +-
+ gdb/testsuite/gdb.python/py-value.exp         | 40 +---------
+ gdb/testsuite/lib/gdb.exp                     | 12 ---
+ 28 files changed, 61 insertions(+), 502 deletions(-)
+
+diff --git a/gdb/NEWS b/gdb/NEWS
+index 501ace1..c80bf39 100644
+--- a/gdb/NEWS
++++ b/gdb/NEWS
+@@ -180,6 +180,9 @@ GNU/Linux/LoongArch		loongarch*-*-linux*
+ 
+ S+core				score-*-*
+ 
++* Remove support for building against Python 2, it is now only possible to
++  build GDB against Python 3.
++
+ * Python API
+ 
+   ** New function gdb.add_history(), which takes a gdb.Value object
+diff --git a/gdb/README b/gdb/README
+index e65c5ea..bd5a88f 100644
+--- a/gdb/README
++++ b/gdb/README
+@@ -506,7 +506,7 @@ more obscure GDB `configure' options are not listed here.
+      GDB scripting much more powerful than the restricted CLI
+      scripting language.  If your host does not have Python installed,
+      you can find it on `http://www.python.org/download/'.  The oldest
+-     version of Python supported by GDB is 2.6.  The optional argument
++     version of Python supported by GDB is 3.2.  The optional argument
+      PYTHON is used to find the Python headers and libraries.  It can
+      be either the name of a Python executable, or the name of the
+      directory in which Python is installed.
+diff --git a/gdb/configure b/gdb/configure
+index ac372e3..1e955a5 100755
+--- a/gdb/configure
++++ b/gdb/configure
+@@ -11764,81 +11764,12 @@ $as_echo_n "checking for python... " >&6; }
+ int
+ main ()
+ {
+-Py_Initialize ();
+-  ;
+-  return 0;
+-}
+-_ACEOF
+-if ac_fn_c_try_link "$LINENO"; then :
+-  have_libpython=yes
+-                  found_usable_python=yes
+-                  PYTHON_CPPFLAGS=$new_CPPFLAGS
+-                  PYTHON_LIBS=$new_LIBS
+-fi
+-rm -f core conftest.err conftest.$ac_objext \
+-    conftest$ac_exeext conftest.$ac_ext
+-  CPPFLAGS=$save_CPPFLAGS
+-  LIBS=$save_LIBS
+-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${found_usable_python}" >&5
+-$as_echo "${found_usable_python}" >&6; }
+-
+-  elif test "${have_python_config}" != failed; then
+-    if test "${have_libpython}" = no; then
+-
+-
+-  new_CPPFLAGS=${python_includes}
+-  new_LIBS="-lpython2.7 ${python_libs}"
+-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for python" >&5
+-$as_echo_n "checking for python... " >&6; }
+-  save_CPPFLAGS=$CPPFLAGS
+-  save_LIBS=$LIBS
+-  CPPFLAGS="$CPPFLAGS $new_CPPFLAGS"
+-  LIBS="$new_LIBS $LIBS"
+-  found_usable_python=no
+-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+-/* end confdefs.h.  */
+-#include "Python.h"
+-int
+-main ()
+-{
+-Py_Initialize ();
+-  ;
+-  return 0;
+-}
+-_ACEOF
+-if ac_fn_c_try_link "$LINENO"; then :
+-  have_libpython=yes
+-                  found_usable_python=yes
+-                  PYTHON_CPPFLAGS=$new_CPPFLAGS
+-                  PYTHON_LIBS=$new_LIBS
+-fi
+-rm -f core conftest.err conftest.$ac_objext \
+-    conftest$ac_exeext conftest.$ac_ext
+-  CPPFLAGS=$save_CPPFLAGS
+-  LIBS=$save_LIBS
+-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${found_usable_python}" >&5
+-$as_echo "${found_usable_python}" >&6; }
+ 
+-    fi
+-    if test "${have_libpython}" = no; then
++				    #if PY_MAJOR_VERSION != 3
++				    # error "We only support Python 3"
++				    #endif
++				    Py_Initialize ();
+ 
+-
+-  new_CPPFLAGS=${python_includes}
+-  new_LIBS="-lpython2.6 ${python_libs}"
+-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for python" >&5
+-$as_echo_n "checking for python... " >&6; }
+-  save_CPPFLAGS=$CPPFLAGS
+-  save_LIBS=$LIBS
+-  CPPFLAGS="$CPPFLAGS $new_CPPFLAGS"
+-  LIBS="$new_LIBS $LIBS"
+-  found_usable_python=no
+-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+-/* end confdefs.h.  */
+-#include "Python.h"
+-int
+-main ()
+-{
+-Py_Initialize ();
+   ;
+   return 0;
+ }
+@@ -11856,7 +11787,6 @@ rm -f core conftest.err conftest.$ac_objext \
+   { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${found_usable_python}" >&5
+ $as_echo "${found_usable_python}" >&6; }
+ 
+-    fi
+   fi
+ 
+   if test "${have_libpython}" = no; then
+diff --git a/gdb/configure.ac b/gdb/configure.ac
+index f7d6c61..771a54b 100644
+--- a/gdb/configure.ac
++++ b/gdb/configure.ac
+@@ -912,7 +912,12 @@ AC_DEFUN([AC_TRY_LIBPYTHON],
+   LIBS="$new_LIBS $LIBS"
+   found_usable_python=no
+   AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include "Python.h"]],
+-                                 [[Py_Initialize ();]])],
++                                 [[
++				    #if PY_MAJOR_VERSION != 3
++				    # error "We only support Python 3"
++				    #endif
++				    Py_Initialize ();
++				 ]])],
+                  [have_libpython_var=yes
+                   found_usable_python=yes
+                   PYTHON_CPPFLAGS=$new_CPPFLAGS
+@@ -928,7 +933,6 @@ dnl no -   Don't include python support.
+ dnl yes -  Include python support, error if it's missing.
+ dnl        If we find python in $PATH, use it to fetch configure options,
+ dnl        otherwise assume the compiler can find it with no help from us.
+-dnl        Python 2.7 and 2.6 are tried in turn.
+ dnl auto - Same as "yes", but if python is missing from the system,
+ dnl        fall back to "no".
+ dnl /path/to/python/exec-prefix -
+@@ -937,7 +941,6 @@ dnl        If /path/to/python/exec-prefix/bin/python exists, use it to find
+ dnl        the compilation parameters.  Otherwise use
+ dnl        -I/path/to/python/exec-prefix/include,
+ dnl        -L/path/to/python/exec-prefix/lib.
+-dnl        Python 2.7 and 2.6 are tried in turn.
+ dnl        NOTE: This case is historical.  It is what was done for 7.0/7.1
+ dnl        but is deprecated.
+ dnl /path/to/python/executable -
+@@ -1072,15 +1075,6 @@ else
+   if test "${have_python_config}" = yes; then
+     AC_TRY_LIBPYTHON(have_libpython,
+                      ${python_includes}, ${python_libs})
+-  elif test "${have_python_config}" != failed; then
+-    if test "${have_libpython}" = no; then
+-      AC_TRY_LIBPYTHON(have_libpython,
+-                       ${python_includes}, "-lpython2.7 ${python_libs}")
+-    fi
+-    if test "${have_libpython}" = no; then
+-      AC_TRY_LIBPYTHON(have_libpython,
+-                       ${python_includes}, "-lpython2.6 ${python_libs}")
+-    fi
+   fi
+ 
+   if test "${have_libpython}" = no; then
+diff --git a/gdb/doc/python.texi b/gdb/doc/python.texi
+index 918418b..220f90e 100644
+--- a/gdb/doc/python.texi
++++ b/gdb/doc/python.texi
+@@ -18,8 +18,6 @@
+ You can extend @value{GDBN} using the @uref{http://www.python.org/,
+ Python programming language}.  This feature is available only if
+ @value{GDBN} was configured using @option{--with-python}.
+-@value{GDBN} can be built against either Python 2 or Python 3; which
+-one you have depends on this configure-time option.
+ 
+ @cindex python directory
+ Python scripts used by @value{GDBN} should be installed in
+diff --git a/gdb/python/lib/gdb/__init__.py b/gdb/python/lib/gdb/__init__.py
+index 5f63bce..a52f6b4 100644
+--- a/gdb/python/lib/gdb/__init__.py
++++ b/gdb/python/lib/gdb/__init__.py
+@@ -22,7 +22,7 @@ from contextlib import contextmanager
+ # Python 3 moved "reload"
+ if sys.version_info >= (3, 4):
+     from importlib import reload
+-elif sys.version_info[0] > 2:
++else:
+     from imp import reload
+ 
+ from _gdb import *
+diff --git a/gdb/python/lib/gdb/command/explore.py b/gdb/python/lib/gdb/command/explore.py
+index ea49c38..c03bef3 100644
+--- a/gdb/python/lib/gdb/command/explore.py
++++ b/gdb/python/lib/gdb/command/explore.py
+@@ -19,10 +19,6 @@
+ import gdb
+ import sys
+ 
+-if sys.version_info[0] > 2:
+-    # Python 3 renamed raw_input to input
+-    raw_input = input
+-
+ 
+ class Explorer(object):
+     """Internal class which invokes other explorers."""
+@@ -172,7 +168,7 @@ class Explorer(object):
+         so that the exploration session can shift back to the parent value.
+         Useful when exploring values.
+         """
+-        raw_input("\nPress enter to return to parent value: ")
++        input("\nPress enter to return to parent value: ")
+ 
+     @staticmethod
+     def return_to_enclosing_type():
+@@ -187,7 +183,7 @@ class Explorer(object):
+         so that the exploration session can shift back to the enclosing type.
+         Useful when exploring types.
+         """
+-        raw_input("\nPress enter to return to enclosing type: ")
++        input("\nPress enter to return to enclosing type: ")
+ 
+ 
+ class ScalarExplorer(object):
+@@ -244,7 +240,7 @@ class PointerExplorer(object):
+             "'%s' is a pointer to a value of type '%s'"
+             % (expr, str(value.type.target()))
+         )
+-        option = raw_input(
++        option = input(
+             "Continue exploring it as a pointer to a single " "value [y/n]: "
+         )
+         if option == "y":
+@@ -264,13 +260,13 @@ class PointerExplorer(object):
+             )
+             return False
+ 
+-        option = raw_input("Continue exploring it as a pointer to an " "array [y/n]: ")
++        option = input("Continue exploring it as a pointer to an " "array [y/n]: ")
+         if option == "y":
+             while True:
+                 index = 0
+                 try:
+                     index = int(
+-                        raw_input(
++                        input(
+                             "Enter the index of the element you "
+                             "want to explore in '%s': " % expr
+                         )
+@@ -338,7 +334,7 @@ class ArrayExplorer(object):
+         index = 0
+         try:
+             index = int(
+-                raw_input(
++                input(
+                     "Enter the index of the element you want to "
+                     "explore in '%s': " % expr
+                 )
+@@ -354,7 +350,7 @@ class ArrayExplorer(object):
+             str(element)
+         except gdb.MemoryError:
+             print("Cannot read value at index %d." % index)
+-            raw_input("Press enter to continue... ")
++            input("Press enter to continue... ")
+             return True
+ 
+         Explorer.explore_expr(
+@@ -474,7 +470,7 @@ class CompoundExplorer(object):
+         print("")
+ 
+         if has_explorable_fields:
+-            choice = raw_input("Enter the field number of choice: ")
++            choice = input("Enter the field number of choice: ")
+             if choice in choice_to_compound_field_map:
+                 Explorer.explore_expr(
+                     choice_to_compound_field_map[choice][0],
+@@ -550,7 +546,7 @@ class CompoundExplorer(object):
+         print("")
+ 
+         if len(choice_to_compound_field_map) > 0:
+-            choice = raw_input("Enter the field number of choice: ")
++            choice = input("Enter the field number of choice: ")
+             if choice in choice_to_compound_field_map:
+                 if is_child:
+                     new_name = "%s '%s' of %s" % (
+diff --git a/gdb/python/lib/gdb/printer/bound_registers.py b/gdb/python/lib/gdb/printer/bound_registers.py
+index f8ce9ea..7cb6e8f 100644
+--- a/gdb/python/lib/gdb/printer/bound_registers.py
++++ b/gdb/python/lib/gdb/printer/bound_registers.py
+@@ -18,11 +18,6 @@ import sys
+ 
+ import gdb.printing
+ 
+-if sys.version_info[0] > 2:
+-    # Python 3 removed basestring and long
+-    basestring = str
+-    long = int
+-
+ 
+ class MpxBound128Printer:
+     """Adds size field to a mpx __gdb_builtin_type_bound128 type."""
+@@ -33,7 +28,7 @@ class MpxBound128Printer:
+     def to_string(self):
+         upper = self.val["ubound"]
+         lower = self.val["lbound"]
+-        size = (long)((upper) - (lower))
++        size = upper - lower
+         if size > -1:
+             size = size + 1
+         result = "{lbound = %s, ubound = %s} : size %s" % (lower, upper, size)
+diff --git a/gdb/python/lib/gdb/printing.py b/gdb/python/lib/gdb/printing.py
+index 93d61f1..e208e88 100644
+--- a/gdb/python/lib/gdb/printing.py
++++ b/gdb/python/lib/gdb/printing.py
+@@ -21,11 +21,6 @@ import gdb.types
+ import re
+ import sys
+ 
+-if sys.version_info[0] > 2:
+-    # Python 3 removed basestring and long
+-    basestring = str
+-    long = int
+-
+ 
+ class PrettyPrinter(object):
+     """A basic pretty-printer.
+@@ -132,7 +127,7 @@ def register_pretty_printer(obj, printer, replace=False):
+     # Printers implemented as functions are old-style.  In order to not risk
+     # breaking anything we do not check __name__ here.
+     if hasattr(printer, "name"):
+-        if not isinstance(printer.name, basestring):
++        if not isinstance(printer.name, str):
+             raise TypeError("printer name is not a string")
+         # If printer provides a name, make sure it doesn't contain ";".
+         # Semicolon is used by the info/enable/disable pretty-printer commands
+@@ -232,7 +227,7 @@ class _EnumInstance:
+ 
+     def to_string(self):
+         flag_list = []
+-        v = long(self.val)
++        v = int(self.val)
+         any_found = False
+         for (e_name, e_value) in self.enumerators:
+             if v & e_value != 0:
+diff --git a/gdb/python/lib/gdb/xmethod.py b/gdb/python/lib/gdb/xmethod.py
+index 4c3a522..c69ea99 100644
+--- a/gdb/python/lib/gdb/xmethod.py
++++ b/gdb/python/lib/gdb/xmethod.py
+@@ -21,12 +21,6 @@ import re
+ import sys
+ 
+ 
+-if sys.version_info[0] > 2:
+-    # Python 3 removed basestring and long
+-    basestring = str
+-    long = int
+-
+-
+ class XMethod(object):
+     """Base class (or a template) for an xmethod description.
+ 
+@@ -223,7 +217,7 @@ def _validate_xmethod_matcher(matcher):
+         return TypeError("Xmethod matcher is missing attribute: name")
+     if not hasattr(matcher, "enabled"):
+         return TypeError("Xmethod matcher is missing attribute: enabled")
+-    if not isinstance(matcher.name, basestring):
++    if not isinstance(matcher.name, str):
+         return TypeError("Attribute 'name' of xmethod matcher is not a " "string")
+     if matcher.name.find(";") >= 0:
+         return ValueError("Xmethod matcher name cannot contain ';' in it")
+diff --git a/gdb/python/py-arch.c b/gdb/python/py-arch.c
+index 0f273b3..e87881a 100644
+--- a/gdb/python/py-arch.c
++++ b/gdb/python/py-arch.c
+@@ -139,12 +139,6 @@ archpy_disassemble (PyObject *self, PyObject *args, PyObject *kw)
+ 	 conversion process.  */
+       if (PyLong_Check (end_obj))
+ 	end = PyLong_AsUnsignedLongLong (end_obj);
+-#if PY_MAJOR_VERSION == 2
+-      else if (PyInt_Check (end_obj))
+-	/* If the end_pc value is specified without a trailing 'L', end_obj will
+-	   be an integer and not a long integer.  */
+-	end = PyInt_AsLong (end_obj);
+-#endif
+       else
+ 	{
+ 	  PyErr_SetString (PyExc_TypeError,
+diff --git a/gdb/python/py-evts.c b/gdb/python/py-evts.c
+index 457825c..23a5d75 100644
+--- a/gdb/python/py-evts.c
++++ b/gdb/python/py-evts.c
+@@ -20,7 +20,6 @@
+ #include "defs.h"
+ #include "py-events.h"
+ 
+-#ifdef IS_PY3K
+ static struct PyModuleDef EventModuleDef =
+ {
+   PyModuleDef_HEAD_INIT,
+@@ -33,7 +32,6 @@ static struct PyModuleDef EventModuleDef =
+   NULL,
+   NULL
+ };
+-#endif
+ 
+ /* Initialize python events.  */
+ 
+@@ -53,11 +51,7 @@ add_new_registry (eventregistry_object **registryp, const char *name)
+ int
+ gdbpy_initialize_py_events (void)
+ {
+-#ifdef IS_PY3K
+   gdb_py_events.module = PyModule_Create (&EventModuleDef);
+-#else
+-  gdb_py_events.module = Py_InitModule ("events", NULL);
+-#endif
+ 
+   if (!gdb_py_events.module)
+     return -1;
+diff --git a/gdb/python/py-framefilter.c b/gdb/python/py-framefilter.c
+index e6eb1ec..0170fe6 100644
+--- a/gdb/python/py-framefilter.c
++++ b/gdb/python/py-framefilter.c
+@@ -920,11 +920,7 @@ py_print_frame (PyObject *filter, frame_filter_flags flags,
+ 
+ 	      function = function_to_free.get ();
+ 	    }
+-	  else if (PyLong_Check (py_func.get ())
+-#if PY_MAJOR_VERSION == 2
+-		   || PyInt_Check (py_func.get ())
+-#endif
+-		   )
++	  else if (PyLong_Check (py_func.get ()))
+ 	    {
+ 	      CORE_ADDR addr;
+ 	      struct bound_minimal_symbol msymbol;
+diff --git a/gdb/python/py-membuf.c b/gdb/python/py-membuf.c
+index 74cc0fb..348dfa3 100644
+--- a/gdb/python/py-membuf.c
++++ b/gdb/python/py-membuf.c
+@@ -54,15 +54,7 @@ gdbpy_buffer_to_membuf (gdb::unique_xmalloc_ptr<gdb_byte> buffer,
+   membuf_obj->addr = address;
+   membuf_obj->length = length;
+ 
+-  PyObject *result;
+-#ifdef IS_PY3K
+-  result = PyMemoryView_FromObject ((PyObject *) membuf_obj.get ());
+-#else
+-  result = PyBuffer_FromReadWriteObject ((PyObject *) membuf_obj.get (), 0,
+-					 Py_END_OF_BUFFER);
+-#endif
+-
+-  return result;
++  return PyMemoryView_FromObject ((PyObject *) membuf_obj.get ());
+ }
+ 
+ /* Destructor for gdb.Membuf objects.  */
+@@ -88,8 +80,6 @@ which is %s bytes long."),
+ 			      pulongest (membuf_obj->length));
+ }
+ 
+-#ifdef IS_PY3K
+-
+ static int
+ get_buffer (PyObject *self, Py_buffer *buf, int flags)
+ {
+@@ -107,54 +97,6 @@ get_buffer (PyObject *self, Py_buffer *buf, int flags)
+   return ret;
+ }
+ 
+-#else
+-
+-static Py_ssize_t
+-get_read_buffer (PyObject *self, Py_ssize_t segment, void **ptrptr)
+-{
+-  membuf_object *membuf_obj = (membuf_object *) self;
+-
+-  if (segment)
+-    {
+-      PyErr_SetString (PyExc_SystemError,
+-		       _("The memory buffer supports only one segment."));
+-      return -1;
+-    }
+-
+-  *ptrptr = membuf_obj->buffer;
+-
+-  return membuf_obj->length;
+-}
+-
+-static Py_ssize_t
+-get_write_buffer (PyObject *self, Py_ssize_t segment, void **ptrptr)
+-{
+-  return get_read_buffer (self, segment, ptrptr);
+-}
+-
+-static Py_ssize_t
+-get_seg_count (PyObject *self, Py_ssize_t *lenp)
+-{
+-  if (lenp)
+-    *lenp = ((membuf_object *) self)->length;
+-
+-  return 1;
+-}
+-
+-static Py_ssize_t
+-get_char_buffer (PyObject *self, Py_ssize_t segment, char **ptrptr)
+-{
+-  void *ptr = nullptr;
+-  Py_ssize_t ret;
+-
+-  ret = get_read_buffer (self, segment, &ptr);
+-  *ptrptr = (char *) ptr;
+-
+-  return ret;
+-}
+-
+-#endif	/* IS_PY3K */
+-
+ /* General Python initialization callback.  */
+ 
+ int
+@@ -168,24 +110,11 @@ gdbpy_initialize_membuf (void)
+ 				 (PyObject *) &membuf_object_type);
+ }
+ 
+-#ifdef IS_PY3K
+-
+ static PyBufferProcs buffer_procs =
+ {
+   get_buffer
+ };
+ 
+-#else
+-
+-static PyBufferProcs buffer_procs = {
+-  get_read_buffer,
+-  get_write_buffer,
+-  get_seg_count,
+-  get_char_buffer
+-};
+-
+-#endif	/* IS_PY3K */
+-
+ PyTypeObject membuf_object_type = {
+   PyVarObject_HEAD_INIT (nullptr, 0)
+   "gdb.Membuf",			  /*tp_name*/
+diff --git a/gdb/python/py-param.c b/gdb/python/py-param.c
+index 00f917e..6be771c 100644
+--- a/gdb/python/py-param.c
++++ b/gdb/python/py-param.c
+@@ -126,11 +126,7 @@ static PyObject *
+ get_attr (PyObject *obj, PyObject *attr_name)
+ {
+   if (PyString_Check (attr_name)
+-#ifdef IS_PY3K
+       && ! PyUnicode_CompareWithASCIIString (attr_name, "value"))
+-#else
+-      && ! strcmp (PyString_AsString (attr_name), "value"))
+-#endif
+     {
+       parmpy_object *self = (parmpy_object *) obj;
+ 
+@@ -313,11 +309,7 @@ static int
+ set_attr (PyObject *obj, PyObject *attr_name, PyObject *val)
+ {
+   if (PyString_Check (attr_name)
+-#ifdef IS_PY3K
+       && ! PyUnicode_CompareWithASCIIString (attr_name, "value"))
+-#else
+-      && ! strcmp (PyString_AsString (attr_name), "value"))
+-#endif
+     {
+       if (!val)
+ 	{
+diff --git a/gdb/python/py-record-btrace.c b/gdb/python/py-record-btrace.c
+index 2a0e89d..bee17e0 100644
+--- a/gdb/python/py-record-btrace.c
++++ b/gdb/python/py-record-btrace.c
+@@ -28,16 +28,6 @@
+ #include "disasm.h"
+ #include "gdbarch.h"
+ 
+-#if defined (IS_PY3K)
+-
+-#define BTPY_PYSLICE(x) (x)
+-
+-#else
+-
+-#define BTPY_PYSLICE(x) ((PySliceObject *) x)
+-
+-#endif
+-
+ /* Python object for btrace record lists.  */
+ 
+ struct btpy_list_object {
+@@ -295,12 +285,7 @@ recpy_bt_insn_data (PyObject *self, void *closure)
+   if (object == NULL)
+     return NULL;
+ 
+-#ifdef IS_PY3K
+   return PyMemoryView_FromObject (object);
+-#else
+-  return PyBuffer_FromObject (object, 0, Py_END_OF_BUFFER);
+-#endif
+-
+ }
+ 
+ /* Implementation of RecordInstruction.decoded [str] for btrace.
+@@ -500,7 +485,7 @@ btpy_list_slice (PyObject *self, PyObject *value)
+   if (!PySlice_Check (value))
+     return PyErr_Format (PyExc_TypeError, _("Index must be int or slice."));
+ 
+-  if (0 != PySlice_GetIndicesEx (BTPY_PYSLICE (value), length, &start, &stop,
++  if (0 != PySlice_GetIndicesEx (value, length, &start, &stop,
+ 				 &step, &slicelength))
+     return NULL;
+ 
+diff --git a/gdb/python/py-type.c b/gdb/python/py-type.c
+index 7be3f32..8838884 100644
+--- a/gdb/python/py-type.c
++++ b/gdb/python/py-type.c
+@@ -1610,9 +1610,6 @@ static PyNumberMethods type_object_as_number = {
+   NULL,			      /* nb_add */
+   NULL,			      /* nb_subtract */
+   NULL,			      /* nb_multiply */
+-#ifndef IS_PY3K
+-  NULL,			      /* nb_divide */
+-#endif
+   NULL,			      /* nb_remainder */
+   NULL,			      /* nb_divmod */
+   NULL,			      /* nb_power */
+@@ -1626,19 +1623,9 @@ static PyNumberMethods type_object_as_number = {
+   NULL,			      /* nb_and */
+   NULL,			      /* nb_xor */
+   NULL,			      /* nb_or */
+-#ifdef IS_PY3K
+   NULL,			      /* nb_int */
+   NULL,			      /* reserved */
+-#else
+-  NULL,			      /* nb_coerce */
+-  NULL,			      /* nb_int */
+-  NULL,			      /* nb_long */
+-#endif
+   NULL,			      /* nb_float */
+-#ifndef IS_PY3K
+-  NULL,			      /* nb_oct */
+-  NULL			      /* nb_hex */
+-#endif
+ };
+ 
+ static PyMappingMethods typy_mapping = {
+diff --git a/gdb/python/py-utils.c b/gdb/python/py-utils.c
+index 838853c..e7b147c 100644
+--- a/gdb/python/py-utils.c
++++ b/gdb/python/py-utils.c
+@@ -45,14 +45,10 @@ python_string_to_unicode (PyObject *obj)
+       unicode_str = obj;
+       Py_INCREF (obj);
+     }
+-#ifndef IS_PY3K
+-  else if (PyString_Check (obj))
+-    unicode_str = PyUnicode_FromEncodedObject (obj, host_charset (), NULL);
+-#endif
+   else
+     {
+       PyErr_SetString (PyExc_TypeError,
+-		       _("Expected a string or unicode object."));
++		       _("Expected a string object."));
+       unicode_str = NULL;
+     }
+ 
+@@ -166,11 +162,7 @@ host_string_to_python_string (const char *str)
+ int
+ gdbpy_is_string (PyObject *obj)
+ {
+-#ifdef IS_PY3K
+   return PyUnicode_Check (obj);
+-#else
+-  return PyString_Check (obj) || PyUnicode_Check (obj);
+-#endif
+ }
+ 
+ /* Return the string representation of OBJ, i.e., str (obj).
+@@ -182,17 +174,7 @@ gdbpy_obj_to_string (PyObject *obj)
+   gdbpy_ref<> str_obj (PyObject_Str (obj));
+ 
+   if (str_obj != NULL)
+-    {
+-      gdb::unique_xmalloc_ptr<char> msg;
+-
+-#ifdef IS_PY3K
+-      msg = python_string_to_host_string (str_obj.get ());
+-#else
+-      msg.reset (xstrdup (PyString_AsString (str_obj.get ())));
+-#endif
+-
+-      return msg;
+-    }
++    return python_string_to_host_string (str_obj.get ());
+ 
+   return NULL;
+ }
+@@ -296,20 +278,9 @@ get_addr_from_python (PyObject *obj, CORE_ADDR *addr)
+ gdbpy_ref<>
+ gdb_py_object_from_longest (LONGEST l)
+ {
+-#ifdef IS_PY3K
+   if (sizeof (l) > sizeof (long))
+     return gdbpy_ref<> (PyLong_FromLongLong (l));
+   return gdbpy_ref<> (PyLong_FromLong (l));
+-#else
+-#ifdef HAVE_LONG_LONG		/* Defined by Python.  */
+-  /* If we have 'long long', and the value overflows a 'long', use a
+-     Python Long; otherwise use a Python Int.  */
+-  if (sizeof (l) > sizeof (long)
+-      && (l > PyInt_GetMax () || l < (- (LONGEST) PyInt_GetMax ()) - 1))
+-    return gdbpy_ref<> (PyLong_FromLongLong (l));
+-#endif
+-  return gdbpy_ref<> (PyInt_FromLong (l));
+-#endif
+ }
+ 
+ /* Convert a ULONGEST to the appropriate Python object -- either an
+@@ -318,23 +289,9 @@ gdb_py_object_from_longest (LONGEST l)
+ gdbpy_ref<>
+ gdb_py_object_from_ulongest (ULONGEST l)
+ {
+-#ifdef IS_PY3K
+   if (sizeof (l) > sizeof (unsigned long))
+     return gdbpy_ref<> (PyLong_FromUnsignedLongLong (l));
+   return gdbpy_ref<> (PyLong_FromUnsignedLong (l));
+-#else
+-#ifdef HAVE_LONG_LONG		/* Defined by Python.  */
+-  /* If we have 'long long', and the value overflows a 'long', use a
+-     Python Long; otherwise use a Python Int.  */
+-  if (sizeof (l) > sizeof (unsigned long) && l > PyInt_GetMax ())
+-    return gdbpy_ref<> (PyLong_FromUnsignedLongLong (l));
+-#endif
+-
+-  if (l > PyInt_GetMax ())
+-    return gdbpy_ref<> (PyLong_FromUnsignedLong (l));
+-
+-  return gdbpy_ref<> (PyInt_FromLong (l));
+-#endif
+ }
+ 
+ /* Like PyInt_AsLong, but returns 0 on failure, 1 on success, and puts
+diff --git a/gdb/python/py-value.c b/gdb/python/py-value.c
+index b546344..e779f49 100644
+--- a/gdb/python/py-value.c
++++ b/gdb/python/py-value.c
+@@ -1695,41 +1695,6 @@ valpy_richcompare (PyObject *self, PyObject *other, int op)
+   Py_RETURN_FALSE;
+ }
+ 
+-#ifndef IS_PY3K
+-/* Implements conversion to int.  */
+-static PyObject *
+-valpy_int (PyObject *self)
+-{
+-  struct value *value = ((value_object *) self)->value;
+-  struct type *type = value_type (value);
+-  LONGEST l = 0;
+-
+-  try
+-    {
+-      if (is_floating_value (value))
+-	{
+-	  type = builtin_type_pylong;
+-	  value = value_cast (type, value);
+-	}
+-
+-      if (!is_integral_type (type)
+-	  && type->code () != TYPE_CODE_PTR)
+-	error (_("Cannot convert value to int."));
+-
+-      l = value_as_long (value);
+-    }
+-  catch (const gdb_exception &except)
+-    {
+-      GDB_PY_HANDLE_EXCEPTION (except);
+-    }
+-
+-  if (type->is_unsigned ())
+-    return gdb_py_object_from_ulongest (l).release ();
+-  else
+-    return gdb_py_object_from_longest (l).release ();
+-}
+-#endif
+-
+ /* Implements conversion to long.  */
+ static PyObject *
+ valpy_long (PyObject *self)
+@@ -1914,15 +1879,6 @@ convert_value_from_python (PyObject *obj)
+ 	  else
+ 	    value = value_from_longest (builtin_type_pylong, l);
+ 	}
+-#if PY_MAJOR_VERSION == 2
+-      else if (PyInt_Check (obj))
+-	{
+-	  long l = PyInt_AsLong (obj);
+-
+-	  if (! PyErr_Occurred ())
+-	    value = value_from_longest (builtin_type_pyint, l);
+-	}
+-#endif
+       else if (PyFloat_Check (obj))
+ 	{
+ 	  double d = PyFloat_AsDouble (obj);
+@@ -1948,14 +1904,8 @@ convert_value_from_python (PyObject *obj)
+ 	  value = value_copy (((value_object *) result)->value);
+ 	}
+       else
+-#ifdef IS_PY3K
+ 	PyErr_Format (PyExc_TypeError,
+ 		      _("Could not convert Python object: %S."), obj);
+-#else
+-	PyErr_Format (PyExc_TypeError,
+-		      _("Could not convert Python object: %s."),
+-		      PyString_AsString (PyObject_Str (obj)));
+-#endif
+     }
+   catch (const gdb_exception &except)
+     {
+@@ -2176,9 +2126,6 @@ static PyNumberMethods value_object_as_number = {
+   valpy_add,
+   valpy_subtract,
+   valpy_multiply,
+-#ifndef IS_PY3K
+-  valpy_divide,
+-#endif
+   valpy_remainder,
+   NULL,			      /* nb_divmod */
+   valpy_power,		      /* nb_power */
+@@ -2192,25 +2139,12 @@ static PyNumberMethods value_object_as_number = {
+   valpy_and,		      /* nb_and */
+   valpy_xor,		      /* nb_xor */
+   valpy_or,		      /* nb_or */
+-#ifdef IS_PY3K
+   valpy_long,		      /* nb_int */
+   NULL,			      /* reserved */
+-#else
+-  NULL,			      /* nb_coerce */
+-  valpy_int,		      /* nb_int */
+-  valpy_long,		      /* nb_long */
+-#endif
+   valpy_float,		      /* nb_float */
+-#ifndef IS_PY3K
+-  NULL,			      /* nb_oct */
+-  NULL,                       /* nb_hex */
+-#endif
+   NULL,                       /* nb_inplace_add */
+   NULL,                       /* nb_inplace_subtract */
+   NULL,                       /* nb_inplace_multiply */
+-#ifndef IS_PY3K
+-  NULL,                       /* nb_inplace_divide */
+-#endif
+   NULL,                       /* nb_inplace_remainder */
+   NULL,                       /* nb_inplace_power */
+   NULL,                       /* nb_inplace_lshift */
+diff --git a/gdb/python/python-internal.h b/gdb/python/python-internal.h
+index 098d913..e3a3fc4 100644
+--- a/gdb/python/python-internal.h
++++ b/gdb/python/python-internal.h
+@@ -87,11 +87,6 @@
+ #include <frameobject.h>
+ #include "py-ref.h"
+ 
+-#if PY_MAJOR_VERSION >= 3
+-#define IS_PY3K 1
+-#endif
+-
+-#ifdef IS_PY3K
+ #define Py_TPFLAGS_CHECKTYPES 0
+ 
+ #define PyInt_Check PyLong_Check
+@@ -102,7 +97,6 @@
+ #define PyString_Decode PyUnicode_Decode
+ #define PyString_FromFormat PyUnicode_FromFormat
+ #define PyString_Check PyUnicode_Check
+-#endif
+ 
+ /* If Python.h does not define WITH_THREAD, then the various
+    GIL-related functions will not be defined.  However,
+@@ -209,11 +203,7 @@ gdb_PySys_GetObject (const char *name)
+    before Python 3.6.  Hence, we wrap it in a function to avoid errors
+    when compiled with -Werror.  */
+ 
+-#ifdef IS_PY3K
+ # define GDB_PYSYS_SETPATH_CHAR wchar_t
+-#else
+-# define GDB_PYSYS_SETPATH_CHAR char
+-#endif
+ 
+ static inline void
+ gdb_PySys_SetPath (const GDB_PYSYS_SETPATH_CHAR *path)
+diff --git a/gdb/python/python.c b/gdb/python/python.c
+index 91636ef..e97bca7 100644
+--- a/gdb/python/python.c
++++ b/gdb/python/python.c
+@@ -317,11 +317,6 @@ eval_python_command (const char *command)
+   if (v == NULL)
+     return -1;
+ 
+-#ifndef IS_PY3K
+-  if (Py_FlushLine ())
+-    PyErr_Clear ();
+-#endif
+-
+   return 0;
+ }
+ 
+@@ -1803,7 +1798,6 @@ finalize_python (void *ignore)
+   restore_active_ext_lang (previous_active);
+ }
+ 
+-#ifdef IS_PY3K
+ static struct PyModuleDef python_GdbModuleDef =
+ {
+   PyModuleDef_HEAD_INIT,
+@@ -1826,7 +1820,6 @@ init__gdb_module (void)
+ {
+   return PyModule_Create (&python_GdbModuleDef);
+ }
+-#endif
+ 
+ /* Emit a gdb.GdbExitingEvent, return a negative value if there are any
+    errors, otherwise, return 0.  */
+@@ -1873,7 +1866,6 @@ do_start_initialization ()
+   gdb::unique_xmalloc_ptr<char> progname
+     (concat (ldirname (python_libdir.c_str ()).c_str (), SLASH_STRING, "bin",
+ 	      SLASH_STRING, "python", (char *) NULL));
+-#ifdef IS_PY3K
+   /* Python documentation indicates that the memory given
+      to Py_SetProgramName cannot be freed.  However, it seems that
+      at least Python 3.7.4 Py_SetProgramName takes a copy of the
+@@ -1902,9 +1894,6 @@ do_start_initialization ()
+ 
+   /* Define _gdb as a built-in module.  */
+   PyImport_AppendInittab ("_gdb", init__gdb_module);
+-#else
+-  Py_SetProgramName (progname.release ());
+-#endif
+ #endif
+ 
+   Py_Initialize ();
+@@ -1915,11 +1904,7 @@ do_start_initialization ()
+   PyEval_InitThreads ();
+ #endif
+ 
+-#ifdef IS_PY3K
+   gdb_module = PyImport_ImportModule ("_gdb");
+-#else
+-  gdb_module = Py_InitModule ("_gdb", python_GdbMethods);
+-#endif
+   if (gdb_module == NULL)
+     return false;
+ 
+@@ -2220,11 +2205,7 @@ do_initialize (const struct extension_language_defn *extlang)
+   /* If sys.path is not defined yet, define it first.  */
+   if (!(sys_path && PyList_Check (sys_path)))
+     {
+-#ifdef IS_PY3K
+       PySys_SetPath (L"");
+-#else
+-      PySys_SetPath ("");
+-#endif
+       sys_path = PySys_GetObject ("path");
+     }
+   if (sys_path && PyList_Check (sys_path))
+diff --git a/gdb/testsuite/gdb.python/py-inferior.exp b/gdb/testsuite/gdb.python/py-inferior.exp
+index aa78a15..552f9b1 100644
+--- a/gdb/testsuite/gdb.python/py-inferior.exp
++++ b/gdb/testsuite/gdb.python/py-inferior.exp
+@@ -77,11 +77,7 @@ gdb_py_test_silent_cmd "python addr = gdb.selected_frame ().read_var ('str')" \
+   "read str address" 0
+ gdb_py_test_silent_cmd "python str = gdb.inferiors()\[0\].read_memory (addr, 5); print(str)" \
+   "read str contents" 1
+-if { $gdb_py_is_py3k == 0 } {
+-  gdb_py_test_silent_cmd "python a = 'a'" "" 0
+-} else {
+-  gdb_py_test_silent_cmd "python a = bytes('a', 'ascii')" "" 0
+-}
++gdb_py_test_silent_cmd "python a = bytes('a', 'ascii')" "" 0
+ gdb_py_test_silent_cmd "python str\[1\] = a" "change str" 0
+ gdb_py_test_silent_cmd "python gdb.inferiors()\[0\].write_memory (addr, str)" \
+   "write str" 1
+diff --git a/gdb/testsuite/gdb.python/py-mi-var-info-path-expression.py b/gdb/testsuite/gdb.python/py-mi-var-info-path-expression.py
+index dfc2ebd..035478f 100644
+--- a/gdb/testsuite/gdb.python/py-mi-var-info-path-expression.py
++++ b/gdb/testsuite/gdb.python/py-mi-var-info-path-expression.py
+@@ -17,27 +17,23 @@ import sys
+ import gdb
+ import gdb.types
+ 
+-# Following is for Python 3 compatibility...
+-if sys.version_info[0] > 2:
+-    long = int
+-
+ 
+ class cons_pp(object):
+     def __init__(self, val):
+         self._val = val
+ 
+     def to_string(self):
+-        if long(self._val) == 0:
++        if int(self._val) == 0:
+             return "nil"
+-        elif long(self._val["type"]) == 0:
++        elif int(self._val["type"]) == 0:
+             return "( . )"
+         else:
+             return "%d" % self._val["atom"]["ival"]
+ 
+     def children(self):
+-        if long(self._val) == 0:
++        if int(self._val) == 0:
+             return []
+-        elif long(self._val["type"]) == 0:
++        elif int(self._val["type"]) == 0:
+             return [("atom", self._val["atom"])]
+         else:
+             return [
+diff --git a/gdb/testsuite/gdb.python/py-record-btrace.exp b/gdb/testsuite/gdb.python/py-record-btrace.exp
+index 8204577..e9fdd06 100644
+--- a/gdb/testsuite/gdb.python/py-record-btrace.exp
++++ b/gdb/testsuite/gdb.python/py-record-btrace.exp
+@@ -85,11 +85,7 @@ with_test_prefix "instruction " {
+     gdb_test "python print(i.number)" "1"
+     gdb_test "python print(i.sal)" "symbol and line for .*"
+     gdb_test "python print(i.pc)" "$decimal"
+-    if { $gdb_py_is_py3k == 0 } {
+-	gdb_test "python print(repr(i.data))" "<read-only buffer for $hex,.*>"
+-    } else {
+-	gdb_test "python print(repr(i.data))" "<memory at $hex>"
+-    }
++    gdb_test "python print(repr(i.data))" "<memory at $hex>"
+     gdb_test "python print(i.decoded)" ".*"
+     gdb_test "python print(i.size)" "$decimal"
+     gdb_test "python print(i.is_speculative)" "False"
+diff --git a/gdb/testsuite/gdb.python/py-send-packet.py b/gdb/testsuite/gdb.python/py-send-packet.py
+index 4966688..a6adc82 100644
+--- a/gdb/testsuite/gdb.python/py-send-packet.py
++++ b/gdb/testsuite/gdb.python/py-send-packet.py
+@@ -81,17 +81,9 @@ def run_send_packet_test():
+ # the 'maint packet' command so that the output from the two sources
+ # can be compared.
+ def bytes_to_string(byte_array):
+-
+-    # Python 2/3 compatibility.  We need a function that can give us
+-    # the value of a single element in BYTE_ARRAY as an integer.
+-    if sys.version_info[0] > 2:
+-        value_of_single_byte = int
+-    else:
+-        value_of_single_byte = ord
+-
+     res = ""
+     for b in byte_array:
+-        b = value_of_single_byte(b)
++        b = int(b)
+         if b >= 32 and b <= 126:
+             res = res + ("%c" % b)
+         else:
+@@ -136,39 +128,23 @@ def run_set_global_var_test():
+     res = conn.send_packet(b"X%x,4:\x02\x02\x02\x02" % addr)
+     assert isinstance(res, bytes)
+     check_global_var(0x02020202)
+-    if sys.version_info[0] > 2:
+-        # On Python 3 this first attempt will not work as we're
+-        # passing a Unicode string containing non-ascii characters.
+-        saw_error = False
+-        try:
+-            res = conn.send_packet("X%x,4:\xff\xff\xff\xff" % addr)
+-        except UnicodeError:
+-            saw_error = True
+-        except:
+-            assert False
+-        assert saw_error
+-        check_global_var(0x02020202)
+-        # Now we pass a bytes object, which will work.
+-        res = conn.send_packet(b"X%x,4:\xff\xff\xff\xff" % addr)
+-        check_global_var(0xFFFFFFFF)
+-    else:
+-        # On Python 2 we need to force the creation of a Unicode
+-        # string, but, with that done, we expect to see the same error
+-        # as on Python 3; the unicode string contains non-ascii
+-        # characters.
+-        saw_error = False
+-        try:
+-            res = conn.send_packet(unicode("X%x,4:\xff\xff\xff\xff") % addr)
+-        except UnicodeError:
+-            saw_error = True
+-        except:
+-            assert False
+-        assert saw_error
+-        check_global_var(0x02020202)
+-        # Now we pass a plain string, which, on Python 2, is the same
+-        # as a bytes object, this, we expect to work.
++
++    # This first attempt will not work as we're passing a Unicode string
++    # containing non-ascii characters.
++    saw_error = False
++    try:
+         res = conn.send_packet("X%x,4:\xff\xff\xff\xff" % addr)
+-        check_global_var(0xFFFFFFFF)
++    except UnicodeError:
++        saw_error = True
++    except:
++        assert False
++
++    assert saw_error
++    check_global_var(0x02020202)
++    # Now we pass a bytes object, which will work.
++    res = conn.send_packet(b"X%x,4:\xff\xff\xff\xff" % addr)
++    check_global_var(0xFFFFFFFF)
++
+     print("set global_var test passed")
+ 
+ 
+diff --git a/gdb/testsuite/gdb.python/py-shared.exp b/gdb/testsuite/gdb.python/py-shared.exp
+index 61c057a..2d33902 100644
+--- a/gdb/testsuite/gdb.python/py-shared.exp
++++ b/gdb/testsuite/gdb.python/py-shared.exp
+@@ -57,14 +57,11 @@ runto [gdb_get_line_number "Break to end."]
+ # Test gdb.solib_name
+ gdb_test "p &func1" "" "func1 address"
+ gdb_py_test_silent_cmd "python func1 = gdb.history(0)" "Aquire func1 address" 1
+-if { $gdb_py_is_py3k == 1 } {
+-  gdb_py_test_silent_cmd "python long = int" "" 0
+-}
+-gdb_test "python print (gdb.solib_name(long(func1)))" "py-shared-sl.sl" "test func1 solib location"
++gdb_test "python print (gdb.solib_name(int(func1)))" "py-shared-sl.sl" "test func1 solib location"
+ 
+ gdb_test "p &main" "" "main address"
+ gdb_py_test_silent_cmd "python main = gdb.history(0)" "Aquire main address" 1
+-gdb_test "python print (gdb.solib_name(long(main)))" "None" "test main solib location"
++gdb_test "python print (gdb.solib_name(int(main)))" "None" "test main solib location"
+ 
+ if {[is_lp64_target]} {
+     gdb_test "python print (len(\[gdb.solib_name(0xffffffffffffffff)\]))" "1"
+diff --git a/gdb/testsuite/gdb.python/py-value.exp b/gdb/testsuite/gdb.python/py-value.exp
+index 2ea8363..b88c451 100644
+--- a/gdb/testsuite/gdb.python/py-value.exp
++++ b/gdb/testsuite/gdb.python/py-value.exp
+@@ -47,33 +47,19 @@ proc build_inferior {exefile lang} {
+ 
+ proc test_value_creation {} {
+   global gdb_prompt
+-  global gdb_py_is_py3k
+ 
+   gdb_py_test_silent_cmd "python i = gdb.Value (True)" "create boolean value" 1
+   gdb_py_test_silent_cmd "python i = gdb.Value (5)" "create integer value" 1
+   gdb_py_test_silent_cmd "python i = gdb.Value (3,None)" "create integer value, with None type" 1
+-  if { $gdb_py_is_py3k == 0 } {
+-    gdb_py_test_silent_cmd "python i = gdb.Value (5L)" "create long value" 1
+-  }
+ 
+   gdb_py_test_silent_cmd "python l = gdb.Value(0xffffffff12345678)" "create large unsigned 64-bit value" 1
+-  if { $gdb_py_is_py3k == 0 } {
+-    gdb_test "python print long(l)" "18446744069720004216" "large unsigned 64-bit int conversion to python"
+-  } else {
+-    gdb_test "python print (int(l))" "18446744069720004216" "large unsigned 64-bit int conversion to python"
+-  }
++  gdb_test "python print (int(l))" "18446744069720004216" "large unsigned 64-bit int conversion to python"
+ 
+   gdb_py_test_silent_cmd "python f = gdb.Value (1.25)" "create double value" 1
+   gdb_py_test_silent_cmd "python a = gdb.Value ('string test')" "create 8-bit string value" 1
+   gdb_test "python print (a)" "\"string test\"" "print 8-bit string"
+   gdb_test "python print (a.__class__)" "<(type|class) 'gdb.Value'>" "verify type of 8-bit string"
+ 
+-  if { $gdb_py_is_py3k == 0 } {
+-    gdb_py_test_silent_cmd "python a = gdb.Value (u'unicode test')" "create unicode value" 1
+-    gdb_test "python print (a)" "\"unicode test\"" "print Unicode string"
+-    gdb_test "python print (a.__class__)" "<(type|class) 'gdb.Value'>" "verify type of unicode string"
+-  }
+-
+   # Test address attribute is None in a non-addressable value
+   gdb_test "python print ('result = %s' % i.address)" "= None" "test address attribute in non-addressable value"
+ 
+@@ -95,7 +81,6 @@ proc test_value_reinit {} {
+ 
+ proc test_value_numeric_ops {} {
+   global gdb_prompt
+-  global gdb_py_is_py3k
+ 
+   gdb_py_test_silent_cmd "python i = gdb.Value (5)" "create first integer value" 0
+   gdb_py_test_silent_cmd "python j = gdb.Value (2)" "create second integer value" 0
+@@ -147,9 +132,6 @@ proc test_value_numeric_ops {} {
+   gdb_test_no_output "python b = gdb.history (0)" ""
+ 
+   gdb_test "python print(int(b))" "5" "convert pointer to int"
+-  if {!$gdb_py_is_py3k} {
+-    gdb_test "python print(long(b))" "5" "convert pointer to long"
+-  }
+ 
+   gdb_test "python print ('result = ' + str(a+5))" " = 0x7( <.*>)?" "add pointer value with python integer"
+   gdb_test "python print ('result = ' + str(b-2))" " = 0x3( <.*>)?" "subtract python integer from pointer value"
+@@ -159,17 +141,11 @@ proc test_value_numeric_ops {} {
+     "result = r" "use value as string index"
+   gdb_test "python print ('result = ' + str((1,2,3)\[gdb.Value(0)\]))" \
+     "result = 1" "use value as tuple index"
+-  if {!$gdb_py_is_py3k} {
+-    gdb_test "python print ('result = ' + str(\[1,2,3\]\[gdb.Value(0)\]))" \
+-      "result = 1" "use value as array index"
+-  }
++  gdb_test "python print ('result = ' + str(\[1,2,3\]\[gdb.Value(0)\]))" \
++    "result = 1" "use value as array index"
+ 
+   gdb_test "python print('%x' % int(gdb.parse_and_eval('-1ull')))" \
+       "f+" "int conversion respect type sign"
+-  if {!$gdb_py_is_py3k} {
+-    gdb_test "python print('%x' % long(gdb.parse_and_eval('-1ull')))" \
+-      "f+" "long conversion respect type sign"
+-  }
+ 
+   # Test some invalid operations.
+ 
+@@ -245,7 +221,6 @@ proc test_value_compare {} {
+ proc test_value_in_inferior {} {
+   global gdb_prompt
+   global testfile
+-  global gdb_py_is_py3k
+ 
+   gdb_breakpoint [gdb_get_line_number "break to inspect struct and union"]
+   gdb_continue_to_breakpoint "break to inspect struct and union"
+@@ -256,9 +231,6 @@ proc test_value_in_inferior {} {
+   gdb_py_test_silent_cmd "python s = gdb.history (0)" "get value s from history" 1
+ 
+   gdb_test "python print ('result = ' + str(s\['a'\]))" " = 3" "access element inside struct using 8-bit string name"
+-  if { $gdb_py_is_py3k == 0 } {
+-    gdb_test "python print ('result = ' + str(s\[u'a'\]))" " = 3" "access element inside struct using unicode name"
+-  }
+ 
+   # Test dereferencing the argv pointer
+ 
+@@ -536,13 +508,8 @@ proc test_value_hash {} {
+ }
+ 
+ proc test_float_conversion {} {
+-    global gdb_py_is_py3k
+     gdb_test "python print(int(gdb.Value(0)))" "0"
+     gdb_test "python print(int(gdb.Value(2.5)))" "2"
+-    if {!$gdb_py_is_py3k} {
+-	gdb_test "python print(long(gdb.Value(0)))" "0"
+-	gdb_test "python print(long(gdb.Value(2.5)))" "2"
+-    }
+     gdb_test "python print(float(gdb.Value(2.5)))" "2\\.5"
+     gdb_test "python print(float(gdb.Value(0)))" "0\\.0"
+ }
+@@ -568,7 +535,6 @@ proc prepare_type_and_buffer {} {
+ 
+ proc test_value_from_buffer {} {
+   global gdb_prompt
+-  global gdb_py_is_py3k
+ 
+   prepare_type_and_buffer
+   gdb_test "python v=gdb.Value(b,tp); print(v)" "1" \
+diff --git a/gdb/testsuite/lib/gdb.exp b/gdb/testsuite/lib/gdb.exp
+index efe1c39..ba8b930 100644
+--- a/gdb/testsuite/lib/gdb.exp
++++ b/gdb/testsuite/lib/gdb.exp
+@@ -2340,8 +2340,6 @@ proc skip_rust_tests {} {
+ # PROMPT_REGEXP is the expected prompt.
+ 
+ proc skip_python_tests_prompt { prompt_regexp } {
+-    global gdb_py_is_py3k
+-
+     gdb_test_multiple "python print ('test')" "verify python support" \
+ 	-prompt "$prompt_regexp" {
+ 	    -re "not supported.*$prompt_regexp" {
+@@ -2351,16 +2349,6 @@ proc skip_python_tests_prompt { prompt_regexp } {
+ 	    -re "$prompt_regexp" {}
+ 	}
+ 
+-    gdb_test_multiple "python print (sys.version_info\[0\])" "check if python 3" \
+-	-prompt "$prompt_regexp" {
+-	    -re "3.*$prompt_regexp" {
+-		set gdb_py_is_py3k 1
+-	    }
+-	    -re ".*$prompt_regexp" {
+-		set gdb_py_is_py3k 0
+-	    }
+-	}
+-
+     return 0
+ }
+ 
+-- 
+2.33.0
+
