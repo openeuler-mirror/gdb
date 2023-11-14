@@ -1,6 +1,6 @@
 Name: gdb
 Version: 12.1
-Release: 7
+Release: 8
 
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ and GPLv2+ with exceptions and GPL+ and LGPLv2+ and LGPLv3+ and BSD and Public Domain and GFDL-1.3
 Source: https://ftp.gnu.org/gnu/gdb/gdb-%{version}.tar.xz
@@ -95,6 +95,7 @@ Patch82: gdb-Make-import-gdb.events-work.patch
 Patch83: gdb-Handle-Python-3.11-deprecation-of-PySys_SetPath-and-.patch
 Patch84: gdb-libctf-update-regexp-to-allow-makeinfo-to-build-docu.patch
 Patch85: backport-CVE-2023-39128.patch
+Patch86: backport-CVE-2023-39129.patch
 
 %global gdb_src gdb-%{version}
 %global gdb_build build-%{_target_platform}
@@ -370,6 +371,9 @@ rm -f $RPM_BUILD_ROOT%{_datadir}/gdb/python/gdb/command/backtrace.py
 %{_infodir}/ctf-spec.info.gz
 
 %changelog
+* Thu Oct 12 2023 liningjie <liningjie@xfusion.com> - 12.1-8
+- fix CVE-2023-39129
+
 * Sat Sep 2 2023 liningjie <liningjie@xfusion.com> - 12.1-7
 - fix CVE-2023-39128
 
