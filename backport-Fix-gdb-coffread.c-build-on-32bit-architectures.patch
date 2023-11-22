@@ -1,0 +1,31 @@
+From 91df9a6f810bca02883dae9275715b4960ea02f0 Mon Sep 17 00:00:00 2001
+From: Mark Wielaard <mark@klomp.org>
+Date: Fri, 25 Aug 2023 23:09:18 +0200
+Subject: [PATCH] Fix gdb/coffread.c build on 32bit architectures
+
+Reference:https://sourceware.org/git/?p=binutils-gdb.git;a=commit;h=91df9a6f810bca02883dae9275715b4960ea02f0
+Conflict:NA
+
+The getsymname function tries to emit an error using %ld for an
+uintptr_t argument. Use PRIxPTR instead. Which works on any architecture
+for uintptr_t.
+---
+ gdb/coffread.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/gdb/coffread.c b/gdb/coffread.c
+index ae7632d49cb..c609c963453 100644
+--- a/gdb/coffread.c
++++ b/gdb/coffread.c
+@@ -1325,7 +1325,7 @@ getsymname (struct internal_syment *symbol_entry)
+   if (symbol_entry->_n._n_n._n_zeroes == 0)
+     {
+       if (symbol_entry->_n._n_n._n_offset > stringtab_length)
+-	error (_("COFF Error: string table offset (%ld) outside string table (length %ld)"),
++	error (_("COFF Error: string table offset (%" PRIxPTR ") outside string table (length %ld)"),
+ 	       symbol_entry->_n._n_n._n_offset, stringtab_length);
+       result = stringtab + symbol_entry->_n._n_n._n_offset;
+     }
+-- 
+2.33.0
+

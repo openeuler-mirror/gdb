@@ -1,0 +1,34 @@
+From a6ce491c3d926650407927a338d9678ca983bee4 Mon Sep 17 00:00:00 2001
+From: Mark Wielaard <mark@klomp.org>
+Date: Mon, 28 Aug 2023 16:30:14 +0200
+Subject: [PATCH] Use hex_string in gdb/coffread.c instead of PRIxPTR
+
+Reference:https://sourceware.org/git/?p=binutils-gdb.git;a=commit;h=a6ce491c3d926650407927a338d9678ca983bee4
+Conflict:NA
+
+The getsymname function uses PRIxPTR to print and uintptr_t value in
+an error message. Use hex_string instead.
+
+Approved-By: Tom Tromey <tom@tromey.com>
+---
+ gdb/coffread.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/gdb/coffread.c b/gdb/coffread.c
+index c609c963453..c2fe9fa1761 100644
+--- a/gdb/coffread.c
++++ b/gdb/coffread.c
+@@ -1325,8 +1325,8 @@ getsymname (struct internal_syment *symbol_entry)
+   if (symbol_entry->_n._n_n._n_zeroes == 0)
+     {
+       if (symbol_entry->_n._n_n._n_offset > stringtab_length)
+-	error (_("COFF Error: string table offset (%" PRIxPTR ") outside string table (length %ld)"),
+-	       symbol_entry->_n._n_n._n_offset, stringtab_length);
++	error (_("COFF Error: string table offset (%s) outside string table (length %ld)"),
++	       hex_string (symbol_entry->_n._n_n._n_offset), stringtab_length);
+       result = stringtab + symbol_entry->_n._n_n._n_offset;
+     }
+   else
+-- 
+2.33.0
+
