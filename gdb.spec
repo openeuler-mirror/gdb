@@ -1,6 +1,6 @@
 Name: gdb
-Version: 12.1
-Release: 10
+Version: 14.1
+Release: 1
 
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ and GPLv2+ with exceptions and GPL+ and LGPLv2+ and LGPLv3+ and BSD and Public Domain and GFDL-1.3
 Source: https://ftp.gnu.org/gnu/gdb/gdb-%{version}.tar.xz
@@ -12,93 +12,54 @@ Source2: gdbinit
 # patch from Fedora
 Patch1: gdb-6.3-rh-testversion-20041202.patch
 Patch2: gdb-6.3-gstack-20050411.patch
-Patch3: gdb-6.3-test-movedir-20050125.patch
-Patch4: gdb-6.3-threaded-watchpoints2-20050225.patch
-Patch5: gdb-6.3-inheritancetest-20050726.patch
-Patch6: gdb-6.5-bz185337-resolve-tls-without-debuginfo-v2.patch
-Patch7: gdb-6.5-sharedlibrary-path.patch
-Patch8: gdb-6.5-BEA-testsuite.patch
-Patch9: gdb-6.5-last-address-space-byte-test.patch
-Patch10: gdb-6.5-readline-long-line-crash-test.patch
-Patch11: gdb-6.5-bz218379-ppc-solib-trampoline-test.patch
-Patch12: gdb-6.5-bz109921-DW_AT_decl_file-test.patch
-Patch13: gdb-6.3-bz140532-ppc-unwinding-test.patch
-Patch14: gdb-6.3-bz202689-exec-from-pthread-test.patch
-Patch15: gdb-6.6-bz230000-power6-disassembly-test.patch
-Patch16: gdb-6.6-bz229517-gcore-without-terminal.patch
-Patch17: gdb-6.6-testsuite-timeouts.patch
-Patch18: gdb-6.6-bz237572-ppc-atomic-sequence-test.patch
-Patch19: gdb-6.3-attach-see-vdso-test.patch
-Patch20: gdb-6.5-bz243845-stale-testing-zombie-test.patch
-Patch21: gdb-6.6-buildid-locate.patch
-Patch22: gdb-6.6-buildid-locate-solib-missing-ids.patch
-Patch23: gdb-6.6-buildid-locate-rpm.patch
-Patch24: gdb-6.7-charsign-test.patch
-Patch25: gdb-6.7-ppc-clobbered-registers-O2-test.patch
-Patch26: gdb-6.7-testsuite-stable-results.patch
-Patch27: gdb-6.5-ia64-libunwind-leak-test.patch
-Patch28: gdb-6.5-missed-trap-on-step-test.patch
-Patch29: gdb-6.5-gcore-buffer-limit-test.patch
-Patch30: gdb-6.3-mapping-zero-inode-test.patch
-Patch31: gdb-6.3-focus-cmd-prev-test.patch
-Patch32: gdb-6.8-bz442765-threaded-exec-test.patch
-Patch33: gdb-6.5-section-num-fixup-test.patch
-Patch34: gdb-6.8-bz466901-backtrace-full-prelinked.patch
-Patch35: gdb-simultaneous-step-resume-breakpoint-test.patch
-Patch36: gdb-core-open-vdso-warning.patch
-Patch37: gdb-ccache-workaround.patch
-Patch38: gdb-lineno-makeup-test.patch
-Patch39: gdb-ppc-power7-test.patch
-Patch40: gdb-archer-next-over-throw-cxx-exec.patch
-Patch41: gdb-bz601887-dwarf4-rh-test.patch
-Patch42: gdb-6.6-buildid-locate-rpm-librpm-workaround.patch
-Patch43: gdb-test-bt-cfi-without-die.patch
-Patch44: gdb-bz634108-solib_address.patch
-Patch45: gdb-test-pid0-core.patch
-Patch46: gdb-test-dw2-aranges.patch
-Patch47: gdb-test-expr-cumulative-archer.patch
-Patch48: gdb-physname-pr11734-test.patch
-Patch49: gdb-physname-pr12273-test.patch
-Patch50: gdb-test-ivy-bridge.patch
-Patch51: gdb-runtest-pie-override.patch
-Patch52: gdb-glibc-strstr-workaround.patch
-Patch53: gdb-rhel5.9-testcase-xlf-var-inside-mod.patch
-Patch54: gdb-rhbz-818343-set-solib-absolute-prefix-testcase.patch
-Patch55: gdb-rhbz947564-findvar-assertion-frame-failed-testcase.patch
-Patch56: gdb-rhbz1007614-memleak-infpy_read_memory-test.patch
-Patch57: gdb-6.6-buildid-locate-misleading-warning-missing-debuginfo-rhbz981154.patch
-Patch58: gdb-fortran-frame-string.patch
-Patch59: gdb-rhbz1156192-recursive-dlopen-test.patch
-Patch60: gdb-rhbz1149205-catch-syscall-after-fork-test.patch
-Patch61: gdb-rhbz1186476-internal-error-unqualified-name-re-set-test.patch
-Patch62: gdb-rhbz1350436-type-printers-error.patch
-Patch63: gdb-rhbz1084404-ppc64-s390x-wrong-prologue-skip-O2-g-3of3.patch
-Patch64: gdb-fedora-libncursesw.patch
-Patch65: gdb-opcodes-clflushopt-test.patch
-Patch66: gdb-6.6-buildid-locate-rpm-scl.patch
-Patch67: gdb-rhbz1261564-aarch64-hw-watchpoint-test.patch
-Patch68: gdb-container-rh-pkg.patch
-Patch69: gdb-rhbz1325795-framefilters-test.patch
-Patch70: gdb-linux_perf-bundle.patch
-Patch71: gdb-libexec-add-index.patch
-Patch72: gdb-rhbz1398387-tab-crash-test.patch
-Patch73: gdb-rhbz1553104-s390x-arch12-test.patch
-Patch76: gdb-sw22395-constify-target_desc.patch
+Patch3: gdb-6.5-bz185337-resolve-tls-without-debuginfo-v2.patch
+Patch4: gdb-6.5-BEA-testsuite.patch
+Patch5: gdb-6.5-bz218379-ppc-solib-trampoline-test.patch
+Patch6: gdb-6.6-bz229517-gcore-without-terminal.patch
+Patch7: gdb-6.6-testsuite-timeouts.patch
+Patch8: gdb-6.6-bz237572-ppc-atomic-sequence-test.patch
+Patch9: gdb-6.3-attach-see-vdso-test.patch
+Patch10: gdb-6.5-bz243845-stale-testing-zombie-test.patch
+Patch11: gdb-6.6-buildid-locate.patch
+Patch12: gdb-6.6-buildid-locate-solib-missing-ids.patch
+Patch13: gdb-6.6-buildid-locate-rpm.patch
+Patch14: gdb-6.7-ppc-clobbered-registers-O2-test.patch
+Patch15: gdb-6.5-gcore-buffer-limit-test.patch
+Patch16: gdb-6.3-mapping-zero-inode-test.patch
+Patch17: gdb-6.5-section-num-fixup-test.patch
+Patch18: gdb-6.8-bz466901-backtrace-full-prelinked.patch
+Patch19: gdb-simultaneous-step-resume-breakpoint-test.patch
+Patch20: gdb-core-open-vdso-warning.patch
+Patch21: gdb-archer-next-over-throw-cxx-exec.patch
+Patch22: gdb-6.6-buildid-locate-rpm-librpm-workaround.patch
+Patch23: gdb-test-bt-cfi-without-die.patch
+Patch24: gdb-bz634108-solib_address.patch
+Patch25: gdb-test-dw2-aranges.patch
+Patch26: gdb-glibc-strstr-workaround.patch
+Patch27: gdb-rhbz-818343-set-solib-absolute-prefix-testcase.patch
+Patch28: gdb-rhbz947564-findvar-assertion-frame-failed-testcase.patch
+Patch29: gdb-rhbz1007614-memleak-infpy_read_memory-test.patch
+Patch30: gdb-6.6-buildid-locate-misleading-warning-missing-debuginfo-rhbz981154.patch
+Patch31: gdb-rhbz1156192-recursive-dlopen-test.patch
+Patch32: gdb-rhbz1149205-catch-syscall-after-fork-test.patch
+Patch33: gdb-rhbz1084404-ppc64-s390x-wrong-prologue-skip-O2-g-3of3.patch
+Patch34: gdb-fedora-libncursesw.patch
+Patch35: gdb-rhbz1261564-aarch64-hw-watchpoint-test.patch
+Patch36: gdb-container-rh-pkg.patch
+Patch37: gdb-linux_perf-bundle.patch
+Patch38: gdb-add-index.patch
+Patch39: gdb-rhbz2232086-refactor-selftest-support.patch
+Patch40: gdb-rhbz-2232086-reduce-size-of-gdb-index.patch
+Patch41: gdb-rhbz-2232086-cpp-ify-mapped-symtab.patch
+Patch42: gdb-rhbz-2232086-generate-gdb-index-consistently.patch
+Patch43: gdb-rhbz-2232086-generate-dwarf-5-index-consistently.patch
+Patch44: gdb-rhbz2250652-gdbpy_gil.patch
+Patch45: gdb-rhbz2250652-avoid-PyOS_ReadlineTState.patch
+Patch46: gdb-rhbz2257562-cp-namespace-null-ptr-check.patch
+Patch47: gdb-ftbs-swapped-calloc-args.patch
 # Fedra patch end
 
-Patch77: 0001-set-entry-point-when-text-segment-is-missing.patch
-Patch78: 0002-Add-support-for-readline-8.2.patch
-Patch79: gdb-initialize-the-data_head-variable-to-eliminate-c.patch
-Patch80: gdb-python-remove-Python-2-support.patch
-Patch81: gdb-Use-bool-for-evregpy_no_listeners_p.patch
-Patch82: gdb-Make-import-gdb.events-work.patch
-Patch83: gdb-Handle-Python-3.11-deprecation-of-PySys_SetPath-and-.patch
-Patch84: gdb-libctf-update-regexp-to-allow-makeinfo-to-build-docu.patch
-Patch85: backport-CVE-2023-39128.patch
-Patch86: backport-CVE-2023-39129.patch
-Patch87: backport-Fix-gdb-coffread.c-build-on-32bit-architectures.patch
-Patch88: backport-Use-hex_string-in-gdb-coffread.c-instead-of-PRIxPTR.patch
-Patch89: backport-CVE-2023-39130.patch
+Patch9000: 0001-set-entry-point-when-text-segment-is-missing.patch
 
 %global gdb_src gdb-%{version}
 %global gdb_build build-%{_target_platform}
@@ -140,7 +101,7 @@ BuildRequires: readline-devel >= 6.2-4
 BuildRequires: gcc-c++ ncurses-devel texinfo gettext flex bison
 BuildRequires: expat-devel xz-devel rpm-devel zlib-devel libselinux-devel
 BuildRequires: python3-devel texinfo-tex
-BuildRequires: perl-podlators libbabeltrace-devel guile-devel mpfr-devel
+BuildRequires: perl-podlators libbabeltrace-devel guile-devel mpfr-devel gmp-devel
 %ifarch %{ix86} x86_64
 BuildRequires: libipt-devel
 %endif
@@ -243,7 +204,6 @@ export CXXFLAGS="$CFLAGS"
 %else
 	--without-intel-pt					\
 %endif
-	--with-mpfr						\
 	--with-auto-load-dir='$debugdir:$datadir/auto-load'	\
 	--with-auto-load-safe-path='$debugdir:$datadir/auto-load'	\
 	--enable-targets=aarch64-linux-gnu %{_target_platform}
@@ -308,8 +268,9 @@ rm -rf $RPM_BUILD_ROOT%{_datadir}/locale/
 rm -f $RPM_BUILD_ROOT%{_infodir}/bfd*
 rm -f $RPM_BUILD_ROOT%{_infodir}/standard*
 rm -f $RPM_BUILD_ROOT%{_infodir}/configure*
+rm -f $RPM_BUILD_ROOT%{_infodir}/sframe-spec*
 rm -rf $RPM_BUILD_ROOT%{_includedir}/*.h
-rm -rf $RPM_BUILD_ROOT/%{_libdir}/lib{bfd*,opcodes*,iberty*,ctf*}
+rm -rf $RPM_BUILD_ROOT/%{_libdir}/lib{bfd*,opcodes*,iberty*,ctf*,sframe*}
 
 cp -p %{SOURCE2} $RPM_BUILD_ROOT%{_mandir}/man1/gstack.1
 ln -s gstack.1 $RPM_BUILD_ROOT%{_mandir}/man1/pstack.1
@@ -374,6 +335,35 @@ rm -f $RPM_BUILD_ROOT%{_datadir}/gdb/python/gdb/command/backtrace.py
 %{_infodir}/ctf-spec.info.gz
 
 %changelog
+* Wed Jan 24 2024 liuchao <liuchao173@huawei.com> - 14.1-1
+- upgrade GDB version to 14.1:
+  - GDB no longer support AiX 4.x, 5.x and 6.x. The minimum version supported is AiX 7.1.
+  - GDB/MI version 1 support has been removed
+  - Initial built-in support for Debugger Adapter Protocol (DAP)
+  - GDB now recognizes the NO_COLOR environment variable
+  - Initial support for integer types larger than 64 bits
+  - Breakpoints can now be inferior-specific
+  - New convenience function "$_shell", to execute a shell command and return its result.
+  - Python support
+  - Support for enabling or disabling individual remote target features
+  - New 'no-history' stop reason
+  - Support for inferior-specific breakpoints
+  - The bkpt tuple, which appears in breakpoint-created notifications, and in the result of the -break-insert command can now include an optional 'inferior' field for both the main breakpoint, and each location, when the breakpoint is inferior-specific.
+  - Trying to create a thread-specific breakpoint using a non-existent thread ID now results in an error
+  - New "simple-values-ref-types" -list-feature value indicating how the --simple-values option in various commands take reference types into account.
+  - Initial support for Scalable Matrix Extension (SME) and for Scalable Matrix Extension 2 (SME2)
+  - The 'org.gnu.gdb.aarch64.pauth' Pointer Authentication feature is now deprecated in favor of the 'org.gnu.gdb.aarch64.pauth_v2' feature string
+  - Support for the Ada 2022 target name symbol ('@')
+  - Support for the The Ada 2022 'Enum_Rep and 'Enum_Val attributes
+  - The 'list' command now accepts '.' as an argument, telling GDB to print the location around the point of execution within the current frame
+  - New '%V' output format for printf and dprintf commands.
+  - The printf command now limits the size of strings fetched from the inferior to the value of the 'max-value-size' setting.
+  - Support for extending at configure time the default value of the 'debug-file-directory' GDB parameter via the new --additional-debug-dirs=PATHs configure option.
+  - New command "info main"
+  - New command "set tui mouse-events [on|off]" (on by default)
+  - New command "set always-read-ctf on|off" (off by default)
+  - Various new debug and maitenance commands
+
 * Tue Nov 21 2023 Wenyu Liu <liuwenyu7@huawei.com> - 12.1-10
 - fix CVE-2023-39130
 

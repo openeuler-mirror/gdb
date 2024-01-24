@@ -9,10 +9,10 @@ Subject: gdb-container-rh-pkg.patch
 diff --git a/gdb/remote.c b/gdb/remote.c
 --- a/gdb/remote.c
 +++ b/gdb/remote.c
-@@ -14343,7 +14343,17 @@ remote_target::pid_to_exec_file (int pid)
+@@ -14742,7 +14742,17 @@ remote_target::pid_to_exec_file (int pid)
    char *annex = NULL;
  
-   if (packet_support (PACKET_qXfer_exec_file) != PACKET_ENABLE)
+   if (m_features.packet_support (PACKET_qXfer_exec_file) != PACKET_ENABLE)
 -    return NULL;
 +    {
 +      warning (_("Remote gdbserver does not support determining executable "
